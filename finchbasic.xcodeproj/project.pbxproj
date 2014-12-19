@@ -549,14 +549,24 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				LLVM_LTO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"-Wno-logical-op-parentheses",
+					"-Wno-dangling-else",
+				);
 			};
 			name = Debug;
 		};
 		4EC1B5621A4299FC0060EEDE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LLVM_LTO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"-Wno-logical-op-parentheses",
+					"-Wno-dangling-else",
+				);
 			};
 			name = Release;
 		};

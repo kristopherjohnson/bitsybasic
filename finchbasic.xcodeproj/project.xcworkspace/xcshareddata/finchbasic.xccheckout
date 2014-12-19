@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>AA44A56B-3B3B-457C-8D13-B267C5E915FA</string>
+	<key>IDESourceControlProjectName</key>
+	<string>finchbasic</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>D136DA64BB58085BA67FED8812E9BD23AF1758F3</key>
+		<string>https://github.com/kristopherjohnson/FinchBasic.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>finchbasic.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>D136DA64BB58085BA67FED8812E9BD23AF1758F3</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/kristopherjohnson/FinchBasic.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>D136DA64BB58085BA67FED8812E9BD23AF1758F3</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>D136DA64BB58085BA67FED8812E9BD23AF1758F3</string>
+			<key>IDESourceControlWCCName</key>
+			<string>finchbasic</string>
+		</dict>
+	</array>
+</dict>
+</plist>

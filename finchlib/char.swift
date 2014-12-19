@@ -101,3 +101,8 @@ public func stringFromChars(chars: [Char]) -> String {
     assert(false, "unable to convert 8-bit characters to String")
     return ""
 }
+
+/// Given a string, return array of Chars
+public func charsFromString(s: String) -> [Char] {
+    return Array(s.utf8)
+}

@@ -56,6 +56,14 @@ class StringIO: InterpreterIO {
         return stringFromChars(outputChars)
     }
 
+    /// Get the first recorded error message. Returns empty string if no errors recorded.
+    var firstError: String {
+        if errors.count > 0 {
+            return errors[0]
+        }
+        return ""
+    }
+
     func getInputChar(interpreter: Interpreter) -> Char? {
         if inputIndex < inputChars.count {
             return inputChars[inputIndex++]
@@ -94,22 +102,38 @@ class finchlibTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
     }
-    
-    func testPrintString() {
-        io.inputString = "PRINT \"Hello, world!\""
 
-        interpreter.interpret()
+    func testEmptyInput() {
+        interpreter.interpretInput()
 
-        XCTAssertEqual(0, io.errors.count)
-        XCTAssertEqual("Hello, world!\n", io.outputString)
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("", io.outputString, "should produce no output")
     }
 
-    func testPrintString2() {
-        io.inputString = "  P R\"Goodbye, world!\""
+    func testEmptyLines() {
+        io.inputString = "\n  \n   \n\n"
 
-        interpreter.interpret()
+        interpreter.interpretInput()
 
-        XCTAssertEqual(0, io.errors.count)
-        XCTAssertEqual("Goodbye, world!\n", io.outputString)
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("", io.outputString, "should produce no output")
+    }
+
+    func testPrintStrings() {
+        io.inputString = "PRINT \"Hello, world!\"\n   P R\"Goodbye, world!\" "
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("Hello, world!\nGoodbye, world!\n", io.outputString, "should print two lines")
+    }
+
+    func testPrintNumber() {
+        io.inputString = "PRINT 321"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("321\n", io.outputString, "should print the number")
     }
 }
