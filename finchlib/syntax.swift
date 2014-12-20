@@ -170,8 +170,25 @@ public enum Term {
     /// Return the value of this Term
     var value: Number {
         switch self {
-        case .Value(let factor): return factor.value
-        default:                 return 0
+
+        case let .Value(factor):
+            return factor.value
+
+        case let .Product(factor, boxedTerm):
+            let term = boxedTerm.boxedValue
+            return factor.value &* term.value
+
+        case let .Quotient(factor, boxedTerm):
+            let term = boxedTerm.boxedValue
+            let divisor = term.value
+            if divisor == 0 {
+                // TODO: signal a divide-by-zero error
+                return 0
+            }
+            return factor.value &/ divisor
+
+        default:
+            return 0
         }
     }
 }

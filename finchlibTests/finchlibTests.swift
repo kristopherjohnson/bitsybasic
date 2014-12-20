@@ -154,4 +154,22 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual("one\t1\ttwo\t2\n", io.outputString, "should print the values with tabs between them")
     }
+
+    func testMultiplyTerms() {
+        io.inputString = "PRINT 12 * 3, 2 * 9"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("36\t18\n", io.outputString, "should print the products of 12 * 3 and 2 * 9, separated with a tab")
+    }
+
+    func testDivideTerms() {
+        io.inputString = "PRINT 12/3,9/4"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("4\t2\n", io.outputString, "should print the quotients 12 / 3 and 9 / 4, separated with a tab")
+    }
 }

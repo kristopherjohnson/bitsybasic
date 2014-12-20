@@ -249,6 +249,21 @@ public class Interpreter {
     /// Attempt to parse a Term.  Returns Term and index of next character if successful.  Returns nil if not.
     final func parseTerm(input: InputLine, _ index: Int) -> (Term, Int)? {
         if let (factor, nextIndex) = parseFactor(input, index) {
+
+            // If followed by "*", then it's a multiplication
+            if let afterOp = parseLiteral("*", input, nextIndex) {
+                if let (term, afterTerm) = parseTerm(input, afterOp) {
+                    return (.Product(factor, Box(term)), afterTerm)
+                }
+            }
+
+            // If followed by "/", then it's a quotient
+            if let afterOp = parseLiteral("/", input, nextIndex) {
+                if let (term, afterTerm) = parseTerm(input, afterOp) {
+                    return (.Quotient(factor, Box(term)), afterTerm)
+                }
+            }
+
             return (.Value(factor), nextIndex)
         }
 
