@@ -156,7 +156,7 @@ enum Expression {
 
 /// Result of parsing an unsigned expression
 ///
-/// Note that "unsigned" means "does not have an explicit leading + or - sign".
+/// Note that "unsigned" means "does not have a leading + or - sign".
 /// It does not mean that the value is non-negative.
 enum UnsignedExpression {
     /// term
@@ -231,14 +231,15 @@ enum Factor {
     case Num(Number)
 
     /// "(" expression ")"
-    case Expr(Box<Expression>)
+    case ParenExpr(Box<Expression>)
 
 
     /// Return the value of this Term
     func getValue(v: VariableBindings) -> Number {
         switch self {
-        case .Num(let number): return number
-        default:               return 0
+        case let .Var(varname):   return v[varname] ?? 0
+        case let .Num(number):    return number
+        case let .ParenExpr(box): return box.boxedValue.getValue(v)
         }
     }
 }

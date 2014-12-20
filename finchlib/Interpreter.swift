@@ -91,11 +91,6 @@ public class Interpreter {
     /// Initialize, optionally passing in a custom BasicInterpreterIO handler
     public init(interpreterIO: InterpreterIO = StandardIO()) {
         io = interpreterIO
-
-        // Initialize all variable values to zero
-        for n in Char_A...Char_Z {
-            v[n] = 0
-        }
     }
 
 
@@ -309,8 +304,18 @@ public class Interpreter {
 
     /// Attempt to parse a Factor.  Returns Factor and index of next character if successful.  Returns nil if not.
     final func parseFactor(input: InputLine, _ index: Int) -> (Factor, Int)? {
+        // number
         if let (number, nextIndex) = parseNumber(input, index) {
             return (.Num(number), nextIndex)
+        }
+
+        // "(" expression ")"
+        if let afterLParen = parseLiteral("(", input, index) {
+            if let (expr, afterExpr) = parseExpression(input, afterLParen) {
+                if let afterRParen = parseLiteral(")", input, afterExpr) {
+                    return (.ParenExpr(Box(expr)), afterRParen)
+                }
+            }
         }
 
         return nil

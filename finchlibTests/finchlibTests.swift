@@ -190,4 +190,13 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual("-99\t4\t-12\t5\n", io.outputString, "should print the values separated by tabs")
     }
+
+    func testParentheses() {
+        io.inputString = "PRINT (5 + 2 ) * 3, 10 -(  2 * 7)"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("21\t-4\n", io.outputString, "should print the values separated by tabs")
+    }
 }
