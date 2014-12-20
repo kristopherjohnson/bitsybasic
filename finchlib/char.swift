@@ -88,7 +88,7 @@ public func cStringFromChars(chars: [Char]) -> [CChar] {
     return cchars
 }
 
-/// Given array of Char, return a Swift String
+/// Given array of Char, return a String
 public func stringFromChars(chars: [Char]) -> String {
     let cString = cStringFromChars(chars)
     if let result = String.fromCString(cString) {
@@ -100,6 +100,12 @@ public func stringFromChars(chars: [Char]) -> String {
     // UTF8
     assert(false, "unable to convert 8-bit characters to String")
     return ""
+}
+
+/// Given a single Char, return a single-character String
+public func stringFromChar(c: Char) -> String {
+    let chars = [c]
+    return stringFromChars(chars)
 }
 
 /// Given a string, return array of Chars

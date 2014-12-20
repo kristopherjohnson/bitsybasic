@@ -93,6 +93,19 @@ enum Statement {
 
     /// Unable to parse input as statement
     case Error(String)
+
+
+    /// Return statement as text
+    var text: String {
+        switch self {
+
+        case let .Print(printList):
+            return "PRINT \(printList.text)"
+
+        default:
+            return "(statement)"
+        }
+    }
 }
 
 /// Result of parsing a varlist
@@ -111,6 +124,17 @@ enum PrintList {
 
     /// expression "," exprlist
     case Items(PrintItem, Box<PrintList>)
+
+
+    var text: String {
+        switch self {
+        case let .Item(printItem):
+            return printItem.text
+
+        case let .Items(printItem, printItems):
+            return "\(printItem.text), ..."
+        }
+    }
 }
 
 /// Result of parsing an exprlist
@@ -120,6 +144,17 @@ enum PrintItem {
 
     /// '"' string '"'
     case Str([Char])
+
+
+    var text: String {
+        switch self {
+        case let .Expr(expression):
+            return expression.text
+
+        case let .Str(chars):
+            return "\"\(stringFromChars(chars))\""
+        }
+    }
 }
 
 /// Result of parsing an expression
@@ -158,8 +193,20 @@ enum Expression {
             }
         }
     }
-}
 
+    var text: String {
+        switch self {
+        case let .UnsignedExpr(uexpr):
+            return uexpr.text
+
+        case let .Plus(uexpr):
+            return "+\(uexpr.text)"
+
+        case let .Minus(uexpr):
+            return "-\(uexpr.text)"
+        }
+    }
+}
 /// Result of parsing an unsigned expression
 ///
 /// Note that "unsigned" means "does not have a leading + or - sign".
@@ -189,6 +236,20 @@ enum UnsignedExpression {
         case let .Diff(term, boxedExpr):
             let expr = boxedExpr.boxedValue
             return term.getValue(v) &- expr.getValue(v)
+        }
+    }
+
+
+    var text: String {
+        switch self {
+        case let .Value(term):
+            return term.text
+
+        case let .Sum(term, boxedExpr):
+            return "\(term.text) + \(boxedExpr.boxedValue.text)"
+
+        case let .Diff(term, boxedExpr):
+            return "\(term.text) - \(boxedExpr.boxedValue.text)"
         }
     }
 }
@@ -226,6 +287,20 @@ enum Term {
             return factor.getValue(v) &/ divisor
         }
     }
+
+    var text: String {
+        switch self {
+
+        case let .Value(factor):
+            return factor.text
+
+        case let .Product(factor, boxedTerm):
+            return "\(factor.text) * \(boxedTerm.boxedValue.text)"
+
+        case let .Quotient(factor, boxedTerm):
+            return "\(factor.text) / \(boxedTerm.boxedValue.text)"
+        }
+    }
 }
 
 /// Result of parsing a factor
@@ -246,6 +321,14 @@ enum Factor {
         case let .Var(varname):   return v[varname] ?? 0
         case let .Num(number):    return number
         case let .ParenExpr(box): return box.boxedValue.getValue(v)
+        }
+    }
+
+    var text: String {
+        switch self {
+        case let .Var(varname):   return stringFromChar(varname)
+        case let .Num(number):    return "\(number)"
+        case let .ParenExpr(box): return "(\(box.boxedValue.text))"
         }
     }
 }

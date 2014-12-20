@@ -114,10 +114,10 @@ public class Interpreter {
     final func processInput(input: InputLine) {
         let line = parseInputLine(input)
         switch line {
-        case .UnnumberedStatement(let statement): execute(statement)
-        case .NumberedStatement(_, _):            insertLineIntoProgram(line)
-        case .Empty:                              break
-        case .Error(let message):                 showError(message)
+        case let .UnnumberedStatement(statement):       execute(statement)
+        case let .NumberedStatement(number, statement): insertLineIntoProgram(number, statement)
+        case .Empty:                                    break
+        case let .Error(message):                       showError(message)
         }
     }
 
@@ -191,6 +191,11 @@ public class Interpreter {
         // "IF"
         if let nextIndex = parseLiteral("IF", input, index) {
             return parseIfArguments(input, nextIndex)
+        }
+
+        // "LIST"
+        if let nextIndex = parseLiteral("LIST", input, index) {
+            return .List
         }
 
         return .Error("error: not a valid statement")
@@ -557,8 +562,38 @@ public class Interpreter {
 
     // MARK: - Program editing
 
-    final func insertLineIntoProgram(line: Line) {
-        showError("error: program editing not yet implemented")
+    final func insertLineIntoProgram(lineNumber: Number, _ statement: Statement) {
+        if let replaceIndex = indexOfProgramLineWithNumber(lineNumber) {
+            program[replaceIndex] = (lineNumber, statement)
+        }
+        else if lineNumber > getLastProgramLineNumber() {
+            program.append(lineNumber, statement)
+        }
+        else {
+            program.append(lineNumber, statement)
+            program.sort { lhs, rhs in
+                return lhs.0 < rhs.0
+            }
+        }
+    }
+
+    final func indexOfProgramLineWithNumber(lineNumber: Int) -> Int? {
+        for (index, element) in enumerate(program) {
+            let (n, statement) = element
+            if lineNumber == n {
+                return index
+            }
+        }
+        return nil
+    }
+
+    final func getLastProgramLineNumber() -> Int {
+        if program.count > 0 {
+            let (lineNumber, statement) = program.last!
+            return lineNumber
+        }
+
+        return 0
     }
 
 
@@ -570,6 +605,7 @@ public class Interpreter {
         case let .Print(exprList):          executePrint(exprList)
         case let .Let(varName, expr):       executeLet(varName, expr)
         case let .If(lhs, relop, rhs, box): executeIf(lhs, relop, rhs, box)
+        case .List:                         executeList()
         default:                            showError("error: unimplemented statement type")
         }
     }
@@ -615,6 +651,11 @@ public class Interpreter {
         }
     }
 
+    final func executeList() {
+        for (lineNumber, statement) in program {
+            print("\(lineNumber) \(statement.text)\n")
+        }
+    }
 
     // MARK: - I/O
 
@@ -628,6 +669,11 @@ public class Interpreter {
         for c in chars {
             io.putOutputChar(self, c)
         }
+    }
+
+    /// Send string to the output stream
+    final func print(s: String) {
+        return print(charsFromString(s))
     }
 
     /// Print a PrintItem
