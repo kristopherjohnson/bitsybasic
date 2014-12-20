@@ -29,7 +29,7 @@ public typealias InputLine = [Char]
 
 // MARK: - System I/O
 
-/// Protocol implemented by object that provides I/O operations for a BasicInterpreter
+/// Protocol implemented by object that provides I/O operations for an Interpreter
 public protocol InterpreterIO {
     /// Return next input character, or nil if at end-of-file or an error occurs
     func getInputChar(interpreter: Interpreter) -> Char?
@@ -94,7 +94,7 @@ public final class Interpreter {
     var returnStack: [Int] = []
 
 
-    /// Initialize, optionally passing in a custom BasicInterpreterIO handler
+    /// Initialize, optionally passing in a custom InterpreterIO handler
     public init(interpreterIO: InterpreterIO = StandardIO()) {
         io = interpreterIO
         clearVariables()
