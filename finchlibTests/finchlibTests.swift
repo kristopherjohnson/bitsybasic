@@ -208,4 +208,58 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual("15\t88\t0\n", io.outputString, "should print the values separated by tabs")
     }
+
+    func testIfEqual() {
+        io.inputString = "IF 0 = 0 THEN PRINT 1\nIF 1 = 0 THEN PRINT 2\nIF 99 = 99 THEN PRINT 3\n"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("1\n3\n", io.outputString, "should print expected lines")
+    }
+
+    func testIfNotEqual() {
+        io.inputString = "IF 1 <> 0 THEN PRINT 1\nIF 1 >< 0 THEN PRINT 2\nIF 99 <> 99 THEN PRINT 3\n"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("1\n2\n", io.outputString, "should print expected lines")
+    }
+    
+    func testIfLessThan() {
+        io.inputString = "IF 0 < 0 THEN PRINT 1\nIF 1 < 9 THEN PRINT 2\nIF -99 < 99 THEN PRINT 3\n"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("2\n3\n", io.outputString, "should print expected lines")
+    }
+
+    func testIfLessThanOrEqualTo() {
+        io.inputString = "IF 0 <= 0 THEN PRINT 1\nIF 10 <= 9 THEN PRINT 2\nIF -99<  =99 THEN PRINT 3\n"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("1\n3\n", io.outputString, "should print expected lines")
+    }
+
+    func testIfGreaterThan() {
+        io.inputString = "IF 0 > 0 THEN PRINT 1\nIF 9 > 1 THEN PRINT 2\nIF 99 > -99 THEN PRINT 3\n"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("2\n3\n", io.outputString, "should print expected lines")
+    }
+
+    func testIfGreaterThanOrEqualTo() {
+        io.inputString = "IF 0 >= 0 THEN PRINT 1\nIF 1 >= 9 THEN PRINT 2\nIF 99>  =-99 THEN PRINT 3\n"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("1\n3\n", io.outputString, "should print expected lines")
+    }
 }

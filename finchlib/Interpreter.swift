@@ -168,6 +168,7 @@ public class Interpreter {
     /// to a keyword-specific function to parse whatever arguments belong
     /// with the keyword.
     final func parseStatement(input: InputLine, _ index: Int) -> Statement {
+        // "PRINT"
         if let nextIndex = parseLiteral("PRINT", input, index) {
             return parsePrintArguments(input, nextIndex)
         }
@@ -177,13 +178,19 @@ public class Interpreter {
             return parsePrintArguments(input, nextIndex)
         }
 
-        // "?" is an abbreviation for "PRINT"
+        // "?" is a synonym for "PRINT"
         if let nextIndex = parseLiteral("?", input, index) {
             return parsePrintArguments(input, nextIndex)
         }
 
+        // "LET"
         if let nextIndex = parseLiteral("LET", input, index) {
             return parseLetArguments(input, nextIndex)
+        }
+
+        // "IF"
+        if let nextIndex = parseLiteral("IF", input, index) {
+            return parseIfArguments(input, nextIndex)
         }
 
         return .Error("error: not a valid statement")
@@ -211,6 +218,27 @@ public class Interpreter {
             }
         }
         return .Error("error: invalid syntax for LET")
+    }
+
+    /// Parse the arguments for an IF statement
+    ///
+    /// "IF" expression relop expression "THEN" statement
+    final func parseIfArguments(input: InputLine, _ index: Int) -> Statement {
+        if let (lhs, afterLhs) = parseExpression(input, index) {
+            if let (relop, afterRelop) = parseRelop(input, afterLhs) {
+                if let (rhs, afterRhs) = parseExpression(input, afterRelop) {
+                    if let afterThen = parseLiteral("THEN", input, afterRhs) {
+                        let thenStatement = parseStatement(input, afterThen)
+                        switch thenStatement {
+                        case .Error(_): return .Error("error: invalid statement following THEN")
+                        default:        return .If(lhs, relop, rhs, Box(thenStatement))
+                        }
+                    }
+                }
+            }
+        }
+
+        return .Error("error: invalid syntax for IF")
     }
 
     /// Attempt to parse an PrintList.
@@ -463,6 +491,59 @@ public class Interpreter {
         return nil
     }
 
+    /// Attempt to read a relational operator (=, <, >, <=, >=, <>, ><)
+    ///
+    /// Returns operator and index of next input character on success, or nil otherwise.
+    final func parseRelop(input: InputLine, _ index: Int) -> (Relop, Int)? {
+        let count = input.count
+        let firstIndex = skipSpaces(input, index)
+        if firstIndex < count {
+            var relop: Relop = .EqualTo
+            var after = index
+            
+            let c = input[firstIndex]
+            switch c {
+            case Char_Equal:  relop = .EqualTo
+            case Char_LAngle: relop = .LessThan
+            case Char_RAngle: relop = .GreaterThan
+            default:          return nil
+            }
+            after = firstIndex + 1
+
+            if firstIndex < (count - 1) {
+                let nextIndex = skipSpaces(input, firstIndex + 1)
+                if nextIndex < count {
+                    let next = input[nextIndex]
+                    switch (c, next) {
+
+                    case (Char_LAngle, Char_Equal):
+                        relop = .LessThanOrEqualTo
+                        after = nextIndex + 1
+
+                    case (Char_LAngle, Char_RAngle):
+                        relop = .NotEqualTo
+                        after = nextIndex + 1
+
+                    case (Char_RAngle, Char_Equal):
+                        relop = .GreaterThanOrEqualTo
+                        after = nextIndex + 1
+
+                    case (Char_RAngle, Char_LAngle):
+                        relop = .NotEqualTo
+                        after = nextIndex + 1
+
+                    default:
+                        break
+                    }
+                }
+            }
+
+            return (relop, after)
+        }
+
+        return nil
+    }
+
     /// Return index of first non-space character at or after specified index
     final func skipSpaces(input: InputLine, _ index: Int) -> Int {
         var i = index
@@ -486,9 +567,10 @@ public class Interpreter {
     /// Execute the given statement
     final func execute(statement: Statement) {
         switch statement {
-        case let .Print(exprList):    executePrint(exprList)
-        case let .Let(varName, expr): executeLet(varName, expr)
-        default:                      showError("error: unimplemented statement type")
+        case let .Print(exprList):          executePrint(exprList)
+        case let .Let(varName, expr):       executeLet(varName, expr)
+        case let .If(lhs, relop, rhs, box): executeIf(lhs, relop, rhs, box)
+        default:                            showError("error: unimplemented statement type")
         }
     }
 
@@ -525,6 +607,12 @@ public class Interpreter {
 
     final func executeLet(variableName: VariableName, _ expression: Expression) {
         v[variableName] = expression.getValue(v)
+    }
+
+    final func executeIf(lhs: Expression, _ relop: Relop, _ rhs: Expression, _ boxedStatement: Box<Statement>) {
+        if relop.isTrueForNumbers(lhs.getValue(v), rhs.getValue(v)) {
+            execute(boxedStatement.boxedValue)
+        }
     }
 
 
