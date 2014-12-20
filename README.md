@@ -86,3 +86,11 @@ FinchBasic supports this syntax:
    - `util.swift` - miscellaneous
 - `finchlibTests/` - unit tests
 
+## To-Do
+
+- Implement `INPUT`
+- Reject input lines that have invalid trailing characters (currently the parser just stops when it is happy with a complete statement, and ignores anything else on the line)
+- Support `;` separators for `PRINT`
+- Support trailing separator for `PRINT`
+- Command-line options to load files, redirect output, suppress prompts, etc.
+- `TRON`/`TROFF`
