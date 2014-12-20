@@ -129,6 +129,17 @@ public class Interpreter {
 
     // MARK: - Parsing
 
+    // Most of the parsing functions take an InputLine argument, containing
+    // the entire current line of input, and an index argument specifying the
+    // current position in the line.
+    //
+    // The parsing functions generally have an Optional pair return type which
+    // contains the parsed element and the index of the character following
+    // whatever was parsed.  These functions return nil if unable to parse the
+    // requested element.  This makes it easy for a parsing function to try
+    // parsing different kinds of elements without consuming anything until
+    // it succeeds.
+
     final func parseInputLine(input: InputLine) -> Line {
         let count = input.count
         let i = skipSpaces(input, 0)
@@ -138,164 +149,80 @@ public class Interpreter {
             return .Empty
         }
 
-        // Check whether the line starts with a number
+        // If line starts with a number, add the statement to the program
         if let (number, nextIndex) = parseNumber(input, i) {
             let statement = parseStatement(input, nextIndex)
             switch statement {
             case .Error(let message): return .Error(message)
             default:                  return .NumberedStatement(number, statement)
             }
+
         }
-        else {
-            let statement = parseStatement(input, i)
-            switch statement {
-            case .Error(let message): return .Error(message)
-            default:                  return .UnnumberedStatement(statement)
-            }
+
+        // Otherwise, try to execute statement immediately
+        let statement = parseStatement(input, i)
+        switch statement {
+        case .Error(let message): return .Error(message)
+        default:                  return .UnnumberedStatement(statement)
         }
     }
 
-    /// Return index of first non-space character at or after specified index
-    final func skipSpaces(input: InputLine, _ index: Int) -> Int {
-        var i = index
-        let count = input.count
-        while i < count && input[i] == Char_Space {
-            ++i
-        }
-        return i
-    }
-
-    /// Attempt to read an unsigned number from input.  If successful, returns
-    /// parsed number and index of next input character.  If not, returns nil.
-    final func parseNumber(input: InputLine, _ index: Int) -> (Number, Int)? {
-        var i = skipSpaces(input, index)
-
-        let count = input.count
-        if i == count {
-            // at end of input
-            return nil
-        }
-
-        if !isDigitChar(input[i]) {
-            // doesn't start with a digit
-            return nil
-        }
-
-        var number = Number(input[i++] - Char_0)
-        while i < count {
-            let c = input[i++]
-            if isDigitChar(c) {
-                number = (number &* 10) &+ Number(c - Char_0)
-            }
-            else if c != Char_Space {
-                break
-            }
-        }
-
-        return (number, i)
-    }
-    
-    final func parseStatement(input: InputLine, _ i: Int) -> Statement {
-        if let nextIndex = parseLiteral("PRINT", input, i) {
+    /// Parse a statement
+    ///
+    /// Looks for a keyword at the start of the line, and then delegates
+    /// to a keyword-specific function to parse whatever arguments belong
+    /// with the keyword.
+    final func parseStatement(input: InputLine, _ index: Int) -> Statement {
+        if let nextIndex = parseLiteral("PRINT", input, index) {
             return parsePrintArguments(input, nextIndex)
         }
 
         // "PR" is an abbreviation for "PRINT"
-        if let nextIndex = parseLiteral("PR", input, i) {
+        if let nextIndex = parseLiteral("PR", input, index) {
             return parsePrintArguments(input, nextIndex)
         }
 
-        return .Error("error: not a statement")
+        return .Error("error: not a valid statement")
     }
 
-    /// Determine whether the remainder of the line starts with a specified sequence of characters.
-    ///
-    /// If true, returns index of the character following the matched string. If false, returns nil.
-    ///
-    /// Matching is case-insensitive. Spaces in the input are ignored.
-    final func parseLiteral(literal: String, _ input: InputLine, _ index: Int) -> Int? {
-        let chars = charsFromString(literal)
-        var matchCount = 0
-        var matchGoal = chars.count
-
-        let n = input.count
-        var i = index
-        while (matchCount < matchGoal) && (i < n) {
-            let c = input[i++]
-
-            if c == Char_Space {
-                continue
-            }
-            else if toUpper(c) == toUpper(chars[matchCount]) {
-                ++matchCount
-            }
-            else {
-                return nil
-            }
+    /// Parse the arguments for a PRINT statement
+    final func parsePrintArguments(input: InputLine, _ index: Int) -> Statement {
+        if let (exprList, nextIndex) = parsePrintList(input, index) {
+            return .Print(exprList)
         }
 
-        if matchCount == matchGoal {
-            return i
+        return .Error("error: PRINT requires a list of expressions")
+    }
+
+    /// Attempt to parse an PrintList.
+    ///
+    /// Returns PrintList and index of next character if successful.  Returns nil otherwise.
+    final func parsePrintList(input: InputLine, _ index: Int) -> (PrintList, Int)? {
+        if let (item, nextIndex) = parsePrintItem(input, index) {
+
+            if let afterSeparator = parseLiteral(",", input, nextIndex) {
+                // Parse remainder of line
+                if let (tail, afterTail) = parsePrintList(input, afterSeparator) {
+                    return (.Items(item, Box(tail)), afterTail)
+                }
+            }
+
+            return (.Item(item), nextIndex)
         }
 
         return nil
     }
-    
-    /// Parse the arguments for a PRINT statement
-    final func parsePrintArguments(input: InputLine, _ index: Int) -> Statement {
-        let exprList = parseExprList(input, index)
-        switch exprList {
-        case .Error(let message): return .Error(message)
-        default:                  return .Print(exprList)
-        }
-    }
 
-    final func parseExprList(input: InputLine, _ index: Int) -> ExprList {
-        let i = skipSpaces(input, index)
-        let count = input.count
-        if i == count {
-            return .Error("error: missing arguments to PRINT")
-        }
-
-        if let (chars, nextIndex) = parseString(input, i) {
-            return .Str(chars)
-        }
-
-        if let (expression, nextIndex) = parseExpression(input, i) {
-            return .Expr(expression)
-        }
-
-        return .Error("error: invalid arguments for PRINT")
-    }
-
-    /// Attempt to parse a string, which is delimited with " at start and end
+    /// Attempt to parse a PrintItem.
     ///
-    /// Returns characters between delimiters and index of next character if successful.
-    /// Returns nil otherwise.
-    final func parseString(input: InputLine, _ index: Int) -> ([Char], Int)? {
-        let count = input.count
-        var i = skipSpaces(input, index)
-        if i < count {
-            if input[i] == Char_DQuote {
-                ++i
-                var stringChars: [Char] = []
-                var foundEnd = false
+    /// Returns PrintItem and index of next character if successful.  Returns nil otherwise.
+    final func parsePrintItem(input: InputLine, _ index: Int) -> (PrintItem, Int)? {
+        if let (chars, nextIndex) = parseString(input, index) {
+            return (.Str(chars), nextIndex)
+        }
 
-                while i < count {
-                    let c = input[i++]
-                    if c == Char_DQuote {
-                        foundEnd = true
-                        break
-                    }
-                    else {
-                        stringChars.append(c)
-                    }
-                }
-
-                if foundEnd {
-                    return (stringChars, i)
-                }
-            }
+        if let (expression, nextIndex) = parseExpression(input, index) {
+            return (.Expr(expression), nextIndex)
         }
 
         return nil
@@ -337,6 +264,114 @@ public class Interpreter {
         return nil
     }
 
+    /// Determine whether the remainder of the line starts with a specified sequence of characters.
+    ///
+    /// If true, returns index of the character following the matched string. If false, returns nil.
+    ///
+    /// Matching is case-insensitive. Spaces in the input are ignored.
+    final func parseLiteral(literal: String, _ input: InputLine, _ index: Int) -> Int? {
+        let chars = charsFromString(literal)
+        var matchCount = 0
+        var matchGoal = chars.count
+
+        let n = input.count
+        var i = index
+        while (matchCount < matchGoal) && (i < n) {
+            let c = input[i++]
+
+            if c == Char_Space {
+                continue
+            }
+            else if toUpper(c) == toUpper(chars[matchCount]) {
+                ++matchCount
+            }
+            else {
+                return nil
+            }
+        }
+
+        if matchCount == matchGoal {
+            return i
+        }
+
+        return nil
+    }
+
+    /// Attempt to read an unsigned number from input.  If successful, returns
+    /// parsed number and index of next input character.  If not, returns nil.
+    final func parseNumber(input: InputLine, _ index: Int) -> (Number, Int)? {
+        var i = skipSpaces(input, index)
+
+        let count = input.count
+        if i == count {
+            // at end of input
+            return nil
+        }
+
+        if !isDigitChar(input[i]) {
+            // doesn't start with a digit
+            return nil
+        }
+
+        var number = Number(input[i++] - Char_0)
+        while i < count {
+            let c = input[i]
+            if isDigitChar(c) {
+                number = (number &* 10) &+ Number(c - Char_0)
+            }
+            else if c != Char_Space {
+                break
+            }
+            ++i
+        }
+        
+        return (number, i)
+    }
+
+    /// Attempt to parse a string literal
+    ///
+    /// Returns characters and index of next character if successful.
+    /// Returns nil otherwise.
+    final func parseString(input: InputLine, _ index: Int) -> ([Char], Int)? {
+        let count = input.count
+        var i = skipSpaces(input, index)
+        if i < count {
+            if input[i] == Char_DQuote {
+                ++i
+                var stringChars: [Char] = []
+                var foundEnd = false
+
+                while i < count {
+                    let c = input[i++]
+                    if c == Char_DQuote {
+                        foundEnd = true
+                        break
+                    }
+                    else {
+                        stringChars.append(c)
+                    }
+                }
+
+                if foundEnd {
+                    return (stringChars, i)
+                }
+            }
+        }
+        
+        return nil
+    }
+
+    /// Return index of first non-space character at or after specified index
+    final func skipSpaces(input: InputLine, _ index: Int) -> Int {
+        var i = index
+        let count = input.count
+        while i < count && input[i] == Char_Space {
+            ++i
+        }
+        return i
+    }
+
+
     // MARK: - Program editing
 
     final func insertLineIntoProgram(line: Line) {
@@ -355,25 +390,52 @@ public class Interpreter {
     }
 
     /// Execute PRINT with the specified arguments
-    final func executePrint(exprList: ExprList) {
-        switch exprList {
+    final func executePrint(printList: PrintList) {
+        switch printList {
+        case .Item(let item):
+            print(item)
+
+        case .Items(let item, let printList):
+            // Print the first item
+            print(item)
+
+            // Walk the list to print remaining items
+            var remainder = printList.boxedValue
+            var done = false
+            while !done {
+                switch remainder {
+                case .Item(let item):
+                    // last item
+                    printChar(Char_Tab)
+                    print(item)
+                    done = true
+                case .Items(let head, let tail):
+                    printChar(Char_Tab)
+                    print(head)
+                    remainder = tail.boxedValue
+                }
+            }
+        }
+
+        printChar(Char_Linefeed)
+    }
+
+    /// Print a PrintItem
+    final func print(printItem: PrintItem) {
+        switch (printItem) {
+
         case .Str(let chars):
             printChars(chars)
-            printChar(Char_Linefeed)
 
         case .Expr(let expression):
             let value = expression.value
             let stringValue = "\(value)"
             let chars = charsFromString(stringValue)
             printChars(chars)
-            printChar(Char_Linefeed)
-
-        default:
-            showError("error: unimplemented printitem type")
         }
     }
 
-
+    
     // MARK: - I/O
 
     /// Send a single character to the output stream

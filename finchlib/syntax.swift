@@ -47,7 +47,7 @@ public enum Statement {
     /// "PRINT" printlist
     ///
     /// "PR" printlist
-    case Print(ExprList)
+    case Print(PrintList)
 
     /// "INPUT" varlist
     case Input(VarList)
@@ -93,24 +93,24 @@ public enum VarList {
 
     /// var "," varlist
     case Vars(VariableName, Box<VarList>)
-
-    /// Error occurred when expecting a varlist
-    case Error(String)
 }
 
 /// Result of parsing an exprlist
-public enum ExprList {
+public enum PrintList {
+    /// expression
+    case Item(PrintItem)
+
+    /// expression "," exprlist
+    case Items(PrintItem, Box<PrintList>)
+}
+
+/// Result of parsing an exprlist
+public enum PrintItem {
     /// expression
     case Expr(Expression)
 
     /// '"' string '"'
     case Str([Char])
-
-    /// expression "," exprlist
-    case Exprs(Expression, Box<ExprList>)
-
-    /// Error occurred when expecting an exprlist
-    case Error(String)
 }
 
 /// Result of parsing an expression

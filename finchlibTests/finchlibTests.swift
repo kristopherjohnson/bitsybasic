@@ -136,4 +136,22 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual("321\n", io.outputString, "should print the number")
     }
+
+    func testPrintNumbers() {
+        io.inputString = "PRINT 11,22,33"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("11\t22\t33\n", io.outputString, "should print the numbers with tabs between them")
+    }
+
+    func testPrintStringsAndNumbers() {
+        io.inputString = "PRINT \"one\",1,\"two\",2"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("one\t1\ttwo\t2\n", io.outputString, "should print the values with tabs between them")
+    }
 }
