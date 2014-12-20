@@ -32,18 +32,21 @@ import Foundation
 //     http://www.ittybittycomputers.com/IttyBitty/TinyBasic/TBuserMan.htm
 
 
-/// There are 26 variables with names 'A'...'Z'
-public typealias VariableName = Char
-
 /// A Finch numeric value is a signed integer
 ///
 /// Note: Traditionally, Tiny Basic uses 16-bit integers, but we'll
 /// relax that restriction and use whatever native integer type
 /// the platform provides.
-public typealias Number = Int
+typealias Number = Int
+
+/// There are 26 variables with names 'A'...'Z'
+typealias VariableName = Char
+
+/// Each variable is bound to a numeric value
+typealias VariableBindings = [VariableName : Number]
 
 /// Result of parsing a statement
-public enum Statement {
+enum Statement {
     /// "PRINT" printlist
     ///
     /// "PR" printlist
@@ -87,7 +90,7 @@ public enum Statement {
 }
 
 /// Result of parsing a varlist
-public enum VarList {
+enum VarList {
     /// "A" | "B" | ... | "Y" | "Z"
     case Var(VariableName)
 
@@ -96,7 +99,7 @@ public enum VarList {
 }
 
 /// Result of parsing an exprlist
-public enum PrintList {
+enum PrintList {
     /// expression
     case Item(PrintItem)
 
@@ -105,7 +108,7 @@ public enum PrintList {
 }
 
 /// Result of parsing an exprlist
-public enum PrintItem {
+enum PrintItem {
     /// expression
     case Expr(Expression)
 
@@ -114,7 +117,7 @@ public enum PrintItem {
 }
 
 /// Result of parsing an expression
-public enum Expression {
+enum Expression {
     /// unsignedexpression
     case UnsignedExpr(UnsignedExpression)
 
@@ -126,75 +129,101 @@ public enum Expression {
 
 
     /// Return the value of the expression
-    var value: Number {
+    func getValue(v: VariableBindings) -> Number {
         switch self {
-        case .UnsignedExpr(let uexpr): return uexpr.value
-        default:                       return 0
+        case let .UnsignedExpr(uexpr):
+            return uexpr.getValue(v)
+
+        case let .Plus(uexpr):
+            return uexpr.getValue(v)
+
+        case let .Minus(uexpr):
+            // The leading minus sign must be applied to the
+            // first term in the expression
+            switch uexpr {
+            case .Value(_):
+                return -(uexpr.getValue(v))
+            case let .Sum(term, remainder):
+                let termValue = term.getValue(v)
+                return -termValue &+ remainder.boxedValue.getValue(v)
+            case let .Diff(term, remainder):
+                let termValue = term.getValue(v)
+                return -termValue &- remainder.boxedValue.getValue(v)
+            }
         }
     }
 }
 
 /// Result of parsing an unsigned expression
-public enum UnsignedExpression {
+///
+/// Note that "unsigned" means "does not have an explicit leading + or - sign".
+/// It does not mean that the value is non-negative.
+enum UnsignedExpression {
     /// term
     case Value(Term)
 
-    /// term + unsignedexpression
-    case Add(Term, Box<UnsignedExpression>)
+    /// term "+" unsignedexpression
+    case Sum(Term, Box<UnsignedExpression>)
 
-    /// term - unsignedexpression
-    case Subtract(Term, Box<UnsignedExpression>)
+    /// term "-" unsignedexpression
+    case Diff(Term, Box<UnsignedExpression>)
 
 
     /// Return the value of this UnsignedExpression
-    var value: Number {
+    func getValue(v: VariableBindings) -> Number {
         switch self {
-        case .Value(let term): return term.value
-        default:               return 0
+
+        case let .Value(term):
+            return term.getValue(v)
+
+        case let .Sum(term, boxedExpr):
+            let expr = boxedExpr.boxedValue
+            return term.getValue(v) &+ expr.getValue(v)
+
+        case let .Diff(term, boxedExpr):
+            let expr = boxedExpr.boxedValue
+            return term.getValue(v) &- expr.getValue(v)
         }
     }
 }
 
 /// Result of parsing a term
-public enum Term {
+enum Term {
     /// factor
     case Value(Factor)
 
-    /// factor * term
+    /// factor "*" term
     case Product(Factor, Box<Term>)
 
-    /// factor / term
+    /// factor "/" term
     case Quotient(Factor, Box<Term>)
 
 
     /// Return the value of this Term
-    var value: Number {
+    func getValue(v: VariableBindings) -> Number {
         switch self {
 
         case let .Value(factor):
-            return factor.value
+            return factor.getValue(v)
 
         case let .Product(factor, boxedTerm):
             let term = boxedTerm.boxedValue
-            return factor.value &* term.value
+            return factor.getValue(v) &* term.getValue(v)
 
         case let .Quotient(factor, boxedTerm):
             let term = boxedTerm.boxedValue
-            let divisor = term.value
+            let divisor = term.getValue(v)
             if divisor == 0 {
                 // TODO: signal a divide-by-zero error
                 return 0
             }
-            return factor.value &/ divisor
-
-        default:
-            return 0
+            return factor.getValue(v) &/ divisor
         }
     }
 }
 
 /// Result of parsing a factor
-public enum Factor {
+enum Factor {
     /// var
     case Var(VariableName)
 
@@ -206,7 +235,7 @@ public enum Factor {
 
 
     /// Return the value of this Term
-    var value: Number {
+    func getValue(v: VariableBindings) -> Number {
         switch self {
         case .Num(let number): return number
         default:               return 0
@@ -215,7 +244,7 @@ public enum Factor {
 }
 
 /// Result of parsing a relational operator
-public enum Relop {
+enum Relop {
     /// "<"
     case LessThan
 
@@ -236,7 +265,7 @@ public enum Relop {
 
 
     /// Determine whether the relation is true for specified values
-    public func isTrueForNumbers(lhs: Number, _ rhs: Number) -> Bool {
+    func isTrueForNumbers(lhs: Number, _ rhs: Number) -> Bool {
         switch self {
         case .LessThan:             return lhs < rhs
         case .GreaterThan:          return lhs > rhs
@@ -249,7 +278,7 @@ public enum Relop {
 }
 
 /// A program is a sequence of numbered statements
-public typealias Program = [(Number, Statement)]
+typealias Program = [(Number, Statement)]
 
 /// An input line is parsed to be a statement preceded by a line number,
 /// which will be inserted into the program, or a statement without a preceding
@@ -257,7 +286,7 @@ public typealias Program = [(Number, Statement)]
 ///
 /// Also possible are empty input lines, which are ignored, or unparseable
 /// input lines, which generate an error message.
-public enum Line {
+enum Line {
     // Parsed statement with a line number
     case NumberedStatement(Number, Statement)
 

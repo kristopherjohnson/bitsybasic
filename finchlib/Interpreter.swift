@@ -79,7 +79,7 @@ public class Interpreter {
     var program: Program = []
 
     /// Variable values
-    var v: [VariableName : Number] = [:]
+    var v: VariableBindings = [:]
 
     /// Low-level I/O interface
     var io: InterpreterIO
@@ -191,7 +191,7 @@ public class Interpreter {
             return .Print(exprList)
         }
 
-        return .Error("error: PRINT requires a list of expressions")
+        return .Error("error: invalid arguments to PRINT")
     }
 
     /// Attempt to parse an PrintList.
@@ -230,7 +230,29 @@ public class Interpreter {
 
     /// Attempt to parse an Expression.  Returns Expression and index of next character if successful.  Returns nil if not.
     final func parseExpression(input: InputLine, _ index: Int) -> (Expression, Int)? {
-        if let (unsignedExpression, nextIndex) = parseUnsignedExpression(input, index) {
+        var leadingPlus = false
+        var leadingMinus = false
+        var afterSign = index
+
+        if let nextIndex = parseLiteral("+", input, index) {
+            leadingPlus = true
+            afterSign = nextIndex
+        }
+        else if let nextIndex = parseLiteral("-", input, index) {
+            leadingMinus = true
+            afterSign = nextIndex
+        }
+
+        if let (unsignedExpression, nextIndex) = parseUnsignedExpression(input, afterSign) {
+
+            if leadingPlus {
+                return (.Plus(unsignedExpression), nextIndex)
+            }
+
+            if leadingMinus {
+                return (.Minus(unsignedExpression), nextIndex)
+            }
+
             return (.UnsignedExpr(unsignedExpression), nextIndex)
         }
 
@@ -240,6 +262,21 @@ public class Interpreter {
     /// Attempt to parse an UnsignedExpression.  Returns UnsignedExpression and index of next character if successful.  Returns nil if not.
     final func parseUnsignedExpression(input: InputLine, _ index: Int) -> (UnsignedExpression, Int)? {
         if let (term, nextIndex) = parseTerm(input, index) {
+
+            // If followed by "+", then it's addition
+            if let afterOp = parseLiteral("+", input, nextIndex) {
+                if let (uexpr, afterTerm) = parseUnsignedExpression(input, afterOp) {
+                    return (.Sum(term, Box(uexpr)), afterTerm)
+                }
+            }
+
+            // If followed by "-", then it's subtraction
+            if let afterOp = parseLiteral("-", input, nextIndex) {
+                if let (uexpr, afterTerm) = parseUnsignedExpression(input, afterOp) {
+                    return (.Diff(term, Box(uexpr)), afterTerm)
+                }
+            }
+
             return (.Value(term), nextIndex)
         }
 
@@ -443,7 +480,7 @@ public class Interpreter {
             printChars(chars)
 
         case .Expr(let expression):
-            let value = expression.value
+            let value = expression.getValue(v)
             let stringValue = "\(value)"
             let chars = charsFromString(stringValue)
             printChars(chars)

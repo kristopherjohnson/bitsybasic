@@ -172,4 +172,22 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual("4\t2\n", io.outputString, "should print the quotients 12 / 3 and 9 / 4, separated with a tab")
     }
+
+    func testAddAndSubtract() {
+        io.inputString = "PRINT 12 + 3, 2 - 9"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("15\t-7\n", io.outputString, "should print the sums of 12 + 3 and 2 - 9, separated with a tab")
+    }
+
+    func testPlusAndMinus() {
+        io.inputString = "PRINT -99 , +4, -12 ,+5"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("-99\t4\t-12\t5\n", io.outputString, "should print the values separated by tabs")
+    }
 }
