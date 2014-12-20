@@ -46,23 +46,23 @@ public protocol InterpreterIO {
 
 /// Default implementation of InterpreterIO that reads from stdin,
 /// writes to stdout, and sends error messages to stderr.
-public class StandardIO: InterpreterIO {
-    public final func getInputChar(interpreter: Interpreter) -> Char? {
+public final class StandardIO: InterpreterIO {
+    public func getInputChar(interpreter: Interpreter) -> Char? {
         let c = getchar()
         return c == EOF ? nil : Char(c)
     }
 
-    public final func putOutputChar(interpreter: Interpreter, _ c: Char) {
+    public func putOutputChar(interpreter: Interpreter, _ c: Char) {
         putchar(Int32(c))
         fflush(stdin)
     }
 
-    public final func showPrompt(interpreter: Interpreter) {
+    public func showPrompt(interpreter: Interpreter) {
         putchar(Int32(Char_Colon))
         fflush(stdin)
     }
 
-    public final func showError(interpreter: Interpreter, message: String) {
+    public func showError(interpreter: Interpreter, message: String) {
         var chars = charsFromString(message)
         chars.append(Char_Linefeed)
         fwrite(chars, 1, UInt(chars.count), stderr)
@@ -74,30 +74,44 @@ public class StandardIO: InterpreterIO {
 // MARK: - Interpreter
 
 /// Tiny Basic interpreter
-public class Interpreter {
-    /// Array of program lines
-    var program: Program = []
-
+public final class Interpreter {
     /// Variable values
     var v: VariableBindings = [:]
 
     /// Low-level I/O interface
     var io: InterpreterIO
 
+    /// Set true while RUN is executing
+    var isRunning = false
+
+    /// Array of program lines
+    var program: Program = []
+
+    /// Index of currently executing line in program
+    var programIndex: Int = 0
+
     /// Return stack
-    var returnStack: [Number] = []
+    var returnStack: [Int] = []
 
 
     /// Initialize, optionally passing in a custom BasicInterpreterIO handler
     public init(interpreterIO: InterpreterIO = StandardIO()) {
         io = interpreterIO
+        clearVariables()
+    }
+
+    /// Set values of all variables to zero
+    func clearVariables() {
+        for varname in Char_A...Char_Z {
+            v[varname] = 0
+        }
     }
 
 
     // MARK: - Top-level loop
 
     /// Display prompt and read input lines and interpret them until end of input
-    public final func interpretInput() {
+    public func interpretInput() {
         while true {
             io.showPrompt(self)
 
@@ -111,8 +125,9 @@ public class Interpreter {
     }
 
     /// Parse an input line and execute it or add it to the program
-    final func processInput(input: InputLine) {
+    func processInput(input: InputLine) {
         let line = parseInputLine(input)
+
         switch line {
         case let .UnnumberedStatement(statement):       execute(statement)
         case let .NumberedStatement(number, statement): insertLineIntoProgram(number, statement)
@@ -135,7 +150,7 @@ public class Interpreter {
     // parsing different kinds of elements without consuming anything until
     // it succeeds.
 
-    final func parseInputLine(input: InputLine) -> Line {
+    func parseInputLine(input: InputLine) -> Line {
         let count = input.count
         let i = skipSpaces(input, 0)
 
@@ -167,7 +182,7 @@ public class Interpreter {
     /// Looks for a keyword at the start of the line, and then delegates
     /// to a keyword-specific function to parse whatever arguments belong
     /// with the keyword.
-    final func parseStatement(input: InputLine, _ index: Int) -> Statement {
+    func parseStatement(input: InputLine, _ index: Int) -> Statement {
         // "PRINT"
         if let nextIndex = parseLiteral("PRINT", input, index) {
             return parsePrintArguments(input, nextIndex)
@@ -198,11 +213,21 @@ public class Interpreter {
             return .List
         }
 
+        // "RUN"
+        if let nextIndex = parseLiteral("RUN", input, index) {
+            return .Run
+        }
+
+        // "END"
+        if let nextIndex = parseLiteral("END", input, index) {
+            return .End
+        }
+
         return .Error("error: not a valid statement")
     }
 
     /// Parse the arguments for a PRINT statement
-    final func parsePrintArguments(input: InputLine, _ index: Int) -> Statement {
+    func parsePrintArguments(input: InputLine, _ index: Int) -> Statement {
         if let (exprList, nextIndex) = parsePrintList(input, index) {
             return .Print(exprList)
         }
@@ -213,7 +238,7 @@ public class Interpreter {
     /// Parse the arguments for a LET statement
     ///
     /// "LET" var "=" expression
-    final func parseLetArguments(input: InputLine, _ index: Int) -> Statement {
+    func parseLetArguments(input: InputLine, _ index: Int) -> Statement {
 
         if let (varName, afterVar) = parseVariableName(input, index) {
             if let afterEq = parseLiteral("=", input, afterVar) {
@@ -228,7 +253,7 @@ public class Interpreter {
     /// Parse the arguments for an IF statement
     ///
     /// "IF" expression relop expression "THEN" statement
-    final func parseIfArguments(input: InputLine, _ index: Int) -> Statement {
+    func parseIfArguments(input: InputLine, _ index: Int) -> Statement {
         if let (lhs, afterLhs) = parseExpression(input, index) {
             if let (relop, afterRelop) = parseRelop(input, afterLhs) {
                 if let (rhs, afterRhs) = parseExpression(input, afterRelop) {
@@ -249,7 +274,7 @@ public class Interpreter {
     /// Attempt to parse an PrintList.
     ///
     /// Returns PrintList and index of next character if successful.  Returns nil otherwise.
-    final func parsePrintList(input: InputLine, _ index: Int) -> (PrintList, Int)? {
+    func parsePrintList(input: InputLine, _ index: Int) -> (PrintList, Int)? {
         if let (item, nextIndex) = parsePrintItem(input, index) {
 
             if let afterSeparator = parseLiteral(",", input, nextIndex) {
@@ -268,7 +293,7 @@ public class Interpreter {
     /// Attempt to parse a PrintItem.
     ///
     /// Returns PrintItem and index of next character if successful.  Returns nil otherwise.
-    final func parsePrintItem(input: InputLine, _ index: Int) -> (PrintItem, Int)? {
+    func parsePrintItem(input: InputLine, _ index: Int) -> (PrintItem, Int)? {
         if let (chars, nextIndex) = parseString(input, index) {
             return (.Str(chars), nextIndex)
         }
@@ -281,7 +306,7 @@ public class Interpreter {
     }
 
     /// Attempt to parse an Expression.  Returns Expression and index of next character if successful.  Returns nil if not.
-    final func parseExpression(input: InputLine, _ index: Int) -> (Expression, Int)? {
+    func parseExpression(input: InputLine, _ index: Int) -> (Expression, Int)? {
         var leadingPlus = false
         var leadingMinus = false
         var afterSign = index
@@ -295,24 +320,24 @@ public class Interpreter {
             afterSign = nextIndex
         }
 
-        if let (unsignedExpression, nextIndex) = parseUnsignedExpression(input, afterSign) {
+        if let (uexpr, afterUexpr) = parseUnsignedExpression(input, afterSign) {
 
             if leadingPlus {
-                return (.Plus(unsignedExpression), nextIndex)
+                return (.Plus(uexpr), afterUexpr)
             }
 
             if leadingMinus {
-                return (.Minus(unsignedExpression), nextIndex)
+                return (.Minus(uexpr), afterUexpr)
             }
 
-            return (.UnsignedExpr(unsignedExpression), nextIndex)
+            return (.UnsignedExpr(uexpr), afterUexpr)
         }
 
         return nil
     }
 
     /// Attempt to parse an UnsignedExpression.  Returns UnsignedExpression and index of next character if successful.  Returns nil if not.
-    final func parseUnsignedExpression(input: InputLine, _ index: Int) -> (UnsignedExpression, Int)? {
+    func parseUnsignedExpression(input: InputLine, _ index: Int) -> (UnsignedExpression, Int)? {
         if let (term, nextIndex) = parseTerm(input, index) {
 
             // If followed by "+", then it's addition
@@ -336,7 +361,7 @@ public class Interpreter {
     }
 
     /// Attempt to parse a Term.  Returns Term and index of next character if successful.  Returns nil if not.
-    final func parseTerm(input: InputLine, _ index: Int) -> (Term, Int)? {
+    func parseTerm(input: InputLine, _ index: Int) -> (Term, Int)? {
         if let (factor, nextIndex) = parseFactor(input, index) {
 
             // If followed by "*", then it's a multiplication
@@ -360,7 +385,7 @@ public class Interpreter {
     }
 
     /// Attempt to parse a Factor.  Returns Factor and index of next character if successful.  Returns nil if not.
-    final func parseFactor(input: InputLine, _ index: Int) -> (Factor, Int)? {
+    func parseFactor(input: InputLine, _ index: Int) -> (Factor, Int)? {
         // number
         if let (number, nextIndex) = parseNumber(input, index) {
             return (.Num(number), nextIndex)
@@ -388,7 +413,7 @@ public class Interpreter {
     /// If true, returns index of the character following the matched string. If false, returns nil.
     ///
     /// Matching is case-insensitive. Spaces in the input are ignored.
-    final func parseLiteral(literal: String, _ input: InputLine, _ index: Int) -> Int? {
+    func parseLiteral(literal: String, _ input: InputLine, _ index: Int) -> Int? {
         let chars = charsFromString(literal)
         var matchCount = 0
         var matchGoal = chars.count
@@ -418,7 +443,7 @@ public class Interpreter {
 
     /// Attempt to read an unsigned number from input.  If successful, returns
     /// parsed number and index of next input character.  If not, returns nil.
-    final func parseNumber(input: InputLine, _ index: Int) -> (Number, Int)? {
+    func parseNumber(input: InputLine, _ index: Int) -> (Number, Int)? {
         var i = skipSpaces(input, index)
 
         let count = input.count
@@ -451,7 +476,7 @@ public class Interpreter {
     ///
     /// Returns characters and index of next character if successful.
     /// Returns nil otherwise.
-    final func parseString(input: InputLine, _ index: Int) -> ([Char], Int)? {
+    func parseString(input: InputLine, _ index: Int) -> ([Char], Int)? {
         let count = input.count
         var i = skipSpaces(input, index)
         if i < count {
@@ -483,7 +508,7 @@ public class Interpreter {
     /// Attempt to read a variable name.
     ///
     /// Returns variable name and index of next input character on success, or nil otherwise.
-    final func parseVariableName(input: InputLine, _ index: Int) -> (VariableName, Int)? {
+    func parseVariableName(input: InputLine, _ index: Int) -> (VariableName, Int)? {
         let count = input.count
         let i = skipSpaces(input, index)
         if i < count {
@@ -499,7 +524,7 @@ public class Interpreter {
     /// Attempt to read a relational operator (=, <, >, <=, >=, <>, ><)
     ///
     /// Returns operator and index of next input character on success, or nil otherwise.
-    final func parseRelop(input: InputLine, _ index: Int) -> (Relop, Int)? {
+    func parseRelop(input: InputLine, _ index: Int) -> (Relop, Int)? {
         let count = input.count
         let firstIndex = skipSpaces(input, index)
         if firstIndex < count {
@@ -550,7 +575,7 @@ public class Interpreter {
     }
 
     /// Return index of first non-space character at or after specified index
-    final func skipSpaces(input: InputLine, _ index: Int) -> Int {
+    func skipSpaces(input: InputLine, _ index: Int) -> Int {
         var i = index
         let count = input.count
         while i < count && input[i] == Char_Space {
@@ -562,7 +587,7 @@ public class Interpreter {
 
     // MARK: - Program editing
 
-    final func insertLineIntoProgram(lineNumber: Number, _ statement: Statement) {
+    func insertLineIntoProgram(lineNumber: Number, _ statement: Statement) {
         if let replaceIndex = indexOfProgramLineWithNumber(lineNumber) {
             program[replaceIndex] = (lineNumber, statement)
         }
@@ -577,7 +602,7 @@ public class Interpreter {
         }
     }
 
-    final func indexOfProgramLineWithNumber(lineNumber: Int) -> Int? {
+    func indexOfProgramLineWithNumber(lineNumber: Int) -> Int? {
         for (index, element) in enumerate(program) {
             let (n, statement) = element
             if lineNumber == n {
@@ -587,9 +612,9 @@ public class Interpreter {
         return nil
     }
 
-    final func getLastProgramLineNumber() -> Int {
+    func getLastProgramLineNumber() -> Int {
         if program.count > 0 {
-            let (lineNumber, statement) = program.last!
+            let (lineNumber, _) = program.last!
             return lineNumber
         }
 
@@ -600,18 +625,20 @@ public class Interpreter {
     // MARK: - Execution
 
     /// Execute the given statement
-    final func execute(statement: Statement) {
+    func execute(statement: Statement) {
         switch statement {
         case let .Print(exprList):          executePrint(exprList)
         case let .Let(varName, expr):       executeLet(varName, expr)
         case let .If(lhs, relop, rhs, box): executeIf(lhs, relop, rhs, box)
         case .List:                         executeList()
+        case .Run:                          executeRun()
+        case .End:                          executeEnd()
         default:                            showError("error: unimplemented statement type")
         }
     }
 
     /// Execute PRINT with the specified arguments
-    final func executePrint(printList: PrintList) {
+    func executePrint(printList: PrintList) {
         switch printList {
         case .Item(let item):
             print(item)
@@ -641,43 +668,68 @@ public class Interpreter {
         print(Char_Linefeed)
     }
 
-    final func executeLet(variableName: VariableName, _ expression: Expression) {
+    func executeLet(variableName: VariableName, _ expression: Expression) {
         v[variableName] = expression.getValue(v)
     }
 
-    final func executeIf(lhs: Expression, _ relop: Relop, _ rhs: Expression, _ boxedStatement: Box<Statement>) {
+    func executeIf(lhs: Expression, _ relop: Relop, _ rhs: Expression, _ boxedStatement: Box<Statement>) {
         if relop.isTrueForNumbers(lhs.getValue(v), rhs.getValue(v)) {
             execute(boxedStatement.boxedValue)
         }
     }
 
-    final func executeList() {
+    func executeList() {
         for (lineNumber, statement) in program {
             print("\(lineNumber) \(statement.text)\n")
         }
     }
 
+    func executeRun() {
+        if program.count == 0 {
+            showError("error: no program in memory")
+        }
+
+        programIndex = 0
+        clearVariables()
+        isRunning = true
+        while isRunning {
+            if programIndex >= program.count {
+                showError("error: program does not terminate with END")
+                isRunning = false
+                break
+            }
+
+            let (lineNumber, statement) = program[programIndex++]
+            execute(statement)
+        }
+    }
+
+    func executeEnd() {
+        isRunning = false
+    }
+
+
     // MARK: - I/O
 
     /// Send a single character to the output stream
-    final func print(c: Char) {
+    func print(c: Char) {
         io.putOutputChar(self, c)
     }
 
     /// Send characters to the output stream
-    final func print(chars: [Char]) {
+    func print(chars: [Char]) {
         for c in chars {
             io.putOutputChar(self, c)
         }
     }
 
     /// Send string to the output stream
-    final func print(s: String) {
+    func print(s: String) {
         return print(charsFromString(s))
     }
 
     /// Print a PrintItem
-    final func print(printItem: PrintItem) {
+    func print(printItem: PrintItem) {
         switch (printItem) {
 
         case .Str(let chars):
@@ -692,7 +744,7 @@ public class Interpreter {
     }
 
     /// Display error message
-    final func showError(message: String) {
+    func showError(message: String) {
         io.showError(self, message: message)
     }
 
@@ -702,7 +754,7 @@ public class Interpreter {
     /// Any horizontal tab ('\t') in the input will be converted to a single space.
     ///
     /// Result may be an empty array, indicating an empty input line, not end of input.
-    final func readInputLine() -> InputLine? {
+    func readInputLine() -> InputLine? {
         var lineBuffer: InputLine = Array()
 
         if var c = io.getInputChar(self) {

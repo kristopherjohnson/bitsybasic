@@ -263,12 +263,66 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual("1\n3\n", io.outputString, "should print expected lines")
     }
 
-    func testList() {
-        io.inputString = "10 print \"hello\"\nlist"
+    func testListPrint() {
+        io.inputString = "10 print \"hello\", \"world\"\nlist"
 
         interpreter.interpretInput()
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual("10 PRINT \"hello\"\n", io.outputString, "should print expected lines")
+        XCTAssertEqual("10 PRINT \"hello\", \"world\"\n", io.outputString, "should print expected lines")
+    }
+
+    func testListLet() {
+        io.inputString = "20 let x = 10*y + (2 * z  )\nlist"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("20 LET X = 10 * Y + (2 * Z)\n", io.outputString, "should print expected lines")
+    }
+
+    func testListIf() {
+        io.inputString = "50   if  y < ( x + 1 )  then print \"foo\", \"bar\"\nlist"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("50 IF Y < (X + 1) THEN PRINT \"foo\", \"bar\"\n", io.outputString, "should print expected lines")
+    }
+
+    func testListList() {
+        io.inputString = "10   list\nlist"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("10 LIST\n", io.outputString, "should print expected lines")
+    }
+    
+    func testListEnd() {
+        io.inputString = "10   end \nlist"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("10 END\n", io.outputString, "should print expected lines")
+    }
+    
+    func testRun() {
+        io.inputString = "10 print \"hello\"\n20 print \"world\"\n30 end\nrun\n"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("hello\nworld\n", io.outputString, "should print expected lines")
+    }
+
+    func testRunWithoutEnd() {
+        io.inputString = "10 print \"hello\"\n20 print \"world\"\nrun\n"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(1, io.errors.count, "should have error due to lack of END")
+        XCTAssertEqual("hello\nworld\n", io.outputString, "should print expected lines")
     }
 }

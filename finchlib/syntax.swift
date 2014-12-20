@@ -95,15 +95,48 @@ enum Statement {
     case Error(String)
 
 
-    /// Return statement as text
+    /// Return pretty-printed statement
     var text: String {
         switch self {
 
         case let .Print(printList):
             return "PRINT \(printList.text)"
 
-        default:
-            return "(statement)"
+        case let .Input(varlist):
+            return "INPUT (varlist)" // TODO
+
+        case let .Let(varname, expression):
+            return "LET \(stringFromChar(varname)) = \(expression.text)"
+
+        case let .Goto(expression):
+            return "GOTO \(expression.text)"
+
+        case let .Gosub(expression):
+            return "GOSUB \(expression.text)"
+            
+        case .Return:
+            return "RETURN"
+            
+        case let .If(lhs, relop, rhs, box):
+            return "IF \(lhs.text) \(relop.text) \(rhs.text) THEN \(box.boxedValue.text)"
+
+        case let .Rem(comment):
+            return "REM\(comment)"
+
+        case .Clear:
+            return "CLEAR"
+
+        case .End:
+            return "END"
+
+        case .Run:
+            return "RUN"
+
+        case .List:
+            return "LIST"
+
+        case let .Error(message):
+            return "statement error: \(message)"
         }
     }
 }
@@ -117,7 +150,7 @@ enum VarList {
     case Vars(VariableName, Box<VarList>)
 }
 
-/// Result of parsing an exprlist
+/// Result of parsing a printlist
 enum PrintList {
     /// expression
     case Item(PrintItem)
@@ -126,13 +159,29 @@ enum PrintList {
     case Items(PrintItem, Box<PrintList>)
 
 
+    /// Return pretty-printed program text
     var text: String {
         switch self {
         case let .Item(printItem):
             return printItem.text
 
         case let .Items(printItem, printItems):
-            return "\(printItem.text), ..."
+            var result = printItem.text
+
+            var x = printItems.boxedValue
+            var done = false
+            while !done {
+                switch x {
+                case let .Item(item):
+                    result.extend(", \(item.text)")
+                    done = true
+                case let .Items(item, box):
+                    result.extend(", \(item.text)")
+                    x = box.boxedValue
+                }
+            }
+
+            return result
         }
     }
 }
@@ -146,6 +195,7 @@ enum PrintItem {
     case Str([Char])
 
 
+    /// Return pretty-printed program text
     var text: String {
         switch self {
         case let .Expr(expression):
@@ -180,7 +230,7 @@ enum Expression {
 
         case let .Minus(uexpr):
             // The leading minus sign must be applied to the
-            // first term in the expression
+            // first term in the expression (not to the entire expression)
             switch uexpr {
             case .Value(_):
                 return -(uexpr.getValue(v))
@@ -194,6 +244,7 @@ enum Expression {
         }
     }
 
+    /// Return program text
     var text: String {
         switch self {
         case let .UnsignedExpr(uexpr):
@@ -239,7 +290,7 @@ enum UnsignedExpression {
         }
     }
 
-
+    /// Return pretty-printed program text
     var text: String {
         switch self {
         case let .Value(term):
@@ -288,6 +339,7 @@ enum Term {
         }
     }
 
+    /// Return pretty-printed program text
     var text: String {
         switch self {
 
@@ -324,6 +376,7 @@ enum Factor {
         }
     }
 
+    /// Return pretty-printed program text
     var text: String {
         switch self {
         case let .Var(varname):   return stringFromChar(varname)
@@ -363,6 +416,18 @@ enum Relop {
         case .LessThanOrEqualTo:    return lhs <= rhs
         case .GreaterThanOrEqualTo: return lhs >= rhs
         case .NotEqualTo:           return lhs != rhs
+        }
+    }
+
+    /// Return pretty-printed program text
+    var text: String {
+        switch self {
+        case .LessThan:             return "<"
+        case .GreaterThan:          return ">"
+        case .EqualTo:              return "="
+        case .LessThanOrEqualTo:    return "<="
+        case .GreaterThanOrEqualTo: return ">="
+        case .NotEqualTo:           return "<>"
         }
     }
 }
