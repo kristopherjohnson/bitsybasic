@@ -7,11 +7,12 @@ Copyright 2014 Kristopher Johnson
 
 FinchBasic is a dialect of [Tiny BASIC](http://en.wikipedia.org/wiki/Tiny_BASIC), implemented in [Swift](https://developer.apple.com/swift/).
 
-Note: the `INPUT` statement is not yet implemented.  (I'll get to it eventually.)
+_Note:_ The `INPUT` statement is not yet implemented.  (I'll get to it eventually.)
 
 The syntax and implementation are based upon these online sources:
 
 - The Wikipedia page: <http://en.wikipedia.org/wiki/Tiny_BASIC>
+- [Dr. Dobb's Journal of Tiny BASIC Calisthenics & Orthodontia: Running Light Without Overbyte, Volume 1, Issue 1](http://www.drdobbs.com/architecture-and-design/sourcecode/dr-dobbs-journal-30/30000144)
 - ["The Return of Tiny Basic"](http://www.drdobbs.com/web-development/the-return-of-tiny-basic/184406381)
 - [Tiny Basic User's Manual](http://www.ittybittycomputers.com/IttyBitty/TinyBasic/TBuserMan.htm)
 - [TinyBasic.c](http://www.ittybittycomputers.com/IttyBitty/TinyBasic/TinyBasic.c)
@@ -92,5 +93,7 @@ FinchBasic supports this syntax:
 - Reject input lines that have invalid trailing characters (currently the parser just stops when it is happy with a complete statement, and ignores anything else on the line)
 - Support `;` separators for `PRINT`
 - Support trailing separator for `PRINT`
+- `RND()` function
 - Command-line options to load files, redirect output, suppress prompts, etc.
 - `TRON`/`TROFF`
+- Graphics functions? Turtle graphics?
