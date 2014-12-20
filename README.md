@@ -32,11 +32,11 @@ The `finchbasic` executable will be in the `build/Release` directory.
 
 If you want to "load a program" into `finchbasic`, you can do something like this:
 
-    `./finchbasic < myprogram.basic`
+    ./finchbasic < myprogram.basic
 
 If you want to "load a program" and then interact, you can do this:
 
-    `cat myprogram.basic - | ./finchbasic`
+    cat myprogram.basic - | ./finchbasic
 
 
 ## Syntax
