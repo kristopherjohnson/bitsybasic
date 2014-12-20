@@ -213,6 +213,16 @@ public final class Interpreter {
             return parseGotoArguments(input, nextIndex)
         }
 
+        // "GOSUB"
+        if let nextIndex = parseLiteral("GOSUB", input, index) {
+            return parseGosubArguments(input, nextIndex)
+        }
+
+        // "RETURN"
+        if let nextIndex = parseLiteral("RETURN", input, index) {
+            return .Return
+        }
+
         // "LIST"
         if let nextIndex = parseLiteral("LIST", input, index) {
             return .List
@@ -265,6 +275,17 @@ public final class Interpreter {
         }
 
         return .Error("error: invalid syntax for GOTO")
+    }
+    
+    /// Parse the arguments for a GOSUB statement
+    ///
+    /// "GOSUB" expression
+    func parseGosubArguments(input: InputLine, _ index: Int) -> Statement {
+        if let (expr, afterExpr) = parseExpression(input, index) {
+            return .Gosub(expr)
+        }
+
+        return .Error("error: invalid syntax for GOSUB")
     }
     
     /// Parse the arguments for an IF statement
@@ -648,6 +669,8 @@ public final class Interpreter {
         case let .Let(varName, expr):       executeLet(varName, expr)
         case let .If(lhs, relop, rhs, box): executeIf(lhs, relop, rhs, box)
         case let .Goto(expr):               executeGoto(expr)
+        case let .Gosub(expr):              executeGosub(expr)
+        case .Return:                       executeReturn()
         case .List:                         executeList()
         case .Run:                          executeRun()
         case .End:                          executeEnd()
@@ -732,6 +755,32 @@ public final class Interpreter {
         }
         else {
             showError("error: GOTO \(lineNumber) - no line with that number")
+        }
+    }
+
+    /// Execute GOSUB statement
+    func executeGosub(expression: Expression) {
+        let lineNumber = expression.getValue(v)
+        if let i = indexOfProgramLineWithNumber(lineNumber) {
+            returnStack.append(programIndex)
+            programIndex = i
+            if !isRunning {
+                doRunLoop()
+            }
+        }
+        else {
+            showError("error: GOTO \(lineNumber) - no line with that number")
+        }
+    }
+
+    /// Execute RETURN statement
+    func executeReturn() {
+        if returnStack.count > 0 {
+            programIndex = returnStack.last!
+            returnStack.removeLast()
+        }
+        else {
+            showError("error: RETURN - empty return stack")
         }
     }
 

@@ -334,4 +334,23 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual("hello\n", io.outputString, "should print expected lines")
     }
+
+    func testGosub() {
+        io.inputString = "\n".join([
+            "10 gosub 100",
+            "20 gosub 200",
+            "30 gosub 100",
+            "40 end",
+            "100 print \"hello\"",
+            "110 return",
+            "200 print \"goodbye\"",
+            "210 return",
+            "run"
+        ])
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("hello\ngoodbye\nhello\n", io.outputString, "should print expected lines")
+    }
 }
