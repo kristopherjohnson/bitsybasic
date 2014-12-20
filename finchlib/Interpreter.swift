@@ -100,11 +100,30 @@ public final class Interpreter {
         clearVariables()
     }
 
+    /// Reset the machine to initial state
+    public func clear() {
+        clearProgram()
+        clearReturnStack()
+        clearVariables()
+    }
+
     /// Set values of all variables to zero
     func clearVariables() {
         for varname in Char_A...Char_Z {
             v[varname] = 0
         }
+    }
+
+    /// Remove program from meory
+    func clearProgram() {
+        program = []
+        programIndex = 0
+        isRunning = false
+    }
+
+    /// Remove all items from the return stack
+    func clearReturnStack() {
+        returnStack = []
     }
 
 
@@ -223,6 +242,11 @@ public final class Interpreter {
             return .Return
         }
 
+        // "REM"
+        if let nextIndex = parseLiteral("REM", input, index) {
+            return parseRemArguments(input, nextIndex)
+        }
+
         // "LIST"
         if let nextIndex = parseLiteral("LIST", input, index) {
             return .List
@@ -238,6 +262,10 @@ public final class Interpreter {
             return .End
         }
 
+        // "CLEAR"
+        if let nextIndex = parseLiteral("CLEAR", input, index) {
+            return .Clear
+        }
 
         return .Error("error: not a valid statement")
     }
@@ -307,6 +335,14 @@ public final class Interpreter {
         }
 
         return .Error("error: invalid syntax for IF")
+    }
+
+    /// Parse the arguments for a REM statement
+    ///
+    /// "REM" commentstring
+    func parseRemArguments(input: InputLine, _ index: Int) -> Statement {
+        let commentChars: [Char] = Array(input[index..<input.count])
+        return .Rem(stringFromChars(commentChars))
     }
 
     /// Attempt to parse an PrintList.
@@ -674,6 +710,8 @@ public final class Interpreter {
         case .List:                         executeList()
         case .Run:                          executeRun()
         case .End:                          executeEnd()
+        case .Clear:                        clear()
+        case .Rem(_):                       break
         default:                            showError("error: unimplemented statement type")
         }
     }
@@ -736,6 +774,7 @@ public final class Interpreter {
 
         programIndex = 0
         clearVariables()
+        clearReturnStack()
         doRunLoop()
     }
 
