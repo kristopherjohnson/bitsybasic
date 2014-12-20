@@ -120,12 +120,12 @@ class finchlibTests: XCTestCase {
     }
 
     func testPrintStrings() {
-        io.inputString = "PRINT \"Hello, world!\"\n   P R\"Goodbye, world!\" "
+        io.inputString = "PRINT \"Hello, world!\"\n   P R\"Goodbye, world!\"\n ? \"Question?\""
 
         interpreter.interpretInput()
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual("Hello, world!\nGoodbye, world!\n", io.outputString, "should print two lines")
+        XCTAssertEqual("Hello, world!\nGoodbye, world!\nQuestion?\n", io.outputString, "should print two lines")
     }
 
     func testPrintNumber() {
@@ -192,11 +192,11 @@ class finchlibTests: XCTestCase {
     }
 
     func testParentheses() {
-        io.inputString = "PRINT (5 + 2 ) * 3, 10 -(  2 * 7)"
+        io.inputString = "PRINT (5 + 2 ) * 3, 10 -(  2 * 7), -100 + (-7)"
 
         interpreter.interpretInput()
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual("21\t-4\n", io.outputString, "should print the values separated by tabs")
+        XCTAssertEqual("21\t-4\t-107\n", io.outputString, "should print the values separated by tabs")
     }
 }

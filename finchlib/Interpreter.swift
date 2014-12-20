@@ -177,6 +177,11 @@ public class Interpreter {
             return parsePrintArguments(input, nextIndex)
         }
 
+        // "?" is an abbreviation for "PRINT"
+        if let nextIndex = parseLiteral("?", input, index) {
+            return parsePrintArguments(input, nextIndex)
+        }
+
         return .Error("error: not a valid statement")
     }
 
