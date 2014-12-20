@@ -325,4 +325,13 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(1, io.errors.count, "should have error due to lack of END")
         XCTAssertEqual("hello\nworld\n", io.outputString, "should print expected lines")
     }
+
+    func testGoto() {
+        io.inputString = "10 print \"hello\"\n15 goto 30\n20 print \"world\"\n30 end\nrun\n"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("hello\n", io.outputString, "should print expected lines")
+    }
 }

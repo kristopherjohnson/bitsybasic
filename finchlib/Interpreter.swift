@@ -208,6 +208,11 @@ public final class Interpreter {
             return parseIfArguments(input, nextIndex)
         }
 
+        // "GOTO"
+        if let nextIndex = parseLiteral("GOTO", input, index) {
+            return parseGotoArguments(input, nextIndex)
+        }
+
         // "LIST"
         if let nextIndex = parseLiteral("LIST", input, index) {
             return .List
@@ -222,6 +227,7 @@ public final class Interpreter {
         if let nextIndex = parseLiteral("END", input, index) {
             return .End
         }
+
 
         return .Error("error: not a valid statement")
     }
@@ -239,7 +245,6 @@ public final class Interpreter {
     ///
     /// "LET" var "=" expression
     func parseLetArguments(input: InputLine, _ index: Int) -> Statement {
-
         if let (varName, afterVar) = parseVariableName(input, index) {
             if let afterEq = parseLiteral("=", input, afterVar) {
                 if let (expr, afterExpr) = parseExpression(input, afterEq) {
@@ -247,9 +252,21 @@ public final class Interpreter {
                 }
             }
         }
+
         return .Error("error: invalid syntax for LET")
     }
 
+    /// Parse the arguments for a GOTO statement
+    ///
+    /// "GOTO" expression
+    func parseGotoArguments(input: InputLine, _ index: Int) -> Statement {
+        if let (expr, afterExpr) = parseExpression(input, index) {
+            return .Goto(expr)
+        }
+
+        return .Error("error: invalid syntax for GOTO")
+    }
+    
     /// Parse the arguments for an IF statement
     ///
     /// "IF" expression relop expression "THEN" statement
@@ -630,6 +647,7 @@ public final class Interpreter {
         case let .Print(exprList):          executePrint(exprList)
         case let .Let(varName, expr):       executeLet(varName, expr)
         case let .If(lhs, relop, rhs, box): executeIf(lhs, relop, rhs, box)
+        case let .Goto(expr):               executeGoto(expr)
         case .List:                         executeList()
         case .Run:                          executeRun()
         case .End:                          executeEnd()
@@ -668,22 +686,26 @@ public final class Interpreter {
         print(Char_Linefeed)
     }
 
+    /// Execute LET statement
     func executeLet(variableName: VariableName, _ expression: Expression) {
         v[variableName] = expression.getValue(v)
     }
 
+    /// Execute IF statement
     func executeIf(lhs: Expression, _ relop: Relop, _ rhs: Expression, _ boxedStatement: Box<Statement>) {
         if relop.isTrueForNumbers(lhs.getValue(v), rhs.getValue(v)) {
             execute(boxedStatement.boxedValue)
         }
     }
 
+    /// Execute LIST statement
     func executeList() {
         for (lineNumber, statement) in program {
             print("\(lineNumber) \(statement.text)\n")
         }
     }
 
+    /// Execute RUN statement
     func executeRun() {
         if program.count == 0 {
             showError("error: no program in memory")
@@ -691,6 +713,31 @@ public final class Interpreter {
 
         programIndex = 0
         clearVariables()
+        doRunLoop()
+    }
+
+    /// Execute END statement
+    func executeEnd() {
+        isRunning = false
+    }
+
+    /// Execute GOTO statement
+    func executeGoto(expression: Expression) {
+        let lineNumber = expression.getValue(v)
+        if let i = indexOfProgramLineWithNumber(lineNumber) {
+            programIndex = i
+            if !isRunning {
+                doRunLoop()
+            }
+        }
+        else {
+            showError("error: GOTO \(lineNumber) - no line with that number")
+        }
+    }
+
+
+    /// Starting at current program index, execute commands
+    func doRunLoop() {
         isRunning = true
         while isRunning {
             if programIndex >= program.count {
@@ -702,10 +749,6 @@ public final class Interpreter {
             let (lineNumber, statement) = program[programIndex++]
             execute(statement)
         }
-    }
-
-    func executeEnd() {
-        isRunning = false
     }
 
 
