@@ -74,3 +74,15 @@ FinchBasic supports this syntax:
     digit ::= 0 | 1 | 2 | 3 | ... | 8 | 9
 
     relop ::= < (>|=|ε) | > (<|=|ε) | =
+
+## Code Organization
+
+- `finchbasic/` - source for `finchbasic` command-line tool
+   - `main.swift` - main entry point for the command-line tool
+- `finchlib/` - source for `finchbasic` executable and `finchlib` framework
+   - `Interpreter.swift` - defines the `Interpreter` class
+   - `syntax.swift` - defines the parse-tree data structures
+   - `char.swift` - ASCII character constants and functions for converting between String and arrays of ASCII/UTF8 characters
+   - `util.swift` - miscellaneous
+- `finchlibTests/` - unit tests
+
