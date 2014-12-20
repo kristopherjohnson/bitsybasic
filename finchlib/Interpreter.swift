@@ -182,6 +182,10 @@ public class Interpreter {
             return parsePrintArguments(input, nextIndex)
         }
 
+        if let nextIndex = parseLiteral("LET", input, index) {
+            return parseLetArguments(input, nextIndex)
+        }
+
         return .Error("error: not a valid statement")
     }
 
@@ -191,7 +195,22 @@ public class Interpreter {
             return .Print(exprList)
         }
 
-        return .Error("error: invalid arguments to PRINT")
+        return .Error("error: invalid syntax for PRINT")
+    }
+
+    /// Parse the arguments for a LET statement
+    ///
+    /// "LET" var "=" expression
+    final func parseLetArguments(input: InputLine, _ index: Int) -> Statement {
+
+        if let (varName, afterVar) = parseVariableName(input, index) {
+            if let afterEq = parseLiteral("=", input, afterVar) {
+                if let (expr, afterExpr) = parseExpression(input, afterEq) {
+                    return .Let(varName, expr)
+                }
+            }
+        }
+        return .Error("error: invalid syntax for LET")
     }
 
     /// Attempt to parse an PrintList.
@@ -323,6 +342,11 @@ public class Interpreter {
             }
         }
 
+        // variable
+        if let (variableName, nextIndex) = parseVariableName(input, index) {
+            return (.Var(variableName), nextIndex)
+        }
+
         return nil
     }
 
@@ -423,6 +447,22 @@ public class Interpreter {
         return nil
     }
 
+    /// Attempt to read a variable name.
+    ///
+    /// Returns variable name and index of next input character on success, or nil otherwise.
+    final func parseVariableName(input: InputLine, _ index: Int) -> (VariableName, Int)? {
+        let count = input.count
+        let i = skipSpaces(input, index)
+        if i < count {
+            let c = input[i]
+            if isAlphabeticChar(c) {
+                return (toUpper(c), i + 1)
+            }
+        }
+
+        return nil
+    }
+
     /// Return index of first non-space character at or after specified index
     final func skipSpaces(input: InputLine, _ index: Int) -> Int {
         var i = index
@@ -446,8 +486,9 @@ public class Interpreter {
     /// Execute the given statement
     final func execute(statement: Statement) {
         switch statement {
-        case .Print(let exprList): executePrint(exprList)
-        default:                   showError("error: unimplemented statement type")
+        case let .Print(exprList):    executePrint(exprList)
+        case let .Let(varName, expr): executeLet(varName, expr)
+        default:                      showError("error: unimplemented statement type")
         }
     }
 
@@ -468,18 +509,37 @@ public class Interpreter {
                 switch remainder {
                 case .Item(let item):
                     // last item
-                    printChar(Char_Tab)
+                    print(Char_Tab)
                     print(item)
                     done = true
                 case .Items(let head, let tail):
-                    printChar(Char_Tab)
+                    print(Char_Tab)
                     print(head)
                     remainder = tail.boxedValue
                 }
             }
         }
 
-        printChar(Char_Linefeed)
+        print(Char_Linefeed)
+    }
+
+    final func executeLet(variableName: VariableName, _ expression: Expression) {
+        v[variableName] = expression.getValue(v)
+    }
+
+
+    // MARK: - I/O
+
+    /// Send a single character to the output stream
+    final func print(c: Char) {
+        io.putOutputChar(self, c)
+    }
+
+    /// Send characters to the output stream
+    final func print(chars: [Char]) {
+        for c in chars {
+            io.putOutputChar(self, c)
+        }
     }
 
     /// Print a PrintItem
@@ -487,28 +547,13 @@ public class Interpreter {
         switch (printItem) {
 
         case .Str(let chars):
-            printChars(chars)
+            print(chars)
 
         case .Expr(let expression):
             let value = expression.getValue(v)
             let stringValue = "\(value)"
             let chars = charsFromString(stringValue)
-            printChars(chars)
-        }
-    }
-
-    
-    // MARK: - I/O
-
-    /// Send a single character to the output stream
-    final func printChar(c: Char) {
-        io.putOutputChar(self, c)
-    }
-
-    /// Send characters to the output stream
-    final func printChars(chars: [Char]) {
-        for c in chars {
-            io.putOutputChar(self, c)
+            print(chars)
         }
     }
 

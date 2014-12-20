@@ -40,6 +40,10 @@ import Foundation
 typealias Number = Int
 
 /// There are 26 variables with names 'A'...'Z'
+///
+/// Note that the names are uppercase. Any lowercase characters read
+/// by the interpreter must be converted to uppercase before
+/// using them as variable names.
 typealias VariableName = Char
 
 /// Each variable is bound to a numeric value

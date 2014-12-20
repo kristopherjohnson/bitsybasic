@@ -199,4 +199,13 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual("21\t-4\t-107\n", io.outputString, "should print the values separated by tabs")
     }
+
+    func testLet() {
+        io.inputString = "LET x = 15\nlet Q = 99\nPRINT X, q - 11, a"
+
+        interpreter.interpretInput()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("15\t88\t0\n", io.outputString, "should print the values separated by tabs")
+    }
 }
