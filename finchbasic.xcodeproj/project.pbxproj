@@ -19,7 +19,6 @@
 		4EC1B54E1A428D400060EEDE /* finchlibTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B54D1A428D400060EEDE /* finchlibTests.swift */; };
 		4EC1B5561A428D5E0060EEDE /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5551A428D5E0060EEDE /* Interpreter.swift */; };
 		4EC1B5571A428D5E0060EEDE /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5551A428D5E0060EEDE /* Interpreter.swift */; };
-		4EC1B5641A429A360060EEDE /* TinyBasic.c in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5631A429A360060EEDE /* TinyBasic.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,15 +33,6 @@
 
 /* Begin PBXCopyFilesBuildPhase section */
 		4EC1B52B1A428CFF0060EEDE /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		4EC1B55A1A4299FC0060EEDE /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -66,8 +56,6 @@
 		4EC1B54C1A428D400060EEDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4EC1B54D1A428D400060EEDE /* finchlibTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = finchlibTests.swift; sourceTree = "<group>"; };
 		4EC1B5551A428D5E0060EEDE /* Interpreter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Interpreter.swift; sourceTree = "<group>"; };
-		4EC1B55C1A4299FC0060EEDE /* tinybasic */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tinybasic; sourceTree = BUILT_PRODUCTS_DIR; };
-		4EC1B5631A429A360060EEDE /* TinyBasic.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = TinyBasic.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,13 +81,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4EC1B5591A4299FC0060EEDE /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -109,7 +90,6 @@
 				4EC1B52F1A428CFF0060EEDE /* finchbasic */,
 				4EC1B53D1A428D400060EEDE /* finchlib */,
 				4EC1B54A1A428D400060EEDE /* finchlibTests */,
-				4EC1B55D1A4299FC0060EEDE /* tinybasic */,
 				4EC1B52E1A428CFF0060EEDE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -120,7 +100,6 @@
 				4EC1B52D1A428CFF0060EEDE /* finchbasic */,
 				4EC1B53C1A428D400060EEDE /* finchlib.framework */,
 				4EC1B5461A428D400060EEDE /* finchlibTests.xctest */,
-				4EC1B55C1A4299FC0060EEDE /* tinybasic */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -169,14 +148,6 @@
 				4EC1B54C1A428D400060EEDE /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		4EC1B55D1A4299FC0060EEDE /* tinybasic */ = {
-			isa = PBXGroup;
-			children = (
-				4EC1B5631A429A360060EEDE /* TinyBasic.c */,
-			);
-			path = tinybasic;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -246,23 +217,6 @@
 			productReference = 4EC1B5461A428D400060EEDE /* finchlibTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		4EC1B55B1A4299FC0060EEDE /* tinybasic */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4EC1B5601A4299FC0060EEDE /* Build configuration list for PBXNativeTarget "tinybasic" */;
-			buildPhases = (
-				4EC1B5581A4299FC0060EEDE /* Sources */,
-				4EC1B5591A4299FC0060EEDE /* Frameworks */,
-				4EC1B55A1A4299FC0060EEDE /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = tinybasic;
-			productName = tinybasic;
-			productReference = 4EC1B55C1A4299FC0060EEDE /* tinybasic */;
-			productType = "com.apple.product-type.tool";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -279,9 +233,6 @@
 						CreatedOnToolsVersion = 6.1.1;
 					};
 					4EC1B5451A428D400060EEDE = {
-						CreatedOnToolsVersion = 6.1.1;
-					};
-					4EC1B55B1A4299FC0060EEDE = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
 				};
@@ -301,7 +252,6 @@
 				4EC1B52C1A428CFF0060EEDE /* finchbasic */,
 				4EC1B53B1A428D400060EEDE /* finchlib */,
 				4EC1B5451A428D400060EEDE /* finchlibTests */,
-				4EC1B55B1A4299FC0060EEDE /* tinybasic */,
 			);
 		};
 /* End PBXProject section */
@@ -352,14 +302,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4EC1B54E1A428D400060EEDE /* finchlibTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4EC1B5581A4299FC0060EEDE /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4EC1B5641A429A360060EEDE /* TinyBasic.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -542,34 +484,6 @@
 			};
 			name = Release;
 		};
-		4EC1B5611A4299FC0060EEDE /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				LLVM_LTO = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WARNING_CFLAGS = (
-					"-Wno-logical-op-parentheses",
-					"-Wno-dangling-else",
-				);
-			};
-			name = Debug;
-		};
-		4EC1B5621A4299FC0060EEDE /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				LLVM_LTO = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WARNING_CFLAGS = (
-					"-Wno-logical-op-parentheses",
-					"-Wno-dangling-else",
-				);
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -605,15 +519,6 @@
 			buildConfigurations = (
 				4EC1B5531A428D400060EEDE /* Debug */,
 				4EC1B5541A428D400060EEDE /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4EC1B5601A4299FC0060EEDE /* Build configuration list for PBXNativeTarget "tinybasic" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4EC1B5611A4299FC0060EEDE /* Debug */,
-				4EC1B5621A4299FC0060EEDE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
