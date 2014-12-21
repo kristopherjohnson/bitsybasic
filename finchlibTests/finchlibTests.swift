@@ -528,4 +528,23 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
+
+    func testRnd() {
+        io.inputString = "\n".join([
+            "1 LET N = 1000"                       ,
+            "5 LET X = -1"                         ,
+            "10 LET X = RND(10)"                   ,
+            "20 IF X >= 10 THEN PRINT \"too big\"" ,
+            "30 IF X < 0 THEN PRINT \"too small\"" ,
+            "40 LET N = N - 1"                     ,
+            "50 IF N > 0 THEN GOTO 5"              ,
+            "60 END"                               ,
+            "RUN"
+        ])
+
+        interpreter.interpretInputLines()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("", io.outputString, "should produce no output")
+    }
 }

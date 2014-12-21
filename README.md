@@ -95,7 +95,7 @@ FinchBasic supports this syntax:
 
     term ::= factor ((*|/) factor)*
 
-    factor ::= var | number | (expression)
+    factor ::= var | number | ( expression ) | RND(expression)
 
     var ::= A | B | C ... | Y | Z
 
@@ -106,6 +106,13 @@ FinchBasic supports this syntax:
     relop ::= < (>|=|ε) | > (<|=|ε) | =
 
 The statements and expressions have the traditional Tiny BASIC behaviors, which are described elsewhere.  Here are some peculiarities of the FinchBasic implementation:
+
+
+*Numbers*
+
+Numbers are 64-bit integers on 64-bit platforms, or 32-bit integers on 32-bit platforms. So if your applications rely on the overflow behavior of 16-bit Tiny BASIC, then you may get unexpected results.
+
+If you need 16-bit integers for your applications, then change the definition of `Number` in `syntax.swift` from `Int` to `Int16`, and then rebuild `finchbasic`.
 
 
 `PRINT`
@@ -134,6 +141,11 @@ If there are too many expressions, then the extra expressions are ignored.
 `TRON`/`TROFF`
 
 The `TRON` command enables statement tracing. Line numbers are printed as each statement is executed.  `TROFF` disables statement tracing.
+
+
+`RND(range)`
+
+Returns a randomly generated number between 0 and `range`-1, inclusive. If `range` is less than 1, then the function returns 0.
 
 
 ## Code Organization
@@ -198,7 +210,6 @@ So, if you want to implement your own control-flow statements, you probably just
 
 These fixes/changes/enhancements are planned:
 
-- `RND()` function
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app
 

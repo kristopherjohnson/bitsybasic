@@ -561,6 +561,15 @@ public final class Interpreter {
             return (.Num(number), nextIndex)
         }
 
+        // "RND(" expression ")"
+        if let afterLParen = parseLiteral("RND(", input, index) {
+            if let (expr, afterExpr) = parseExpression(input, afterLParen) {
+                if let afterRParen = parseLiteral(")", input, afterExpr) {
+                    return (.Rnd(Box(expr)), afterRParen)
+                }
+            }
+        }
+
         // "(" expression ")"
         if let afterLParen = parseLiteral("(", input, index) {
             if let (expr, afterExpr) = parseExpression(input, afterLParen) {

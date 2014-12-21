@@ -471,22 +471,34 @@ enum Factor {
     /// "(" expression ")"
     case ParenExpr(Box<Expression>)
 
+    /// "RND(" expression ")"
+    case Rnd(Box<Expression>)
+
 
     /// Return the value of this Term
     func evaluate(v: VariableBindings) -> Number {
         switch self {
-        case let .Var(varname):   return v[varname] ?? 0
-        case let .Num(number):    return number
-        case let .ParenExpr(box): return box.value.evaluate(v)
+        case let .Var(varname):    return v[varname] ?? 0
+        case let .Num(number):     return number
+        case let .ParenExpr(expr): return expr.value.evaluate(v)
+
+        case let .Rnd(expr):
+            let n = expr.value.evaluate(v)
+            if n < 1 {
+                // TODO: signal a runtime error?
+                return 0
+            }
+            return Number(arc4random_uniform(UInt32(n)))
         }
     }
 
     /// Return pretty-printed program text
     var listText: String {
         switch self {
-        case let .Var(varname):   return stringFromChar(varname)
-        case let .Num(number):    return "\(number)"
-        case let .ParenExpr(box): return "(\(box.value.listText))"
+        case let .Var(varname):    return stringFromChar(varname)
+        case let .Num(number):     return "\(number)"
+        case let .ParenExpr(expr): return "(\(expr.value.listText))"
+        case let .Rnd(expr):       return "RND(\(expr.value.listText))"
         }
     }
 }
