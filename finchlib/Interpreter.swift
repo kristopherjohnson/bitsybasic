@@ -395,11 +395,11 @@ public final class Interpreter {
             if let afterSeparator = parseLiteral(",", input, nextIndex) {
                 // Parse remainder of line
                 if let (tail, afterTail) = parsePrintList(input, afterSeparator) {
-                    return (.Items(item, Box(tail)), afterTail)
+                    return (.Items(item, .Tab, Box(tail)), afterTail)
                 }
             }
 
-            return (.Item(item), nextIndex)
+            return (.Item(item, .Newline), nextIndex)
         }
 
         return nil
@@ -788,32 +788,32 @@ public final class Interpreter {
     /// Execute PRINT statement
     func executePrint(printList: PrintList) {
         switch printList {
-        case .Item(let item):
+        case let .Item(item, terminator):
             print(item)
+            print(terminator)
 
-        case .Items(let item, let printList):
+        case let .Items(item, sep, printList):
             // Print the first item
             print(item)
+            print(sep)
 
             // Walk the list to print remaining items
             var remainder = printList.value
             var done = false
             while !done {
                 switch remainder {
-                case .Item(let item):
+                case let .Item(item, terminator):
                     // last item
-                    print(Char_Tab)
                     print(item)
+                    print(terminator)
                     done = true
-                case .Items(let head, let tail):
-                    print(Char_Tab)
+                case let .Items(head, sep, tail):
                     print(head)
+                    print(sep)
                     remainder = tail.value
                 }
             }
         }
-
-        print(Char_Linefeed)
     }
 
     /// Execute INPUT statement
@@ -903,7 +903,7 @@ public final class Interpreter {
     /// Execute LIST statement
     func executeList() {
         for (lineNumber, statement) in program {
-            print("\(lineNumber) \(statement.text)\n")
+            print("\(lineNumber) \(statement.listText)\n")
         }
     }
 
@@ -1015,19 +1015,9 @@ public final class Interpreter {
         return print(charsFromString(s))
     }
 
-    /// Print a PrintItem
-    func print(printItem: PrintItem) {
-        switch (printItem) {
-
-        case .Str(let chars):
-            print(chars)
-
-        case .Expr(let expression):
-            let value = expression.evaluate(v)
-            let stringValue = "\(value)"
-            let chars = charsFromString(stringValue)
-            print(chars)
-        }
+    /// Print an object that conforms to the PrintTextProvider protocol
+    func print(p: PrintTextProvider) {
+        print(p.printText(v))
     }
 
     /// Display error message

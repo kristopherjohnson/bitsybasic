@@ -102,29 +102,29 @@ enum Statement {
 
 
     /// Return pretty-printed statement
-    var text: String {
+    var listText: String {
         switch self {
 
         case let .Print(printList):
-            return "PRINT \(printList.text)"
+            return "PRINT \(printList.listText)"
 
         case let .Input(varlist):
-            return "INPUT \(varlist.text)"
+            return "INPUT \(varlist.listText)"
 
         case let .Let(varname, expression):
-            return "LET \(stringFromChar(varname)) = \(expression.text)"
+            return "LET \(stringFromChar(varname)) = \(expression.listText)"
 
         case let .Goto(expression):
-            return "GOTO \(expression.text)"
+            return "GOTO \(expression.listText)"
 
         case let .Gosub(expression):
-            return "GOSUB \(expression.text)"
+            return "GOSUB \(expression.listText)"
             
         case .Return:
             return "RETURN"
             
         case let .If(lhs, relop, rhs, box):
-            return "IF \(lhs.text) \(relop.text) \(rhs.text) THEN \(box.value.text)"
+            return "IF \(lhs.listText) \(relop.listText) \(rhs.listText) THEN \(box.value.listText)"
 
         case let .Rem(comment):
             return "REM\(comment)"
@@ -163,7 +163,7 @@ enum VarList {
 
 
     /// Return pretty-printed program text
-    var text: String {
+    var listText: String {
         switch self {
         case let .Item(variableName):
             return stringFromChar(variableName)
@@ -189,33 +189,39 @@ enum VarList {
     }
 }
 
+/// Protocol supported by elements that provide text for the PRINT statement
+protocol PrintTextProvider {
+    /// Return output text associated with this element
+    func printText(v: VariableBindings) -> String
+}
+
 /// Result of parsing a printlist
 enum PrintList {
     /// expression
-    case Item(PrintItem)
+    case Item(PrintItem, PrintListTerminator)
 
     /// expression "," exprlist
-    case Items(PrintItem, Box<PrintList>)
+    case Items(PrintItem, PrintListSeparator, Box<PrintList>)
 
 
     /// Return pretty-printed program text
-    var text: String {
+    var listText: String {
         switch self {
-        case let .Item(printItem):
-            return printItem.text
+        case let .Item(printItem, terminator):
+            return "\(printItem.listText)\(terminator.listText)"
 
-        case let .Items(printItem, printItems):
-            var result = printItem.text
+        case let .Items(printItem, sep, printItems):
+            var result = "\(printItem.listText)\(sep.listText) "
 
             var x = printItems.value
             var done = false
             while !done {
                 switch x {
-                case let .Item(item):
-                    result.extend(", \(item.text)")
+                case let .Item(item, terminator):
+                    result.extend("\(item.listText)\(terminator.listText)")
                     done = true
-                case let .Items(item, box):
-                    result.extend(", \(item.text)")
+                case let .Items(item, sep, box):
+                    result.extend("\(item.listText)\(sep.listText) ")
                     x = box.value
                 }
             }
@@ -225,23 +231,80 @@ enum PrintList {
     }
 }
 
+/// Items in a PrintList can be separated by a comma, which causes a tab
+/// character to be output between each character, or a semicolon, which
+/// causes items to be printed with no separator.
+enum PrintListSeparator: PrintTextProvider {
+    case Tab
+    case Empty
+
+    /// Return text that should be included in output for this element
+    func printText(v: VariableBindings) -> String {
+        switch self {
+        case .Tab:   return "\t"
+        case .Empty: return ""
+        }
+    }
+
+    /// Return pretty-printed program text
+    var listText: String {
+        switch self {
+        case .Tab:   return ","
+        case .Empty: return ";"
+        }
+    }
+}
+
+/// A PrintList can end with a semicolon, indicating that there should
+/// be no separation from subsequent PRINT output, with a comma,
+/// indicating that a tab character should be the separator, or
+/// with nothing, indicating that a newline character should terminate
+/// the output.
+enum PrintListTerminator: PrintTextProvider {
+    case Newline
+    case Tab
+    case Empty
+
+    /// Return text that should be included in output for this element
+    func printText(v: VariableBindings) -> String {
+        switch self {
+        case .Newline: return "\n"
+        case .Tab:     return "\t"
+        case .Empty:   return ""
+        }
+    }
+
+    /// Return pretty-printed program text
+    var listText: String {
+        switch self {
+        case .Newline: return ""
+        case .Tab:     return ","
+        case .Empty:   return ";"
+        }
+    }
+}
+
 /// Result of parsing an exprlist
-enum PrintItem {
+enum PrintItem: PrintTextProvider {
     /// expression
     case Expr(Expression)
 
     /// '"' string '"'
     case Str([Char])
 
+    /// Return text that should be included in output for this element
+    func printText(v: VariableBindings) -> String {
+        switch self {
+        case let .Str(chars):       return stringFromChars(chars)
+        case let .Expr(expression): return "\(expression.evaluate(v))"
+        }
+    }
 
     /// Return pretty-printed program text
-    var text: String {
+    var listText: String {
         switch self {
-        case let .Expr(expression):
-            return expression.text
-
-        case let .Str(chars):
-            return "\"\(stringFromChars(chars))\""
+        case let .Expr(expression): return expression.listText
+        case let .Str(chars):       return "\"\(stringFromChars(chars))\""
         }
     }
 }
@@ -288,16 +351,16 @@ enum Expression {
     }
 
     /// Return program text
-    var text: String {
+    var listText: String {
         switch self {
         case let .UnsignedExpr(uexpr):
-            return uexpr.text
+            return uexpr.listText
 
         case let .Plus(uexpr):
-            return "+\(uexpr.text)"
+            return "+\(uexpr.listText)"
 
         case let .Minus(uexpr):
-            return "-\(uexpr.text)"
+            return "-\(uexpr.listText)"
         }
     }
 }
@@ -334,16 +397,16 @@ enum UnsignedExpression {
     }
 
     /// Return pretty-printed program text
-    var text: String {
+    var listText: String {
         switch self {
         case let .Value(term):
-            return term.text
+            return term.listText
 
         case let .Sum(term, boxedExpr):
-            return "\(term.text) + \(boxedExpr.value.text)"
+            return "\(term.listText) + \(boxedExpr.value.listText)"
 
         case let .Diff(term, boxedExpr):
-            return "\(term.text) - \(boxedExpr.value.text)"
+            return "\(term.listText) - \(boxedExpr.value.listText)"
         }
     }
 }
@@ -383,17 +446,17 @@ enum Term {
     }
 
     /// Return pretty-printed program text
-    var text: String {
+    var listText: String {
         switch self {
 
         case let .Value(factor):
-            return factor.text
+            return factor.listText
 
         case let .Product(factor, boxedTerm):
-            return "\(factor.text) * \(boxedTerm.value.text)"
+            return "\(factor.listText) * \(boxedTerm.value.listText)"
 
         case let .Quotient(factor, boxedTerm):
-            return "\(factor.text) / \(boxedTerm.value.text)"
+            return "\(factor.listText) / \(boxedTerm.value.listText)"
         }
     }
 }
@@ -420,11 +483,11 @@ enum Factor {
     }
 
     /// Return pretty-printed program text
-    var text: String {
+    var listText: String {
         switch self {
         case let .Var(varname):   return stringFromChar(varname)
         case let .Num(number):    return "\(number)"
-        case let .ParenExpr(box): return "(\(box.value.text))"
+        case let .ParenExpr(box): return "(\(box.value.listText))"
         }
     }
 }
@@ -463,7 +526,7 @@ enum Relop {
     }
 
     /// Return pretty-printed program text
-    var text: String {
+    var listText: String {
         switch self {
         case .LessThan:             return "<"
         case .GreaterThan:          return ">"
