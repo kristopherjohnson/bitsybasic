@@ -91,6 +91,12 @@ enum Statement {
     /// "LIST"
     case List
 
+    /// "TRON"
+    case Tron
+
+    /// "TROFF"
+    case Troff
+
     /// Unable to parse input as statement
     case Error(String)
 
@@ -135,6 +141,12 @@ enum Statement {
         case .List:
             return "LIST"
 
+        case .Tron:
+            return "TRON"
+
+        case .Troff:
+            return "TROFF"
+            
         case let .Error(message):
             return "statement error: \(message)"
         }

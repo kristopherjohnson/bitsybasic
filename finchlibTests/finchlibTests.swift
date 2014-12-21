@@ -83,6 +83,10 @@ class StringIO: InterpreterIO {
     func showError(interpreter: Interpreter, message: String) {
         errors.append(message)
     }
+
+    func showDebugTrace(interpreter: Interpreter, message: String) {
+        // does nothing
+    }
 }
 
 class finchlibTests: XCTestCase {

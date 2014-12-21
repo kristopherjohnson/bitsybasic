@@ -42,6 +42,9 @@ public protocol InterpreterIO {
 
     /// Display error message to user
     func showError(interpreter: Interpreter, message: String)
+
+    /// Display a debug trace message
+    func showDebugTrace(interpreter: Interpreter, message: String)
 }
 
 /// Default implementation of InterpreterIO that reads from stdin,
@@ -68,6 +71,12 @@ public final class StandardIO: InterpreterIO {
         fwrite(chars, 1, UInt(chars.count), stderr)
         fflush(stderr)
     }
+
+    public func showDebugTrace(interpreter: Interpreter, message: String) {
+        var chars = charsFromString(message)
+        fwrite(chars, 1, UInt(chars.count), stdout)
+        fflush(stdout)
+    }
 }
 
 
@@ -92,6 +101,9 @@ public final class Interpreter {
 
     /// Return stack
     var returnStack: [Int] = []
+
+    /// If true, print line numbers while program runs
+    var isTraceOn = false
 
 
     /// Initialize, optionally passing in a custom InterpreterIO handler
@@ -275,6 +287,16 @@ public final class Interpreter {
         // "CLEAR"
         if let nextIndex = parseLiteral("CLEAR", input, index) {
             return .Clear
+        }
+
+        // "TRON"
+        if let nextIndex = parseLiteral("TRON", input, index) {
+            return .Tron
+        }
+
+        // "TROFF"
+        if let nextIndex = parseLiteral("TROFF", input, index) {
+            return .Troff
         }
 
         return .Error("error: not a valid statement")
@@ -753,6 +775,8 @@ public final class Interpreter {
         case .End:                          executeEnd()
         case .Clear:                        clear()
         case .Rem(_):                       break
+        case .Tron:                         isTraceOn = true
+        case .Troff:                        isTraceOn = false
         case let .Error(message):           abortRunWithErrorMessage(message)
         }
     }
@@ -949,6 +973,9 @@ public final class Interpreter {
             }
 
             let (lineNumber, statement) = program[programIndex++]
+            if isTraceOn {
+                io.showDebugTrace(self, message: "[\(lineNumber)]")
+            }
             execute(statement)
         }
     }

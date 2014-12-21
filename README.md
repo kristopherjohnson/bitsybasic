@@ -84,6 +84,8 @@ FinchBasic supports this syntax:
                   LIST
                   RUN
                   END
+                  TRON
+                  TROFF
 
     expr-list ::= (string|expression) (, (string|expression) )*
 
@@ -121,4 +123,4 @@ FinchBasic supports this syntax:
 - Support trailing separator for `PRINT`, suppressing output of the end-of-line character.
 - `RND()` function
 - Command-line options to load files, send output to a log, suppress prompts, etc.
-- `TRON`/`TROFF`
+
