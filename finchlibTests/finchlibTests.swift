@@ -295,52 +295,46 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual("1\n3\n", io.outputString, "should print expected lines")
     }
 
-    func testListPrint() {
+    func testListPrettyPrint() {
         io.inputString = "\n".join([
-            "10 print \"hello\", \"world\"",
+            "   1 0  pr \"Hello\", \"world\"  ",
+            " 2 0   if  y < ( x + 1 )  then print \"foo\", \"bar\"  ",
+            " 3 0   go to x  +100  ",
+            " 4 0  in z  ,y  ,  x  ",
+            " 5 0   let x = 10*y + (2 * z  )  ",
+            " 6 0   go sub 3 9 9  ",
+            " 7 0   re TURN  ",
+            " 8 0  c lE  ar   ",
+            " 9 0   Lis t  ",
+            "  1 0 0   r u n  ",
+            " 1   1 0  e n   d  ",
+            " 1    2 0   t r   o N  ",
+            "  1  3  0    tr  off  ",
+
             "list"
         ])
 
         interpreter.interpretInput()
 
-        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual("10 PRINT \"hello\", \"world\"\n", io.outputString, "should print expected lines")
-    }
-
-    func testListLet() {
-        io.inputString = "20 let x = 10*y + (2 * z  )\nlist"
-
-        interpreter.interpretInput()
-
-        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual("20 LET X = 10 * Y + (2 * Z)\n", io.outputString, "should print expected lines")
-    }
-
-    func testListIf() {
-        io.inputString = "50   if  y < ( x + 1 )  then print \"foo\", \"bar\"\nlist"
-
-        interpreter.interpretInput()
-
-        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual("50 IF Y < (X + 1) THEN PRINT \"foo\", \"bar\"\n", io.outputString, "should print expected lines")
-    }
-
-    func testListList() {
-        io.inputString = "10   list\nlist"
-
-        interpreter.interpretInput()
+        let expectedOutput = "\n".join([
+            "10 PRINT \"Hello\", \"world\"",
+            "20 IF Y < (X + 1) THEN PRINT \"foo\", \"bar\"",
+            "30 GOTO X + 100",
+            "40 INPUT Z, Y, X",
+            "50 LET X = 10 * Y + (2 * Z)",
+            "60 GOSUB 399",
+            "70 RETURN",
+            "80 CLEAR",
+            "90 LIST",
+            "100 RUN",
+            "110 END",
+            "120 TRON",
+            "130 TROFF",
+            ""
+        ])
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual("10 LIST\n", io.outputString, "should print expected lines")
-    }
-    
-    func testListEnd() {
-        io.inputString = "10   end \nlist"
-
-        interpreter.interpretInput()
-
-        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual("10 END\n", io.outputString, "should print expected lines")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected lines")
     }
     
     func testRun() {
