@@ -819,14 +819,13 @@ public final class Interpreter {
 
             // Walk the list to print remaining items
             var remainder = printList.value
-            var done = false
-            while !done {
+            loop: while true {
                 switch remainder {
                 case let .Item(item, terminator):
                     // last item
                     print(item)
                     print(terminator)
-                    done = true
+                    break loop
                 case let .Items(head, sep, tail):
                     print(head)
                     print(sep)
@@ -857,8 +856,7 @@ public final class Interpreter {
 
                     var x = otherItems.value
                     var nextIndex = afterExpr
-                    var done = false
-                    while !done {
+                    loop: while true {
                         switch x {
 
                         case let .Item(lastVariableName):
@@ -875,7 +873,7 @@ public final class Interpreter {
                                 abortRunWithErrorMessage("error: INPUT - expecting comma and additional expression")
                                 return
                             }
-                            done = true
+                            break loop
 
                         case let .Items(thisVariableName, tail):
                             if let afterThisComma = parseLiteral(",", input, nextIndex) {

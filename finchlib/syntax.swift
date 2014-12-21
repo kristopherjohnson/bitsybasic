@@ -173,11 +173,11 @@ enum VarList {
 
             var x = items.value
             var done = false
-            while !done {
+            loop: while true {
                 switch x {
                 case let .Item(lastVarName):
                     result.extend(", \(stringFromChar(lastVarName))")
-                    done = true
+                    break loop
                 case let .Items(variableName, box):
                     result.extend(", \(stringFromChar(variableName))")
                     x = box.value
@@ -214,12 +214,11 @@ enum PrintList {
             var result = "\(printItem.listText)\(sep.listText) "
 
             var x = printItems.value
-            var done = false
-            while !done {
+            loop: while true {
                 switch x {
                 case let .Item(item, terminator):
                     result.extend("\(item.listText)\(terminator.listText)")
-                    done = true
+                    break loop
                 case let .Items(item, sep, box):
                     result.extend("\(item.listText)\(sep.listText) ")
                     x = box.value
