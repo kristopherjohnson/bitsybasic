@@ -731,14 +731,18 @@ public final class Interpreter {
             program.append(lineNumber, statement)
         }
         else {
+            // TODO: Rather than appending element and re-sorting, it would
+            // probably be more efficient to find the correct insertion location
+            // and do an insert operation.
+
             program.append(lineNumber, statement)
-            program.sort { lhs, rhs in
-                return lhs.0 < rhs.0
-            }
+
+            // Re-sort by line numbers
+            program.sort { $0.0 < $1.0 }
         }
     }
 
-    func indexOfProgramLineWithNumber(lineNumber: Int) -> Int? {
+    func indexOfProgramLineWithNumber(lineNumber: Number) -> Int? {
         for (index, element) in enumerate(program) {
             let (n, statement) = element
             if lineNumber == n {
@@ -748,7 +752,7 @@ public final class Interpreter {
         return nil
     }
 
-    func getLastProgramLineNumber() -> Int {
+    func getLastProgramLineNumber() -> Number {
         if program.count > 0 {
             let (lineNumber, _) = program.last!
             return lineNumber

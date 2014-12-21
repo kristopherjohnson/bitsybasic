@@ -139,9 +139,11 @@ Finally, to handle the execution or evaluation of the new construct, study the `
 Some things to remember while writing parsing code:
 
 - The `readInputLine()` method strips out all non-graphic characters, and converts tabs to spaces. So your parsing code won't need to deal with this.
-- In general, spaces should be ignored/skipped.  So "GO TO" is the same as "GOTO", and "1 0  P R I N T" is the same as "10 PRINT".  The only place where spaces are significant is in string literals.
-- In general, lowercase alphabetic characters should be automatically converted to uppercase.  The only place where this is not appropriate is in string literals.
-- Any incorrect syntax should result in a `Statement.Error(String)` element being returned by `parseStatement()`, so that the error will be reported properly.
+- The parser can only see the current input line. It cannot read the next line while parsing the current line.
+- In general, spaces should be ignored/skipped.  So "GO TO 10 11" is equivalent to "GOTO 1011", and "1 0P R I N T" is equivalent to "10 PRINT".  The only place where spaces are significant is in string literals.
+- In general, lowercase alphabetic characters should be treated in a case-insensitive manner or automatically converted to uppercase.  The only place where this is not appropriate is in string literals.
+- Any incorrect syntax detected must result in a `Statement.Error(String)` element being returned by `parseStatement()`, so that the error will be reported properly.
+- `char.swift` contains methods and definitions that may be useful for classifying input characters or for converting text between ASCII/UTF8 bytes and Swift Strings.
 
 
 ### Control Flow
@@ -172,3 +174,5 @@ These fixes/changes/enhancements are planned:
 - `RND()` function
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app
+
+Contributions are welcome, but the goal is to keep this simple, so if you propose something really ambitious, you may be asked to create your own fork.

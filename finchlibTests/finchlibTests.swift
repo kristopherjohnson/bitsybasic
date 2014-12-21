@@ -297,15 +297,15 @@ class finchlibTests: XCTestCase {
 
     func testListPrettyPrint() {
         io.inputString = "\n".join([
-            "   1 0  pr \"Hello\", \"world\"  ",
             " 2 0   if  y < ( x + 1 )  then print \"foo\", \"bar\"  ",
             " 3 0   go to x  +100  ",
+            "   1 0  pr \"Hello\", \"world\"  ",
             " 4 0  in z  ,y  ,  x  ",
             " 5 0   let x = 10*y + (2 * z  )  ",
-            " 6 0   go sub 3 9 9  ",
             " 7 0   re TURN  ",
             " 8 0  c lE  ar   ",
             " 9 0   Lis t  ",
+            " 6 0   go sub 3 9 9  ",
             "  1 0 0   r u n  ",
             " 1   1 0  e n   d  ",
             " 1    2 0   t r   o N  ",
