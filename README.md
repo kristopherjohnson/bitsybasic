@@ -48,7 +48,7 @@ For example:
     10 PRINT "Hello, world"
     20 LET A = 2
     30 LET B = 3
-    40 PRINT "a + b = ", A + B
+    40 PRINT "a + b = "; A + B
     50 IF A < B THEN PRINT "a is less than b"
     60 END
     LIST
@@ -62,7 +62,7 @@ Another example:
     20 input a
     30 print "Enter second number"
     40 input b
-    50 print a, "+", b, "=", a + b
+    50 print a; "+"; b; "="; a + b
     60 end
     run
 
@@ -87,7 +87,7 @@ FinchBasic supports this syntax:
                   TRON
                   TROFF
 
-    expr-list ::= (string|expression) (, (string|expression) )*
+    expr-list ::= (string|expression) ((,|;) (string|expression) )*
 
     var-list ::= var (, var)*
 
@@ -104,6 +104,34 @@ FinchBasic supports this syntax:
     digit ::= 0 | 1 | 2 | 3 | ... | 8 | 9
 
     relop ::= < (>|=|ε) | > (<|=|ε) | =
+
+The statements and expressions have the traditional Tiny BASIC behaviors, which are described elsewhere.  Here are some peculiarities of the FinchBasic implementation:
+
+
+`PRINT`
+
+If expressions are separated by commas, then a tab character is output between them. If expressions are separated by semicolons, then there is no separator output between them.
+
+
+`INPUT`
+
+The `INPUT` command reads a single line and then tries to assign an expression to each variable in the list.  So, for example, if these statements is executed:
+
+    100 PRINT "Enter three numbers:"
+    110 INPUT A, B, C
+
+then the user should respond with something like
+
+    123, 456, 789
+
+If there are too few expressions, or a syntax error, then an error message is printed and the program stops executing.
+
+If there are too many expressions, then the extra expressions are ignored.
+
+
+`TRON`/`TROFF`
+
+The `TRON` command enables statement tracing. Line numbers are printed as each statement is executed.  `TROFF` disables statement tracing.
 
 
 ## Code Organization
@@ -169,7 +197,6 @@ So, if you want to implement your own control-flow statements, you probably just
 These fixes/changes/enhancements are planned:
 
 - Reject input lines that have invalid trailing characters. (Currently the parser just stops when it is happy with a complete statement, and ignores anything else on the line.)
-- Support `;` separators for `PRINT`, allowing consecutive values to be printed with no intervening whitespace.
 - Support trailing separator for `PRINT`, suppressing output of the end-of-line character.
 - `RND()` function
 - Command-line options to load files, send output to a log, suppress prompts, etc.

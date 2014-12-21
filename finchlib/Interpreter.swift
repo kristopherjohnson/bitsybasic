@@ -398,6 +398,12 @@ public final class Interpreter {
                     return (.Items(item, .Tab, Box(tail)), afterTail)
                 }
             }
+            else if let afterSeparator = parseLiteral(";", input, nextIndex) {
+                // Parse remainder of line
+                if let (tail, afterTail) = parsePrintList(input, afterSeparator) {
+                    return (.Items(item, .Empty, Box(tail)), afterTail)
+                }
+            }
 
             return (.Item(item, .Newline), nextIndex)
         }

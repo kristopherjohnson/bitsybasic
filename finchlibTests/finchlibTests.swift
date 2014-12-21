@@ -446,4 +446,14 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
+
+    func testPrintWithSemicolons() {
+        io.inputString = "print 1; 2, 3; \"hello\""
+
+        interpreter.interpretInput()
+
+        var expectedOutput = "12\t3hello\n"
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")    }
 }
