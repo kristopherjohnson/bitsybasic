@@ -110,9 +110,9 @@ The statements and expressions have the traditional Tiny BASIC behaviors, which 
 
 *Numbers*
 
-Numbers are 64-bit integers on 64-bit platforms, or 32-bit integers on 32-bit platforms. So if your applications rely on the overflow behavior of 16-bit Tiny BASIC, then you may get unexpected results.
+Numbers are 64-bit signed integers on 64-bit platforms, or 32-bit signed integers on 32-bit platforms. So if your applications rely on the overflow behavior of 16-bit Tiny BASIC, then you may get unexpected results.
 
-If you need 16-bit integers for your applications, then change the definition of `Number` in `syntax.swift` from `Int` to `Int16`, and then rebuild `finchbasic`.
+(If your applications rely upon 16-bit overflow behavior, you can change the definition of `Number` in `syntax.swift` from `Int` to `Int16`, and then rebuild `finchbasic`.)
 
 
 `PRINT`
