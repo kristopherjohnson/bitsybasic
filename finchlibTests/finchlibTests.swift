@@ -204,6 +204,17 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual("21\t-4\t-107\n", io.outputString, "should print the values separated by tabs")
     }
 
+    func testPrintFailForInvalidTrailingCharacters() {
+        io.inputString = "\n".join([
+            "10 PRINT 5 + 2   X ",
+            "LIST"
+        ])
+        interpreter.interpretInputLines()
+
+        XCTAssertEqual(1, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual("", io.outputString, "LIST should produce no output for invalid statement")
+    }
+
     func testLet() {
         io.inputString = "\n".join([
             "LET x = 15",

@@ -198,7 +198,6 @@ So, if you want to implement your own control-flow statements, you probably just
 
 These fixes/changes/enhancements are planned:
 
-- Reject input lines that have invalid trailing characters. (Currently the parser just stops when it is happy with a complete statement, and ignores anything else on the line.)
 - `RND()` function
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app

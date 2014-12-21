@@ -191,20 +191,35 @@ public final class Interpreter {
         }
 
         // If line starts with a number, add the statement to the program
-        if let (number, nextIndex) = parseNumber(input, i) {
-            let statement = parseStatement(input, nextIndex)
+        if let (number, afterNumber) = parseNumber(input, i) {
+            let (statement, afterStatement) = parseStatement(input, afterNumber)
             switch statement {
-            case .Error(let message): return .Error(message)
-            default:                  return .NumberedStatement(number, statement)
-            }
+            case .Error(let message):
+                return .Error(message)
 
+            default:
+                if isRemainingLineEmpty(input, afterStatement) {
+                    return .NumberedStatement(number, statement)
+                }
+                else {
+                    return .Error("error: unexpected characters following complete statement")
+                }
+            }
         }
 
         // Otherwise, try to execute statement immediately
-        let statement = parseStatement(input, i)
+        let (statement, afterStatement) = parseStatement(input, i)
         switch statement {
-        case .Error(let message): return .Error(message)
-        default:                  return .UnnumberedStatement(statement)
+        case .Error(let message):
+            return .Error(message)
+
+        default:
+            if isRemainingLineEmpty(input, afterStatement) {
+                return .UnnumberedStatement(statement)
+            }
+            else {
+                return .Error("error: unexpected characters following complete statement")
+            }
         }
     }
 
@@ -213,7 +228,10 @@ public final class Interpreter {
     /// Looks for a keyword at the start of the line, and then delegates
     /// to a keyword-specific function to parse whatever arguments belong
     /// with the keyword.
-    func parseStatement(input: InputLine, _ index: Int) -> Statement {
+    ///
+    /// Returns parsed statement (which may be a Statement.Error) and index
+    /// of character following the end of the statement
+    func parseStatement(input: InputLine, _ index: Int) -> (Statement, Int) {
         // "PRINT"
         if let nextIndex = parseLiteral("PRINT", input, index) {
             return parsePrintArguments(input, nextIndex)
@@ -261,7 +279,7 @@ public final class Interpreter {
 
         // "RETURN"
         if let nextIndex = parseLiteral("RETURN", input, index) {
-            return .Return
+            return (.Return, nextIndex)
         }
 
         // "REM"
@@ -271,119 +289,121 @@ public final class Interpreter {
 
         // "LIST"
         if let nextIndex = parseLiteral("LIST", input, index) {
-            return .List
+            return (.List, nextIndex)
         }
 
         // "RUN"
         if let nextIndex = parseLiteral("RUN", input, index) {
-            return .Run
+            return (.Run, nextIndex)
         }
 
         // "END"
         if let nextIndex = parseLiteral("END", input, index) {
-            return .End
+            return (.End, nextIndex)
         }
 
         // "CLEAR"
         if let nextIndex = parseLiteral("CLEAR", input, index) {
-            return .Clear
+            return (.Clear, nextIndex)
         }
 
         // "TRON"
         if let nextIndex = parseLiteral("TRON", input, index) {
-            return .Tron
+            return (.Tron, nextIndex)
         }
 
         // "TROFF"
         if let nextIndex = parseLiteral("TROFF", input, index) {
-            return .Troff
+            return (.Troff, nextIndex)
         }
 
-        return .Error("error: not a valid statement")
+        return (.Error("error: not a valid statement"), index)
     }
 
     /// Parse the arguments for a PRINT statement
-    func parsePrintArguments(input: InputLine, _ index: Int) -> Statement {
+    func parsePrintArguments(input: InputLine, _ index: Int) -> (Statement, Int) {
         if let (exprList, nextIndex) = parsePrintList(input, index) {
-            return .Print(exprList)
+            return (.Print(exprList), nextIndex)
         }
 
-        return .Error("error: PRINT - invalid syntax")
+        return (.Error("error: PRINT - invalid syntax"), index)
     }
 
     /// Parse the arguments for an INPUT statement
-    func parseInputArguments(input: InputLine, _ index: Int) -> Statement {
+    func parseInputArguments(input: InputLine, _ index: Int) -> (Statement, Int) {
         if let (varList, nextIndex) = parseVarList(input, index) {
-            return .Input(varList)
+            return (.Input(varList), nextIndex)
         }
 
-        return .Error("error: INPUT - invalid syntax")
+        return (.Error("error: INPUT - invalid syntax"), index)
     }
     
     /// Parse the arguments for a LET statement
     ///
     /// "LET" var "=" expression
-    func parseLetArguments(input: InputLine, _ index: Int) -> Statement {
+    func parseLetArguments(input: InputLine, _ index: Int) -> (Statement, Int) {
         if let (varName, afterVar) = parseVariableName(input, index) {
             if let afterEq = parseLiteral("=", input, afterVar) {
                 if let (expr, afterExpr) = parseExpression(input, afterEq) {
-                    return .Let(varName, expr)
+                    return (.Let(varName, expr), afterExpr)
                 }
             }
         }
 
-        return .Error("error: LET - invalid syntax")
+        return (.Error("error: LET - invalid syntax"), index)
     }
 
     /// Parse the arguments for a GOTO statement
     ///
     /// "GOTO" expression
-    func parseGotoArguments(input: InputLine, _ index: Int) -> Statement {
+    func parseGotoArguments(input: InputLine, _ index: Int) -> (Statement, Int) {
         if let (expr, afterExpr) = parseExpression(input, index) {
-            return .Goto(expr)
+            return (.Goto(expr), afterExpr)
         }
 
-        return .Error("error: GOTO - invalid syntax")
+        return (.Error("error: GOTO - invalid syntax"), index)
     }
     
     /// Parse the arguments for a GOSUB statement
     ///
     /// "GOSUB" expression
-    func parseGosubArguments(input: InputLine, _ index: Int) -> Statement {
+    func parseGosubArguments(input: InputLine, _ index: Int) -> (Statement, Int) {
         if let (expr, afterExpr) = parseExpression(input, index) {
-            return .Gosub(expr)
+            return (.Gosub(expr), afterExpr)
         }
 
-        return .Error("error: GOSUB - invalid syntax")
+        return (.Error("error: GOSUB - invalid syntax"), index)
     }
     
     /// Parse the arguments for an IF statement
     ///
     /// "IF" expression relop expression "THEN" statement
-    func parseIfArguments(input: InputLine, _ index: Int) -> Statement {
+    func parseIfArguments(input: InputLine, _ index: Int) -> (Statement, Int) {
         if let (lhs, afterLhs) = parseExpression(input, index) {
             if let (relop, afterRelop) = parseRelop(input, afterLhs) {
                 if let (rhs, afterRhs) = parseExpression(input, afterRelop) {
                     if let afterThen = parseLiteral("THEN", input, afterRhs) {
-                        let thenStatement = parseStatement(input, afterThen)
-                        switch thenStatement {
-                        case .Error(_): return .Error("error: IF - invalid statement following THEN")
-                        default:        return .If(lhs, relop, rhs, Box(thenStatement))
+                        let (statement, afterStatement) = parseStatement(input, afterThen)
+                        switch statement {
+                        case .Error(_):
+                            return (.Error("error: IF - invalid statement following THEN"), afterStatement)
+                        default:
+                            return (.If(lhs, relop, rhs, Box(statement)), afterStatement)
                         }
                     }
                 }
             }
         }
 
-        return .Error("error: IF - invalid syntax")
+        return (.Error("error: IF - invalid syntax"), index)
     }
 
     /// Parse the arguments for a REM statement
     ///
     /// "REM" commentstring
-    func parseRemArguments(input: InputLine, _ index: Int) -> Statement {
+    func parseRemArguments(input: InputLine, _ index: Int) -> (Statement, Int) {
         let commentChars: [Char] = Array(input[index..<input.count])
-        return .Rem(stringFromChars(commentChars))
+        return (.Rem(stringFromChars(commentChars)), input.count)
     }
 
     /// Attempt to parse a PrintList.
