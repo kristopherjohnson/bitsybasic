@@ -87,7 +87,7 @@ FinchBasic supports this syntax:
                   TRON
                   TROFF
 
-    expr-list ::= (string|expression) ((,|;) (string|expression) )*
+    expr-list ::= (string|expression) ((,|;) (string|expression) )* (,|;|ε)
 
     var-list ::= var (, var)*
 
@@ -111,6 +111,8 @@ The statements and expressions have the traditional Tiny BASIC behaviors, which 
 `PRINT`
 
 If expressions are separated by commas, then a tab character is output between them. If expressions are separated by semicolons, then there is no separator output between them.
+
+`PRINT` usually outputs a newline character after the expressions.  You can suppress this behavior by ending the statement with a semicolon.  End the statement with a comma to output a tab character rather than a newline.
 
 
 `INPUT`
@@ -197,7 +199,6 @@ So, if you want to implement your own control-flow statements, you probably just
 These fixes/changes/enhancements are planned:
 
 - Reject input lines that have invalid trailing characters. (Currently the parser just stops when it is happy with a complete statement, and ignores anything else on the line.)
-- Support trailing separator for `PRINT`, suppressing output of the end-of-line character.
 - `RND()` function
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app

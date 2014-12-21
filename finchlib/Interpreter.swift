@@ -142,7 +142,7 @@ public final class Interpreter {
     // MARK: - Top-level loop
 
     /// Display prompt and read input lines and interpret them until end of input
-    public func interpretInput() {
+    public func interpretInputLines() {
         while true {
             io.showPrompt(self)
 
@@ -386,7 +386,7 @@ public final class Interpreter {
         return .Rem(stringFromChars(commentChars))
     }
 
-    /// Attempt to parse an PrintList.
+    /// Attempt to parse a PrintList.
     ///
     /// Returns PrintList and index of next character if successful.  Returns nil otherwise.
     func parsePrintList(input: InputLine, _ index: Int) -> (PrintList, Int)? {
@@ -397,11 +397,19 @@ public final class Interpreter {
                 if let (tail, afterTail) = parsePrintList(input, afterSeparator) {
                     return (.Items(item, .Tab, Box(tail)), afterTail)
                 }
+                else if isRemainingLineEmpty(input, afterSeparator) {
+                    // trailing comma
+                    return (.Item(item, .Tab), afterSeparator)
+                }
             }
             else if let afterSeparator = parseLiteral(";", input, nextIndex) {
                 // Parse remainder of line
                 if let (tail, afterTail) = parsePrintList(input, afterSeparator) {
                     return (.Items(item, .Empty, Box(tail)), afterTail)
+                }
+                else if isRemainingLineEmpty(input, afterSeparator) {
+                    // trailing semicolon
+                    return (.Item(item, .Empty), afterSeparator)
                 }
             }
 
@@ -724,6 +732,12 @@ public final class Interpreter {
             ++i
         }
         return i
+    }
+
+    /// Return true if there are no non-space characters at or following the
+    /// specified index in the specified line
+    func isRemainingLineEmpty(input: InputLine, _ index: Int) -> Bool {
+        return skipSpaces(input, index) == input.count
     }
 
 
