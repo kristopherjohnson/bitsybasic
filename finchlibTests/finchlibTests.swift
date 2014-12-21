@@ -415,7 +415,6 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected lines")
     }
-    
 
     func testClear() {
         io.inputString = "\n".join([
@@ -431,4 +430,22 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual("", io.outputString, "should print nothing")
     }
 
+    func testInput() {
+        io.inputString = "\n".join([
+            "10 print \"Enter three numbers:\""      ,
+            "20 input a, b, c"                       ,
+            "30 print \"The numbers are \", a, b, c" ,
+            "40 end"                                 ,
+            "run"                                    ,
+            "101, 202, 303"                          ,
+            ""
+        ])
+
+        interpreter.interpretInput()
+
+        var expectedOutput = "Enter three numbers:\nThe numbers are \t101\t202\t303\n"
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
 }

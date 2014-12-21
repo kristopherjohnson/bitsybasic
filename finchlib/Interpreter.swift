@@ -217,6 +217,16 @@ public final class Interpreter {
             return parsePrintArguments(input, nextIndex)
         }
 
+        // "INPUT"
+        if let nextIndex = parseLiteral("INPUT", input, index) {
+            return parseInputArguments(input, nextIndex)
+        }
+
+        // "IN" is an abbreviation for "INPUT"
+        if let nextIndex = parseLiteral("IN", input, index) {
+            return parseInputArguments(input, nextIndex)
+        }
+
         // "LET"
         if let nextIndex = parseLiteral("LET", input, index) {
             return parseLetArguments(input, nextIndex)
@@ -276,9 +286,18 @@ public final class Interpreter {
             return .Print(exprList)
         }
 
-        return .Error("error: invalid syntax for PRINT")
+        return .Error("error: PRINT - invalid syntax")
     }
 
+    /// Parse the arguments for an INPUT statement
+    func parseInputArguments(input: InputLine, _ index: Int) -> Statement {
+        if let (varList, nextIndex) = parseVarList(input, index) {
+            return .Input(varList)
+        }
+
+        return .Error("error: INPUT - invalid syntax")
+    }
+    
     /// Parse the arguments for a LET statement
     ///
     /// "LET" var "=" expression
@@ -291,7 +310,7 @@ public final class Interpreter {
             }
         }
 
-        return .Error("error: invalid syntax for LET")
+        return .Error("error: LET - invalid syntax")
     }
 
     /// Parse the arguments for a GOTO statement
@@ -302,7 +321,7 @@ public final class Interpreter {
             return .Goto(expr)
         }
 
-        return .Error("error: invalid syntax for GOTO")
+        return .Error("error: GOTO - invalid syntax")
     }
     
     /// Parse the arguments for a GOSUB statement
@@ -313,7 +332,7 @@ public final class Interpreter {
             return .Gosub(expr)
         }
 
-        return .Error("error: invalid syntax for GOSUB")
+        return .Error("error: GOSUB - invalid syntax")
     }
     
     /// Parse the arguments for an IF statement
@@ -326,7 +345,7 @@ public final class Interpreter {
                     if let afterThen = parseLiteral("THEN", input, afterRhs) {
                         let thenStatement = parseStatement(input, afterThen)
                         switch thenStatement {
-                        case .Error(_): return .Error("error: invalid statement following THEN")
+                        case .Error(_): return .Error("error: IF - invalid statement following THEN")
                         default:        return .If(lhs, relop, rhs, Box(thenStatement))
                         }
                     }
@@ -334,7 +353,7 @@ public final class Interpreter {
             }
         }
 
-        return .Error("error: invalid syntax for IF")
+        return .Error("error: IF - invalid syntax")
     }
 
     /// Parse the arguments for a REM statement
@@ -379,7 +398,28 @@ public final class Interpreter {
         return nil
     }
 
-    /// Attempt to parse an Expression.  Returns Expression and index of next character if successful.  Returns nil if not.
+    /// Attempt to parse a VarList.
+    ///
+    /// Returns VarList and index of next character if successful.  Returns nil otherwise.
+    func parseVarList(input: InputLine, _ index: Int) -> (VarList, Int)? {
+        if let (item, nextIndex) = parseVariableName(input, index) {
+
+            if let afterSeparator = parseLiteral(",", input, nextIndex) {
+                // Parse remainder of line
+                if let (tail, afterTail) = parseVarList(input, afterSeparator) {
+                    return (.Items(item, Box(tail)), afterTail)
+                }
+            }
+
+            return (.Item(item), nextIndex)
+        }
+
+        return nil
+    }
+    
+    /// Attempt to parse an Expression.
+    /// 
+    /// Returns Expression and index of next character if successful.  Returns nil if not.
     func parseExpression(input: InputLine, _ index: Int) -> (Expression, Int)? {
         var leadingPlus = false
         var leadingMinus = false
@@ -702,6 +742,7 @@ public final class Interpreter {
     func execute(statement: Statement) {
         switch statement {
         case let .Print(exprList):          executePrint(exprList)
+        case let .Input(varList):           executeInput(varList)
         case let .Let(varName, expr):       executeLet(varName, expr)
         case let .If(lhs, relop, rhs, box): executeIf(lhs, relop, rhs, box)
         case let .Goto(expr):               executeGoto(expr)
@@ -712,11 +753,11 @@ public final class Interpreter {
         case .End:                          executeEnd()
         case .Clear:                        clear()
         case .Rem(_):                       break
-        default:                            showError("error: unimplemented statement type")
+        case let .Error(message):           abortRunWithErrorMessage(message)
         }
     }
 
-    /// Execute PRINT with the specified arguments
+    /// Execute PRINT statement
     func executePrint(printList: PrintList) {
         switch printList {
         case .Item(let item):
@@ -747,6 +788,78 @@ public final class Interpreter {
         print(Char_Linefeed)
     }
 
+    /// Execute INPUT statement
+    /// 
+    /// All values must be on a single input line, separated by commas.
+    func executeInput(varList: VarList) {
+        if let input = readInputLine() {
+            switch varList {
+            case let .Item(variableName):
+                if let (expr, afterExpr) = parseExpression(input, 0) {
+                    v[variableName] = expr.getValue(v)
+                }
+                else {
+                    abortRunWithErrorMessage("error: INPUT - unable to parse expression")
+                    return
+                }
+
+            case let .Items(firstVariableName, otherItems):
+                if let (firstExpr, afterExpr) = parseExpression(input, 0) {
+                    v[firstVariableName] = firstExpr.getValue(v)
+
+                    var x = otherItems.boxedValue
+                    var nextIndex = afterExpr
+                    var done = false
+                    while !done {
+                        switch x {
+
+                        case let .Item(lastVariableName):
+                            if let afterLastComma = parseLiteral(",", input, nextIndex) {
+                                if let (lastExpr, afterLastExpr) = parseExpression(input, afterLastComma) {
+                                    v[lastVariableName] = lastExpr.getValue(v)
+                                }
+                                else {
+                                    abortRunWithErrorMessage("error: INPUT - unable to read expression")
+                                    return
+                                }
+                            }
+                            else {
+                                abortRunWithErrorMessage("error: INPUT - expecting comma and additional expression")
+                                return
+                            }
+                            done = true
+
+                        case let .Items(thisVariableName, tail):
+                            if let afterThisComma = parseLiteral(",", input, nextIndex) {
+                                if let (thisExpr, afterThisExpr) = parseExpression(input, afterThisComma) {
+                                    v[thisVariableName] = thisExpr.getValue(v)
+
+                                    x = tail.boxedValue
+                                    nextIndex = afterThisExpr
+                                }
+                                else {
+                                    abortRunWithErrorMessage("error: INPUT - unable to read all expressions")
+                                    return
+                                }
+                            }
+                            else {
+                                abortRunWithErrorMessage("error: INPUT - expecting comma and additional expression")
+                                return
+                            }
+                        }
+                    }
+                }
+                else {
+                    abortRunWithErrorMessage("error: INPUT - unable to parse expression")
+                    return
+                }
+            }
+        }
+        else {
+            abortRunWithErrorMessage("error: INPUT - unable to read input stream")
+        }
+    }
+
     /// Execute LET statement
     func executeLet(variableName: VariableName, _ expression: Expression) {
         v[variableName] = expression.getValue(v)
@@ -769,7 +882,8 @@ public final class Interpreter {
     /// Execute RUN statement
     func executeRun() {
         if program.count == 0 {
-            showError("error: no program in memory")
+            showError("error: RUN - no program in memory")
+            return
         }
 
         programIndex = 0
@@ -829,13 +943,24 @@ public final class Interpreter {
         isRunning = true
         while isRunning {
             if programIndex >= program.count {
-                showError("error: program does not terminate with END")
+                showError("error: RUN - program does not terminate with END")
                 isRunning = false
                 break
             }
 
             let (lineNumber, statement) = program[programIndex++]
             execute(statement)
+        }
+    }
+
+    /// Display error message and stop running
+    ///
+    /// Call this method if an unrecoverable error happens while executing a statement
+    func abortRunWithErrorMessage(message: String) {
+        showError(message)
+        if isRunning {
+            isRunning = false
+            showError("abort: unrecoverable error")
         }
     }
 

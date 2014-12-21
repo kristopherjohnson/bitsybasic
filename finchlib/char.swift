@@ -30,23 +30,19 @@ import Foundation
 /// that fall outside the 7-bit ASCII graphical character range.
 public typealias Char = UInt8
 
-// ASCII/UTF8 character codes
+// ASCII/UTF8 character codes that we use
 let Char_Tab:       Char = 9   // '\t'
 let Char_Linefeed:  Char = 10  // '\n'
 let Char_Space:     Char = 32  // ' '
 let Char_DQuote:    Char = 34  // '"'
-//let Char_LParen:    Char = 40  // '('
-//let Char_RParen:    Char = 41  // ')'
-//let Char_Plus:      Char = 43  // '+'
 let Char_Comma:     Char = 44  // ','
-//let Char_Minus:     Char = 45  // '-'
 let Char_0:         Char = 48  // '0'
 let Char_9:         Char = 57  // '9'
 let Char_LAngle:    Char = 60  // '<'
 let Char_RAngle:    Char = 62  // '>'
 let Char_Equal:     Char = 61  // '='
 let Char_Colon:     Char = 58  // ':'
-//let Char_Semicolon: Char = 59  // ';'
+let Char_Semicolon: Char = 59  // ';'
 let Char_A:         Char = 65  // 'A'
 let Char_Z:         Char = 90  // 'Z'
 let Char_a:         Char = 97  // 'a'

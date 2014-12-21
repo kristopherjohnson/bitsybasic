@@ -103,7 +103,7 @@ enum Statement {
             return "PRINT \(printList.text)"
 
         case let .Input(varlist):
-            return "INPUT (varlist)" // TODO
+            return "INPUT \(varlist.text)"
 
         case let .Let(varname, expression):
             return "LET \(stringFromChar(varname)) = \(expression.text)"
@@ -144,10 +144,37 @@ enum Statement {
 /// Result of parsing a varlist
 enum VarList {
     /// "A" | "B" | ... | "Y" | "Z"
-    case Var(VariableName)
+    case Item(VariableName)
 
     /// var "," varlist
-    case Vars(VariableName, Box<VarList>)
+    case Items(VariableName, Box<VarList>)
+
+
+    /// Return pretty-printed program text
+    var text: String {
+        switch self {
+        case let .Item(variableName):
+            return stringFromChar(variableName)
+
+        case let .Items(firstVarName, items):
+            var result = stringFromChar(firstVarName)
+
+            var x = items.boxedValue
+            var done = false
+            while !done {
+                switch x {
+                case let .Item(lastVarName):
+                    result.extend(", \(stringFromChar(lastVarName))")
+                    done = true
+                case let .Items(variableName, box):
+                    result.extend(", \(stringFromChar(variableName))")
+                    x = box.boxedValue
+                }
+            }
+
+            return result
+        }
+    }
 }
 
 /// Result of parsing a printlist

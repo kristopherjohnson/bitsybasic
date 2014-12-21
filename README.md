@@ -7,8 +7,6 @@ Copyright 2014 Kristopher Johnson
 
 FinchBasic is a dialect of [Tiny BASIC](http://en.wikipedia.org/wiki/Tiny_BASIC), implemented in [Swift](https://developer.apple.com/swift/).
 
-_Note:_ The `INPUT` statement is not yet implemented.  (I'll get to it eventually.)
-
 The syntax and implementation are based upon these online sources:
 
 - The Wikipedia page: <http://en.wikipedia.org/wiki/Tiny_BASIC>
@@ -31,13 +29,42 @@ The `finchbasic` executable will be in the `build/Release` directory.
 
 `finchbasic` currently only reads from standard input, writes to standard output, and sends error messages to standard error.
 
-If you want to "load a program" into `finchbasic`, you can do something like this:
+To run the interpreter and enter commands, do this:
+
+    ./finchbasic
+
+If you want to "load a program" into `finchbasic` and run it, you can do something like this:
 
     ./finchbasic < myprogram.basic
 
 If you want to "load a program" and then interact, you can do this:
 
     cat myprogram.basic - | ./finchbasic
+
+`finchbasic` expects input to be a list of BASIC statements. If a line starts with a line number, then the line is added to the program stored in memory, overwriting any existing line with that same line number. If a line does not start with a line number, then it is executed immediately.
+
+For example:
+
+    10 PRINT "Hello, world"
+    20 LET A = 2
+    30 LET B = 3
+    40 PRINT "a + b = ", A + B
+    50 IF A < B THEN PRINT "a is less than b"
+    60 END
+    LIST
+    RUN
+
+You can use lowercase letters for BASIC keywords and variable names.  The interpreter will automatically convert them to uppercase.
+
+Another example:
+
+    10 print "Enter first number"
+    20 input a
+    30 print "Enter second number"
+    40 input b
+    50 print a, "+", b, "=", a + b
+    60 end
+    run
 
 
 ## Syntax
@@ -49,7 +76,7 @@ FinchBasic supports this syntax:
     statement ::= PRINT expr-list | PR expr-list | ? expr-list
                   IF expression relop expression THEN statement
                   GOTO expression
-                  INPUT var-list
+                  INPUT var-list | IN var-list
                   LET var = expression
                   GOSUB expression
                   RETURN
@@ -78,22 +105,20 @@ FinchBasic supports this syntax:
 
 ## Code Organization
 
-- `finchbasic/` - source for `finchbasic` command-line tool
+- `finchbasic/` - source for `finchbasic` executable
    - `main.swift` - main entry point for the command-line tool
 - `finchlib/` - source for `finchbasic` executable and `finchlib` framework
    - `Interpreter.swift` - defines the `Interpreter` class
    - `syntax.swift` - defines the parse-tree data structures
    - `char.swift` - ASCII character constants and functions for converting between String and arrays of ASCII/UTF8 characters
    - `util.swift` - miscellaneous
-- `finchlibTests/` - unit tests
+- `finchlibTests/` - unit tests that exercise `finchlib`
 
 ## To-Do
 
-- Implement `INPUT`
-- Reject input lines that have invalid trailing characters (currently the parser just stops when it is happy with a complete statement, and ignores anything else on the line)
-- Support `;` separators for `PRINT`
-- Support trailing separator for `PRINT`
+- Reject input lines that have invalid trailing characters. (Currently the parser just stops when it is happy with a complete statement, and ignores anything else on the line.)
+- Support `;` separators for `PRINT`, allowing consecutive values to be printed with no intervening whitespace.
+- Support trailing separator for `PRINT`, suppressing output of the end-of-line character.
 - `RND()` function
-- Command-line options to load files, redirect output, suppress prompts, etc.
+- Command-line options to load files, send output to a log, suppress prompts, etc.
 - `TRON`/`TROFF`
-- Graphics functions? Turtle graphics?
