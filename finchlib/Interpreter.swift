@@ -792,7 +792,7 @@ public final class Interpreter {
             print(item)
 
             // Walk the list to print remaining items
-            var remainder = printList.boxedValue
+            var remainder = printList.value
             var done = false
             while !done {
                 switch remainder {
@@ -804,7 +804,7 @@ public final class Interpreter {
                 case .Items(let head, let tail):
                     print(Char_Tab)
                     print(head)
-                    remainder = tail.boxedValue
+                    remainder = tail.value
                 }
             }
         }
@@ -820,7 +820,7 @@ public final class Interpreter {
             switch varList {
             case let .Item(variableName):
                 if let (expr, afterExpr) = parseExpression(input, 0) {
-                    v[variableName] = expr.getValue(v)
+                    v[variableName] = expr.evaluate(v)
                 }
                 else {
                     abortRunWithErrorMessage("error: INPUT - unable to parse expression")
@@ -829,9 +829,9 @@ public final class Interpreter {
 
             case let .Items(firstVariableName, otherItems):
                 if let (firstExpr, afterExpr) = parseExpression(input, 0) {
-                    v[firstVariableName] = firstExpr.getValue(v)
+                    v[firstVariableName] = firstExpr.evaluate(v)
 
-                    var x = otherItems.boxedValue
+                    var x = otherItems.value
                     var nextIndex = afterExpr
                     var done = false
                     while !done {
@@ -840,7 +840,7 @@ public final class Interpreter {
                         case let .Item(lastVariableName):
                             if let afterLastComma = parseLiteral(",", input, nextIndex) {
                                 if let (lastExpr, afterLastExpr) = parseExpression(input, afterLastComma) {
-                                    v[lastVariableName] = lastExpr.getValue(v)
+                                    v[lastVariableName] = lastExpr.evaluate(v)
                                 }
                                 else {
                                     abortRunWithErrorMessage("error: INPUT - unable to read expression")
@@ -856,9 +856,9 @@ public final class Interpreter {
                         case let .Items(thisVariableName, tail):
                             if let afterThisComma = parseLiteral(",", input, nextIndex) {
                                 if let (thisExpr, afterThisExpr) = parseExpression(input, afterThisComma) {
-                                    v[thisVariableName] = thisExpr.getValue(v)
+                                    v[thisVariableName] = thisExpr.evaluate(v)
 
-                                    x = tail.boxedValue
+                                    x = tail.value
                                     nextIndex = afterThisExpr
                                 }
                                 else {
@@ -886,13 +886,13 @@ public final class Interpreter {
 
     /// Execute LET statement
     func executeLet(variableName: VariableName, _ expression: Expression) {
-        v[variableName] = expression.getValue(v)
+        v[variableName] = expression.evaluate(v)
     }
 
     /// Execute IF statement
     func executeIf(lhs: Expression, _ relop: Relop, _ rhs: Expression, _ boxedStatement: Box<Statement>) {
-        if relop.isTrueForNumbers(lhs.getValue(v), rhs.getValue(v)) {
-            execute(boxedStatement.boxedValue)
+        if relop.isTrueForNumbers(lhs.evaluate(v), rhs.evaluate(v)) {
+            execute(boxedStatement.value)
         }
     }
 
@@ -923,7 +923,7 @@ public final class Interpreter {
 
     /// Execute GOTO statement
     func executeGoto(expression: Expression) {
-        let lineNumber = expression.getValue(v)
+        let lineNumber = expression.evaluate(v)
         if let i = indexOfProgramLineWithNumber(lineNumber) {
             programIndex = i
             if !isRunning {
@@ -937,7 +937,7 @@ public final class Interpreter {
 
     /// Execute GOSUB statement
     func executeGosub(expression: Expression) {
-        let lineNumber = expression.getValue(v)
+        let lineNumber = expression.evaluate(v)
         if let i = indexOfProgramLineWithNumber(lineNumber) {
             returnStack.append(programIndex)
             programIndex = i
@@ -1019,7 +1019,7 @@ public final class Interpreter {
             print(chars)
 
         case .Expr(let expression):
-            let value = expression.getValue(v)
+            let value = expression.evaluate(v)
             let stringValue = "\(value)"
             let chars = charsFromString(stringValue)
             print(chars)

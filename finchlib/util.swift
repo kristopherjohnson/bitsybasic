@@ -27,10 +27,10 @@ import Foundation
 //
 // Workaround for Swift's inability to define value types recursively
 public class Box<T> {
-    public var boxedValue: T
+    public var value: T
 
     public init(_ value: T) {
-        self.boxedValue = value
+        self.value = value
     }
 }
 

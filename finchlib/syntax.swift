@@ -124,7 +124,7 @@ enum Statement {
             return "RETURN"
             
         case let .If(lhs, relop, rhs, box):
-            return "IF \(lhs.text) \(relop.text) \(rhs.text) THEN \(box.boxedValue.text)"
+            return "IF \(lhs.text) \(relop.text) \(rhs.text) THEN \(box.value.text)"
 
         case let .Rem(comment):
             return "REM\(comment)"
@@ -171,7 +171,7 @@ enum VarList {
         case let .Items(firstVarName, items):
             var result = stringFromChar(firstVarName)
 
-            var x = items.boxedValue
+            var x = items.value
             var done = false
             while !done {
                 switch x {
@@ -180,7 +180,7 @@ enum VarList {
                     done = true
                 case let .Items(variableName, box):
                     result.extend(", \(stringFromChar(variableName))")
-                    x = box.boxedValue
+                    x = box.value
                 }
             }
 
@@ -207,7 +207,7 @@ enum PrintList {
         case let .Items(printItem, printItems):
             var result = printItem.text
 
-            var x = printItems.boxedValue
+            var x = printItems.value
             var done = false
             while !done {
                 switch x {
@@ -216,7 +216,7 @@ enum PrintList {
                     done = true
                 case let .Items(item, box):
                     result.extend(", \(item.text)")
-                    x = box.boxedValue
+                    x = box.value
                 }
             }
 
@@ -259,26 +259,30 @@ enum Expression {
 
 
     /// Return the value of the expression
-    func getValue(v: VariableBindings) -> Number {
+    func evaluate(v: VariableBindings) -> Number {
         switch self {
+
         case let .UnsignedExpr(uexpr):
-            return uexpr.getValue(v)
+            return uexpr.evaluate(v)
 
         case let .Plus(uexpr):
-            return uexpr.getValue(v)
+            return uexpr.evaluate(v)
 
         case let .Minus(uexpr):
             // The leading minus sign must be applied to the
             // first term in the expression (not to the entire expression)
             switch uexpr {
+
             case .Value(_):
-                return -(uexpr.getValue(v))
+                return -(uexpr.evaluate(v))
+
             case let .Sum(term, remainder):
-                let termValue = term.getValue(v)
-                return -termValue &+ remainder.boxedValue.getValue(v)
+                let termValue = term.evaluate(v)
+                return -termValue &+ remainder.value.evaluate(v)
+
             case let .Diff(term, remainder):
-                let termValue = term.getValue(v)
-                return -termValue &- remainder.boxedValue.getValue(v)
+                let termValue = term.evaluate(v)
+                return -termValue &- remainder.value.evaluate(v)
             }
         }
     }
@@ -313,19 +317,19 @@ enum UnsignedExpression {
 
 
     /// Return the value of this UnsignedExpression
-    func getValue(v: VariableBindings) -> Number {
+    func evaluate(v: VariableBindings) -> Number {
         switch self {
 
         case let .Value(term):
-            return term.getValue(v)
+            return term.evaluate(v)
 
         case let .Sum(term, boxedExpr):
-            let expr = boxedExpr.boxedValue
-            return term.getValue(v) &+ expr.getValue(v)
+            let expr = boxedExpr.value
+            return term.evaluate(v) &+ expr.evaluate(v)
 
         case let .Diff(term, boxedExpr):
-            let expr = boxedExpr.boxedValue
-            return term.getValue(v) &- expr.getValue(v)
+            let expr = boxedExpr.value
+            return term.evaluate(v) &- expr.evaluate(v)
         }
     }
 
@@ -336,10 +340,10 @@ enum UnsignedExpression {
             return term.text
 
         case let .Sum(term, boxedExpr):
-            return "\(term.text) + \(boxedExpr.boxedValue.text)"
+            return "\(term.text) + \(boxedExpr.value.text)"
 
         case let .Diff(term, boxedExpr):
-            return "\(term.text) - \(boxedExpr.boxedValue.text)"
+            return "\(term.text) - \(boxedExpr.value.text)"
         }
     }
 }
@@ -357,24 +361,24 @@ enum Term {
 
 
     /// Return the value of this Term
-    func getValue(v: VariableBindings) -> Number {
+    func evaluate(v: VariableBindings) -> Number {
         switch self {
 
         case let .Value(factor):
-            return factor.getValue(v)
+            return factor.evaluate(v)
 
         case let .Product(factor, boxedTerm):
-            let term = boxedTerm.boxedValue
-            return factor.getValue(v) &* term.getValue(v)
+            let term = boxedTerm.value
+            return factor.evaluate(v) &* term.evaluate(v)
 
         case let .Quotient(factor, boxedTerm):
-            let term = boxedTerm.boxedValue
-            let divisor = term.getValue(v)
+            let term = boxedTerm.value
+            let divisor = term.evaluate(v)
             if divisor == 0 {
                 // TODO: signal a divide-by-zero error
                 return 0
             }
-            return factor.getValue(v) &/ divisor
+            return factor.evaluate(v) &/ divisor
         }
     }
 
@@ -386,10 +390,10 @@ enum Term {
             return factor.text
 
         case let .Product(factor, boxedTerm):
-            return "\(factor.text) * \(boxedTerm.boxedValue.text)"
+            return "\(factor.text) * \(boxedTerm.value.text)"
 
         case let .Quotient(factor, boxedTerm):
-            return "\(factor.text) / \(boxedTerm.boxedValue.text)"
+            return "\(factor.text) / \(boxedTerm.value.text)"
         }
     }
 }
@@ -407,11 +411,11 @@ enum Factor {
 
 
     /// Return the value of this Term
-    func getValue(v: VariableBindings) -> Number {
+    func evaluate(v: VariableBindings) -> Number {
         switch self {
         case let .Var(varname):   return v[varname] ?? 0
         case let .Num(number):    return number
-        case let .ParenExpr(box): return box.boxedValue.getValue(v)
+        case let .ParenExpr(box): return box.value.evaluate(v)
         }
     }
 
@@ -420,7 +424,7 @@ enum Factor {
         switch self {
         case let .Var(varname):   return stringFromChar(varname)
         case let .Num(number):    return "\(number)"
-        case let .ParenExpr(box): return "(\(box.boxedValue.text))"
+        case let .ParenExpr(box): return "(\(box.value.text))"
         }
     }
 }
