@@ -317,19 +317,19 @@ class finchlibTests: XCTestCase {
         interpreter.interpretInput()
 
         let expectedOutput = "\n".join([
-            "10 PRINT \"Hello\", \"world\"",
-            "20 IF Y < (X + 1) THEN PRINT \"foo\", \"bar\"",
-            "30 GOTO X + 100",
-            "40 INPUT Z, Y, X",
-            "50 LET X = 10 * Y + (2 * Z)",
-            "60 GOSUB 399",
-            "70 RETURN",
-            "80 CLEAR",
-            "90 LIST",
-            "100 RUN",
-            "110 END",
-            "120 TRON",
-            "130 TROFF",
+            "10 PRINT \"Hello\", \"world\""                 ,
+            "20 IF Y < (X + 1) THEN PRINT \"foo\", \"bar\"" ,
+            "30 GOTO X + 100"                               ,
+            "40 INPUT Z, Y, X"                              ,
+            "50 LET X = 10 * Y + (2 * Z)"                   ,
+            "60 GOSUB 399"                                  ,
+            "70 RETURN"                                     ,
+            "80 CLEAR"                                      ,
+            "90 LIST"                                       ,
+            "100 RUN"                                       ,
+            "110 END"                                       ,
+            "120 TRON"                                      ,
+            "130 TROFF"                                     ,
             ""
         ])
 

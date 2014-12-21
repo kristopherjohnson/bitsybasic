@@ -105,6 +105,7 @@ FinchBasic supports this syntax:
 
     relop ::= < (>|=|ε) | > (<|=|ε) | =
 
+
 ## Code Organization
 
 - `finchbasic/` - source for `finchbasic` executable
@@ -116,11 +117,58 @@ FinchBasic supports this syntax:
    - `util.swift` - miscellaneous
 - `finchlibTests/` - unit tests that exercise `finchlib`
 
+
+## Hacking FinchBasic
+
+One of the goals of FinchBasic is that it should be easily "hackable", meaning that it is easy for programmers to modify it to support new statement types, new expression types, and so on.  You are encouraged to experiment with the code.
+
+### Parsing and Evaluation
+
+To add a new statement or new type of expression, there are basically three steps:
+
+1. Add a new definition or modify an existing definition in `syntax.swift` to represent the syntax of the new construct.
+2. Add code to parse the new construct.
+3. Add code to execute/evaluate the new construct.
+
+Start by studying the enum types in `syntax.swift`. These implement the [parse trees](http://en.wikipedia.org/wiki/Parse_tree) that represent the syntactic structure of each statement.
+
+Study the `parse` methods in `Interpreter.swift` to determine where to add your new parsing code.  For example, if you are adding a new statement type, you will probably add something to `parseStatement()`, whereas if you are adding a new kind of expression or changing the way an expression is parsed, you will probably change something in `parseExpression()`, `parseTerm()`, or `parseFactor()`.
+
+Finally, to handle the execution or evaluation of the new construct, study the `execute` methods in `Interpreter.swift` and the `evaluate` methods in `syntax.swift`.
+
+Some things to remember while writing parsing code:
+
+- The `readInputLine()` method strips out all non-graphic characters, and converts tabs to spaces. So your parsing code won't need to deal with this.
+- In general, spaces should be ignored/skipped.  So "GO TO" is the same as "GOTO", and "1 0  P R I N T" is the same as "10 PRINT".  The only place where spaces are significant is in string literals.
+- In general, lowercase alphabetic characters should be automatically converted to uppercase.  The only place where this is not appropriate is in string literals.
+- Any incorrect syntax should result in a `Statement.Error(String)` element being returned by `parseStatement()`, so that the error will be reported properly.
+
+
+### Control Flow
+
+If you are adding a new control structure (like a `FOR...NEXT` or a `REPEAT...UNTIL`), then you will need to understand how the `RUN` statement works.
+
+The `Interpreter` class has an instance member `program` that is an array that holds all the program statements, each of which is a `(Number, Statement)` pair.  The instance member `programIndex` is an Int that is the index of the next element of `program` to be executed. There is also a Boolean instance member `isRunning` that indicates whether the interpreter is in the running state (that is, `RUN` is being executed).
+
+When `RUN` starts, it sets `isRunning` to true, sets `programIndex` to 0, and then starts executing statements sequentially.  It reads a statement from `program[programIndex]`, then increments `programIndex` to point to the next statement, then executes the statement it just read by calling the `execute(Statement)` method.  Then it reads `program[programIndex]`, increments `programIndex`, and executes the statement it just read, and continues in that loop as long as `isRunning` is true.
+
+Some control-flow statements have an effect on this process:
+
+- The `GOTO` statement finds the index in `program` of the statement with a specified line number, then sets `programIndex` to that index.  So when control returns to `RUN`, it will execute the statement referenced by the new value of `programIndex`.
+- The `GOSUB` statement pushes the current value of `programIndex` (which will be the index of the following statement) to the `returnStack`, then does the same thing `GOTO` does to look up the target statement and jump to it.
+- The `RETURN` statement pops an index off of the `returnStack` and sets the `programIndex` to that value, so `RUN` will resume at the statement following the `GOSUB`.
+- The `END` statement sets `isRunning` false, so that `RUN` will exit its loop.
+
+So, if you want to implement your own control-flow statements, you probably just need to figure out how to manipulate `programIndex`, `returnStack`, and `isRunning`.
+
+
 ## To-Do
+
+These fixes/changes/enhancements are planned:
 
 - Reject input lines that have invalid trailing characters. (Currently the parser just stops when it is happy with a complete statement, and ignores anything else on the line.)
 - Support `;` separators for `PRINT`, allowing consecutive values to be printed with no intervening whitespace.
 - Support trailing separator for `PRINT`, suppressing output of the end-of-line character.
 - `RND()` function
 - Command-line options to load files, send output to a log, suppress prompts, etc.
-
+- iOS app
