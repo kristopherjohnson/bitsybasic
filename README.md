@@ -77,7 +77,7 @@ FinchBasic supports this syntax:
                   IF expression relop expression THEN statement
                   GOTO expression
                   INPUT var-list | IN var-list
-                  LET var = expression
+                  LET var = expression | var = expression
                   GOSUB expression
                   RETURN
                   CLEAR

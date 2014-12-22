@@ -547,4 +547,23 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual("", io.outputString, "should produce no output")
     }
+
+    func testLetWithoutLet() {
+        io.inputString = "\n".join([
+            "10 N = 100"   ,
+            "20 x = 4"     ,
+            "LIST"         ,
+        ])
+
+        interpreter.interpretInputLines()
+
+        var expectedOutput = "\n".join([
+            "10 LET N = 100" ,
+            "20 LET X = 4"   ,
+            ""
+        ])
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
 }

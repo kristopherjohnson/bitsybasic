@@ -178,13 +178,6 @@ public final class Interpreter {
             return ((.Input(vars)), nextPos)
         }
 
-        // "LET"
-        if let ((LET, v, EQ, expr), nextPos) =
-            parse(pos, lit("LET"), variableName, lit("="), expression)
-        {
-            return ((.Let(v, expr)), nextPos)
-        }
-
         // "IF"
         if let ((IF, lhs, op, rhs, THEN, stmt), nextPos) =
             parse(pos, lit("IF"), expression, relop, expression, lit("THEN"), statement)
@@ -240,6 +233,19 @@ public final class Interpreter {
         // "TROFF"
         if let (TROFF, nextPos) = literal("TROFF", pos) {
             return (.Troff, nextPos)
+        }
+
+        // "LET"
+        if let ((LET, v, EQ, expr), nextPos) =
+            parse(pos, lit("LET"), variableName, lit("="), expression)
+        {
+            return ((.Let(v, expr)), nextPos)
+        }
+        else if let ((v, EQ, expr), nextPos) =
+            parse(pos, variableName, lit("="), expression)
+        {
+            // Allow "X = Y" as synonym for "LET X = Y".
+            return ((.Let(v, expr)), nextPos)
         }
 
         return (.Error("error: not a valid statement"), pos)
