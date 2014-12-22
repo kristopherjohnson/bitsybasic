@@ -632,21 +632,21 @@ public final class Interpreter {
     /// Execute the given statement
     func execute(stmt: Statement) {
         switch stmt {
-        case let .Print(exprList):          PRINT(exprList)
-        case let .Input(varList):           INPUT(varList)
-        case let .Let(varName, expr):       LET(varName, expr)
-        case let .If(lhs, relop, rhs, box): IF(lhs, relop, rhs, box)
-        case let .Goto(expr):               GOTO(expr)
-        case let .Gosub(expr):              GOSUB(expr)
-        case .Return:                       RETURN()
-        case .List:                         LIST()
-        case .Run:                          RUN()
-        case .End:                          END()
-        case .Clear:                        CLEAR()
-        case .Rem(_):                       break
-        case .Tron:                         isTraceOn = true
-        case .Troff:                        isTraceOn = false
-        case let .Error(message):           abortRunWithErrorMessage(message)
+        case let .Print(exprList):           PRINT(exprList)
+        case let .Input(varList):            INPUT(varList)
+        case let .Let(varName, expr):        LET(varName, expr)
+        case let .If(lhs, relop, rhs, stmt): IF(lhs, relop, rhs, stmt)
+        case let .Goto(expr):                GOTO(expr)
+        case let .Gosub(expr):               GOSUB(expr)
+        case .Return:                        RETURN()
+        case .List:                          LIST()
+        case .Run:                           RUN()
+        case .End:                           END()
+        case .Clear:                         CLEAR()
+        case .Rem(_):                        break
+        case .Tron:                          isTraceOn = true
+        case .Troff:                         isTraceOn = false
+        case let .Error(message):            abortRunWithErrorMessage(message)
         }
     }
 
@@ -806,7 +806,7 @@ public final class Interpreter {
             }
         }
         else {
-            showError("error: GOTO \(lineNumber) - no line with that number")
+            abortRunWithErrorMessage("error: GOTO \(lineNumber) - no line with that number")
         }
     }
 
@@ -821,7 +821,7 @@ public final class Interpreter {
             }
         }
         else {
-            showError("error: GOTO \(lineNumber) - no line with that number")
+            abortRunWithErrorMessage("error: GOSUB \(lineNumber) - no line with that number")
         }
     }
 
@@ -832,7 +832,7 @@ public final class Interpreter {
             returnStack.removeLast()
         }
         else {
-            showError("error: RETURN - empty return stack")
+            abortRunWithErrorMessage("error: RETURN - empty return stack")
         }
     }
 

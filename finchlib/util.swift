@@ -34,3 +34,7 @@ public class Box<T> {
     }
 }
 
+/// Determine whether a value is within an inclusive range
+func isValue <T : Comparable>(value: T, inClosedInterval low: T, high: T) -> Bool {
+    return low <= value && value <= high
+}

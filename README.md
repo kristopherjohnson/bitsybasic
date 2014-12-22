@@ -213,6 +213,7 @@ So, if you want to implement your own control-flow statements, you probably just
 These fixes/changes/enhancements are planned:
 
 - Change `INPUT` so that it shows a "?" prompt and does not return until it has received valid input. (Currently it aborts the program if the user does not enter a valid value.)
+- Add `LOAD "filename"` and `SAVE "filename"`
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app
 
