@@ -75,9 +75,11 @@ FinchBasic supports this syntax:
 
     statement ::= PRINT expr-list | PR expr-list | ? expr-list
                   IF expression relop expression THEN statement
+                  IF expression relop expression statement
                   GOTO expression
                   INPUT var-list | IN var-list
-                  LET var = expression | var = expression
+                  LET var = expression
+                  var = expression
                   GOSUB expression
                   RETURN
                   CLEAR

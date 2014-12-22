@@ -156,41 +156,60 @@ public final class Interpreter {
     /// Returns a parsed statement or Statement.Error, and position
     /// of character following the end of the parsed statement
     func statement(pos: InputPosition) -> (Statement, InputPosition) {
-        // "PRINT"
+        // "PRINT" printList
+        // "PR" printList
+        // "?" printList"
         if let ((PRINT, plist), nextPos) = parse(pos, lit("PRINT"), printList) {
             return ((.Print(plist)), nextPos)
         }
-        else if let ((PRINT, plist), nextPos) = parse(pos, lit("PR"), printList) {
-            // "PR" is an abbreviation for "PRINT"
+        else if let ((PR, plist), nextPos) = parse(pos, lit("PR"), printList) {
             return ((.Print(plist)), nextPos)
         }
-        else if let ((PRINT, plist), nextPos) = parse(pos, lit("?"), printList) {
-            // "?" is a synonym for "PRINT"
+        else if let ((QMARK, plist), nextPos) = parse(pos, lit("?"), printList) {
             return ((.Print(plist)), nextPos)
         }
 
-        // "INPUT"
+        // "LET" var = expression
+        // var = expression
+        if let ((LET, v, EQ, expr), nextPos) =
+            parse(pos, lit("LET"), variableName, lit("="), expression)
+        {
+            return ((.Let(v, expr)), nextPos)
+        }
+        else if let ((v, EQ, expr), nextPos) =
+            parse(pos, variableName, lit("="), expression)
+        {
+            return ((.Let(v, expr)), nextPos)
+        }
+
+        // "INPUT" varList
+        // "IN" varList
         if let ((INPUT, vars), nextPos) = parse(pos, lit("INPUT"), varList) {
             return ((.Input(vars)), nextPos)
         }
         else if let ((INPUT, vars), nextPos) = parse(pos, lit("IN"), varList) {
-            // "IN" is an abbreviation for "INPUT"
             return ((.Input(vars)), nextPos)
         }
 
-        // "IF"
+        // "IF" lhs relop rhs "THEN" statement
+        // "IF" lhs relop rhs statement
         if let ((IF, lhs, op, rhs, THEN, stmt), nextPos) =
             parse(pos, lit("IF"), expression, relop, expression, lit("THEN"), statement)
         {
             return (.If(lhs, op, rhs, Box(stmt)), nextPos)
         }
+        else if let ((IF, lhs, op, rhs, stmt), nextPos) =
+            parse(pos, lit("IF"), expression, relop, expression, statement)
+        {
+            return (.If(lhs, op, rhs, Box(stmt)), nextPos)
+        }
 
-        // "GOTO"
+        // "GOTO" expression
         if let ((GOTO, expr), nextPos) = parse(pos, lit("GOTO"), expression) {
             return (.Goto(expr), nextPos)
         }
 
-        // "GOTO"
+        // "GOSUB" expression
         if let ((GOSUB, expr), nextPos) = parse(pos, lit("GOSUB"), expression) {
             return (.Gosub(expr), nextPos)
         }
@@ -200,7 +219,7 @@ public final class Interpreter {
             return (.Return, nextPos)
         }
 
-        // "REM"
+        // "REM" commentstring
         if let ((REM, comment), nextPos) = parse(pos, lit("REM"), remainderOfLine) {
             return (.Rem(comment), nextPos)
         }
@@ -233,19 +252,6 @@ public final class Interpreter {
         // "TROFF"
         if let (TROFF, nextPos) = literal("TROFF", pos) {
             return (.Troff, nextPos)
-        }
-
-        // "LET"
-        if let ((LET, v, EQ, expr), nextPos) =
-            parse(pos, lit("LET"), variableName, lit("="), expression)
-        {
-            return ((.Let(v, expr)), nextPos)
-        }
-        else if let ((v, EQ, expr), nextPos) =
-            parse(pos, variableName, lit("="), expression)
-        {
-            // Allow "X = Y" as synonym for "LET X = Y".
-            return ((.Let(v, expr)), nextPos)
         }
 
         return (.Error("error: not a valid statement"), pos)

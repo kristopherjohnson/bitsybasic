@@ -566,4 +566,24 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
+
+
+    func testIfWithoutThen() {
+        io.inputString = "\n".join([
+            "10 if n = 100 go to 100"                     ,
+            "20 if x = 1 if y = 2 if z = 3 print x,y,z"   ,
+            "LIST"
+            ])
+
+        interpreter.interpretInputLines()
+
+        var expectedOutput = "\n".join([
+            "10 IF N = 100 THEN GOTO 100"                                ,
+            "20 IF X = 1 THEN IF Y = 2 THEN IF Z = 3 THEN PRINT X, Y, Z" ,
+            ""
+            ])
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
 }
