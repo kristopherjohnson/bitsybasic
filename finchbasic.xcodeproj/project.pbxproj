@@ -15,6 +15,8 @@
 		4E20473D1A43C8B80016822F /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047371A43C6310016822F /* util.swift */; };
 		4E5784E91A4879CA005486EB /* input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784E81A4879CA005486EB /* input.swift */; };
 		4E5784EB1A487A3E005486EB /* io.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784EA1A487A3E005486EB /* io.swift */; };
+		4E5784EC1A487EF2005486EB /* input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784E81A4879CA005486EB /* input.swift */; };
+		4E5784ED1A487EF8005486EB /* io.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784EA1A487A3E005486EB /* io.swift */; };
 		4EC1B5311A428CFF0060EEDE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5301A428CFF0060EEDE /* main.swift */; };
 		4EC1B5411A428D400060EEDE /* finchlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EC1B5401A428D400060EEDE /* finchlib.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4EC1B5471A428D400060EEDE /* finchlib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4EC1B53C1A428D400060EEDE /* finchlib.framework */; };
@@ -286,8 +288,10 @@
 			files = (
 				4EC1B5561A428D5E0060EEDE /* Interpreter.swift in Sources */,
 				4E20473B1A43C8AD0016822F /* char.swift in Sources */,
+				4E5784ED1A487EF8005486EB /* io.swift in Sources */,
 				4E20473C1A43C8B30016822F /* syntax.swift in Sources */,
 				4E20473D1A43C8B80016822F /* util.swift in Sources */,
+				4E5784EC1A487EF2005486EB /* input.swift in Sources */,
 				4EC1B5311A428CFF0060EEDE /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -49,12 +49,17 @@ struct InputPosition {
     /// Return true if there are no non-space characters at or following the
     /// specified index in the specified line
     var isRemainingLineEmpty: Bool {
-        return skipSpaces().index == input.count
+        return afterSpaces().index == input.count
     }
 
-    /// Return number of characters following this position (including the character at this position)
+    /// Return number of characters following this position, including the character at this position)
     var remainingCount: Int {
         return input.count - index
+    }
+
+    /// Return remaining characters on line, including the character at this position
+    var remainingChars: [Char] {
+        return index < input.count ? Array(input[index..<input.count]) : []
     }
 
     /// Return true if this position is at the end of the line
@@ -73,7 +78,7 @@ struct InputPosition {
     }
 
     /// Return position of first non-space character at or after this position
-    func skipSpaces() -> InputPosition {
+    func afterSpaces() -> InputPosition {
         var i = index
         let count = input.count
         while i < count && input[i] == Char_Space {

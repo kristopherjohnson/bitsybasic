@@ -174,7 +174,7 @@ To add a new statement or new type of expression, there are basically three step
 
 Start by studying the enum types in `syntax.swift`. These implement the [parse trees](http://en.wikipedia.org/wiki/Parse_tree) that represent the syntactic structure of each statement.
 
-Study the `parse` methods in `Interpreter.swift` to determine where to add your new parsing code.  For example, if you are adding a new statement type, you will probably add something to `parseStatement()`, whereas if you are adding a new kind of expression or changing the way an expression is parsed, you will probably change something in `parseExpression()`, `parseTerm()`, or `parseFactor()`.
+Study the parsing methods in `Interpreter.swift` to determine where to add your new parsing code.  For example, if you are adding a new statement type, you will probably add something to `statement()`, whereas if you are adding a new kind of expression or changing the way an expression is parsed, you will probably change something in `expression()`, `term()`, or `factor()`.
 
 Finally, to handle the execution or evaluation of the new construct, study the `execute` methods in `Interpreter.swift` and the `evaluate` methods in `syntax.swift`.
 
@@ -184,7 +184,7 @@ Some things to remember while writing parsing code:
 - The parser can only see the current input line. It cannot read the next line while parsing the current line.
 - In general, spaces should be ignored/skipped.  So "GO TO 10 11" is equivalent to "GOTO 1011", and "1 0P R I N T" is equivalent to "10 PRINT".  The only place where spaces are significant is in string literals.
 - In general, lowercase alphabetic characters should be treated in a case-insensitive manner or automatically converted to uppercase.  The only place where this is not appropriate is in string literals.
-- Any incorrect syntax detected must result in a `Statement.Error(String)` element being returned by `parseStatement()`, so that the error will be reported properly.
+- Any incorrect syntax detected must result in a `Statement.Error(String)` element being returned by `statement()`, so that the error will be reported properly.
 - `char.swift` contains methods and definitions that may be useful for classifying input characters or for converting text between ASCII/UTF8 bytes and Swift Strings.
 
 
@@ -210,6 +210,7 @@ So, if you want to implement your own control-flow statements, you probably just
 
 These fixes/changes/enhancements are planned:
 
+- Change `INPUT` so that it shows a "?" prompt and does not return until it has received valid input. (Currently it aborts the program if the user does not enter a valid value.)
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app
 
