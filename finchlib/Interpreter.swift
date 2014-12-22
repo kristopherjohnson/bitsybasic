@@ -153,21 +153,19 @@ public final class Interpreter {
 
     /// Parse a statement
     ///
-    /// Returns parsed statement (which may be a Statement.Error) and index
-    /// of character following the end of the statement
+    /// Returns a parsed statement or Statement.Error, and position
+    /// of character following the end of the parsed statement
     func statement(pos: InputPosition) -> (Statement, InputPosition) {
         // "PRINT"
         if let ((PRINT, plist), nextPos) = parse(pos, lit("PRINT"), printList) {
             return ((.Print(plist)), nextPos)
         }
-
-        // "PR" is an abbreviation for "PRINT"
-        if let ((PRINT, plist), nextPos) = parse(pos, lit("PR"), printList) {
+        else if let ((PRINT, plist), nextPos) = parse(pos, lit("PR"), printList) {
+            // "PR" is an abbreviation for "PRINT"
             return ((.Print(plist)), nextPos)
         }
-
-        // "?" is a synonym for "PRINT"
-        if let ((PRINT, plist), nextPos) = parse(pos, lit("?"), printList) {
+        else if let ((PRINT, plist), nextPos) = parse(pos, lit("?"), printList) {
+            // "?" is a synonym for "PRINT"
             return ((.Print(plist)), nextPos)
         }
 
@@ -175,9 +173,8 @@ public final class Interpreter {
         if let ((INPUT, vars), nextPos) = parse(pos, lit("INPUT"), varList) {
             return ((.Input(vars)), nextPos)
         }
-
-        // "IN" is an abbreviation for "INPUT"
-        if let ((INPUT, vars), nextPos) = parse(pos, lit("IN"), varList) {
+        else if let ((INPUT, vars), nextPos) = parse(pos, lit("IN"), varList) {
+            // "IN" is an abbreviation for "INPUT"
             return ((.Input(vars)), nextPos)
         }
 
@@ -254,24 +251,24 @@ public final class Interpreter {
     func printList(pos: InputPosition) -> (PrintList, InputPosition)? {
         if let (item, afterItem) = printItem(pos) {
 
-            if let (_, afterSeparator) = literal(",", afterItem) {
+            if let (_, afterSep) = literal(",", afterItem) {
                 // Parse remainder of line
-                if let (tail, afterTail) = printList(afterSeparator) {
+                if let (tail, afterTail) = printList(afterSep) {
                     return (.Items(item, .Tab, Box(tail)), afterTail)
                 }
-                else if afterSeparator.isRemainingLineEmpty {
+                else if afterSep.isRemainingLineEmpty {
                     // trailing comma
-                    return (.Item(item, .Tab), afterSeparator)
+                    return (.Item(item, .Tab), afterSep)
                 }
             }
-            else if let (_, afterSeparator) = literal(";", afterItem) {
+            else if let (_, afterSep) = literal(";", afterItem) {
                 // Parse remainder of line
-                if let (tail, afterTail) = printList(afterSeparator) {
+                if let (tail, afterTail) = printList(afterSep) {
                     return (.Items(item, .Empty, Box(tail)), afterTail)
                 }
-                else if afterSeparator.isRemainingLineEmpty {
+                else if afterSep.isRemainingLineEmpty {
                     // trailing semicolon
-                    return (.Item(item, .Empty), afterSeparator)
+                    return (.Item(item, .Empty), afterSep)
                 }
             }
 
@@ -319,30 +316,16 @@ public final class Interpreter {
     /// 
     /// Returns Expression and position of next character if successful.  Returns nil if not.
     func expression(pos: InputPosition) -> (Expression, InputPosition)? {
-        var leadingPlus = false
-        var leadingMinus = false
-        var afterSign = pos
-
-        if let (_, afterPlus) = literal("+", pos) {
-            leadingPlus = true
-            afterSign = afterPlus
-        }
-        else if let (_, afterMinus) = literal("-", pos) {
-            leadingMinus = true
-            afterSign = afterMinus
+        if let ((PLUS, uexpr), nextPos) = parse(pos, lit("+"), unsignedExpression) {
+            return (.Plus(uexpr), nextPos)
         }
 
-        if let (uexpr, afterUexpr) = unsignedExpression(afterSign) {
+        if let ((MINUS, uexpr), nextPos) = parse(pos, lit("-"), unsignedExpression) {
+            return (.Minus(uexpr), nextPos)
+        }
 
-            if leadingPlus {
-                return (.Plus(uexpr), afterUexpr)
-            }
-
-            if leadingMinus {
-                return (.Minus(uexpr), afterUexpr)
-            }
-
-            return (.UnsignedExpr(uexpr), afterUexpr)
+        if let (uexpr, nextPos) = unsignedExpression(pos) {
+            return (.UnsignedExpr(uexpr), nextPos)
         }
 
         return nil
@@ -353,19 +336,16 @@ public final class Interpreter {
         if let (t, afterTerm) = term(pos) {
 
             // If followed by "+", then it's addition
-            if let (_, afterOp) = literal("+", afterTerm) {
-                if let (uexpr, afterExpr) = unsignedExpression(afterOp) {
-                    return (.Sum(t, Box(uexpr)), afterExpr)
-                }
+            if let ((PLUS, uexpr), afterExpr) = parse(afterTerm, lit("+"), unsignedExpression) {
+                return (.Sum(t, Box(uexpr)), afterExpr)
             }
 
             // If followed by "-", then it's subtraction
-            if let (_, afterOp) = literal("-", afterTerm) {
-                if let (uexpr, afterExpr) = unsignedExpression(afterOp) {
-                    return (.Diff(t, Box(uexpr)), afterExpr)
-                }
+            if let ((MINUS, uexpr), afterExpr) = parse(afterTerm, lit("-"), unsignedExpression) {
+                return (.Diff(t, Box(uexpr)), afterExpr)
             }
 
+            // Otherwise, just a simple term
             return (.Value(t), afterTerm)
         }
 
@@ -376,20 +356,17 @@ public final class Interpreter {
     func term(pos: InputPosition) -> (Term, InputPosition)? {
         if let (fact, afterFact) = factor(pos) {
 
-            // If followed by "*", then it's a multiplication
-            if let (_, afterOp) = literal("*", afterFact) {
-                if let (term, afterTerm) = term(afterOp) {
-                    return (.Product(fact, Box(term)), afterTerm)
-                }
+            // If followed by "*", then it's a product
+            if let ((MULT, t), afterTerm) = parse(afterFact, lit("*"), term) {
+                return (.Product(fact, Box(t)), afterTerm)
             }
 
             // If followed by "/", then it's a quotient
-            if let (_, afterOp) = literal("/", afterFact) {
-                if let (term, afterTerm) = term(afterOp) {
-                    return (.Quotient(fact, Box(term)), afterTerm)
-                }
+            if let ((DIV, t), afterTerm) = parse(afterFact, lit("/"), term) {
+                return (.Quotient(fact, Box(t)), afterTerm)
             }
 
+            // Otherwise, just a simple term
             return (.Value(fact), afterFact)
         }
 
@@ -419,11 +396,6 @@ public final class Interpreter {
         }
 
         return nil
-    }
-
-    /// Curried variant of literal()
-    func lit(s: String)(pos: InputPosition) -> (String, InputPosition)? {
-        return literal(s, pos)
     }
 
     /// Determine whether the remainder of the line starts with a specified sequence of characters.
@@ -457,6 +429,11 @@ public final class Interpreter {
         }
 
         return nil
+    }
+
+    /// Curried variant of `literal()`, for use with `parse()`
+    func lit(s: String)(pos: InputPosition) -> (String, InputPosition)? {
+        return literal(s, pos)
     }
 
     /// Attempt to read an unsigned number from input.  If successful, returns
@@ -691,6 +668,13 @@ public final class Interpreter {
     /// 
     /// All values must be on a single input line, separated by commas.
     func INPUT(varlist: VarList) {
+
+        // TODO: Re-implement this as follows, so that it is more like other BASICs:
+        //
+        // - Display a "? " prompt before reading the input line (and provide means to suppress prompt)
+        // - Keep prompting for input until valid data is received.  Don't abort on error
+        // - Find a cleaner way to iterate through the variable list
+        
         if let input = readInputLine() {
             let pos = InputPosition(input, 0)
             switch varlist {
@@ -909,7 +893,7 @@ public final class Interpreter {
     ///
     /// Result may be an empty array, indicating an empty input line, not end of input.
     func readInputLine() -> InputLine? {
-        var lineBuffer: InputLine = Array()
+        var lineBuffer = InputLine()
 
         if var c = io.getInputChar(self) {
             loop: while c != Char_Linefeed {

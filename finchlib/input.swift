@@ -91,23 +91,31 @@ struct InputPosition {
 
 // MARK: - Parsing helpers
 
-// The parse() functions take a starting position and a sequence of functions to apply in order.
-// Each parsing function takes an `InputPosition` and returns a `(T, InputPosition)` pair, where
-// `T` is the type of data parsed.  parse() returns a tuple containing all the parsed elements
+// The parse() functions take a starting position and a sequence
+// of "parsing functions" to apply in order.
+//
+// Each parsing function takes an `InputPosition` and returns a
+// `(T, InputPosition)?` pair, where `T` is the type of data
+// parsed.  The parsing function returns `nil` if it cannot parse
+// the element it is looking for at that position.
+//
+// `parse()` returns a tuple containing all the parsed elements
 // and the following `InputPosition`.
 //
 // This allows us to write pattern-matching parsing code like this:
 //
-//     if let ((LET, v, EQ, expr), nextPos) = parse(start, lit("LET"), variableName, lit("EQ"), expression) {
+//     if let ((LET, v, EQ, expr), nextPos) =
+//         parse(pos, lit("LET"), variable, lit("EQ"), expression)
+//     {
 //         // do something with v, expr, and nextPos
 //         // ...
 //     }
 //
 // which is equivalent to this:
 //
-//     if let (_, afterLet) = literal("LET", start) {
-//         if let (v, afterVar) = variableName(afterLet) {
-//             if (_, afterEq) = literal("EQ", afterVar) {
+//     if let (_, afterLet) = lit("LET")(pos) {
+//         if let (v, afterVar) = variable(afterLet) {
+//             if (_, afterEq) = lit("EQ")(afterVar) {
 //                 if (expr, nextPos) = expression(afterEq) {
 //                     // do something with v, expr, and nextPos
 //                     // ...
@@ -115,6 +123,10 @@ struct InputPosition {
 //             }
 //         }
 //     }
+//
+// where `lit(String)`, `variable`, and `expression` are
+// functions that take an `InputPosition` and return an Optional
+// pair `(T, InputPosition)?`
 
 /// Parse two elements using parsing functions, returning the elements and next input position
 func parse<A, B> (
