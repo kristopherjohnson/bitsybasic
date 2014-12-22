@@ -87,3 +87,136 @@ struct InputPosition {
         return InputPosition(input, i)
     }
 }
+
+
+// MARK: - Parsing helpers
+
+// The parse() functions take a starting position and a sequence of functions to apply in order.
+// Each parsing function takes an `InputPosition` and returns a `(T, InputPosition)` pair, where
+// `T` is the type of data parsed.  parse() returns a tuple containing all the parsed elements
+// and the following `InputPosition`.
+//
+// This allows us to write pattern-matching parsing code like this:
+//
+//     if let ((LET, v, EQ, expr), nextPos) = parse(start, lit("LET"), variableName, lit("EQ"), expression) {
+//         // do something with v, expr, and nextPos
+//         // ...
+//     }
+//
+// which is equivalent to this:
+//
+//     if let (_, afterLet) = literal("LET", start) {
+//         if let (v, afterVar) = variableName(afterLet) {
+//             if (_, afterEq) = literal("EQ", afterVar) {
+//                 if (expr, nextPos) = expression(afterEq) {
+//                     // do something with v, expr, and nextPos
+//                     // ...
+//                 }
+//             }
+//         }
+//     }
+
+/// Parse two elements using parsing functions, returning the elements and next input position
+func parse<A, B> (
+    position: InputPosition,
+    a: (InputPosition) -> (A, InputPosition)?,
+    b: (InputPosition) -> (B, InputPosition)?) -> ((A, B), InputPosition)?
+{
+    if let (a, afterA) = a(position) {
+        if let (b, afterB) = b(afterA) {
+            return ((a, b), afterB)
+        }
+    }
+    return nil
+}
+
+/// Parse three elements using parsing functions, returning the elements and next input position
+func parse<A, B, C> (
+    position: InputPosition,
+    a: (InputPosition) -> (A, InputPosition)?,
+    b: (InputPosition) -> (B, InputPosition)?,
+    c: (InputPosition) -> (C, InputPosition)?) -> ((A, B, C), InputPosition)?
+{
+    if let (a, afterA) = a(position) {
+        if let (b, afterB) = b(afterA) {
+            if let (c, afterC) = c(afterB) {
+                return ((a, b, c), afterC)
+            }
+        }
+    }
+
+    return nil
+}
+
+/// Parse four elements using parsing functions, returning the elements and next input position
+func parse<A, B, C, D> (
+    position: InputPosition,
+    a: (InputPosition) -> (A, InputPosition)?,
+    b: (InputPosition) -> (B, InputPosition)?,
+    c: (InputPosition) -> (C, InputPosition)?,
+    d: (InputPosition) -> (D, InputPosition)?) -> ((A, B, C, D), InputPosition)?
+{
+    if let (a, afterA) = a(position) {
+        if let (b, afterB) = b(afterA) {
+            if let (c, afterC) = c(afterB) {
+                if let (d, afterD) = d(afterC) {
+                    return ((a, b, c, d), afterD)
+                }
+            }
+        }
+    }
+
+    return nil
+}
+
+/// Parse five elements using parsing functions, returning the elements and next input position
+func parse<A, B, C, D, E> (
+    position: InputPosition,
+    a: (InputPosition) -> (A, InputPosition)?,
+    b: (InputPosition) -> (B, InputPosition)?,
+    c: (InputPosition) -> (C, InputPosition)?,
+    d: (InputPosition) -> (D, InputPosition)?,
+    e: (InputPosition) -> (E, InputPosition)?) -> ((A, B, C, D, E), InputPosition)?
+{
+    if let (a, afterA) = a(position) {
+        if let (b, afterB) = b(afterA) {
+            if let (c, afterC) = c(afterB) {
+                if let (d, afterD) = d(afterC) {
+                    if let (e, afterE) = e(afterD) {
+                        return ((a, b, c, d, e), afterE)
+                    }
+                }
+            }
+        }
+    }
+
+    return nil
+}
+
+/// Parse six elements using parsing functions, returning the elements and next input position
+func parse<A, B, C, D, E, F> (
+    position: InputPosition,
+    a: (InputPosition) -> (A, InputPosition)?,
+    b: (InputPosition) -> (B, InputPosition)?,
+    c: (InputPosition) -> (C, InputPosition)?,
+    d: (InputPosition) -> (D, InputPosition)?,
+    e: (InputPosition) -> (E, InputPosition)?,
+    f: (InputPosition) -> (F, InputPosition)?) -> ((A, B, C, D, E, F), InputPosition)?
+{
+    if let (a, afterA) = a(position) {
+        if let (b, afterB) = b(afterA) {
+            if let (c, afterC) = c(afterB) {
+                if let (d, afterD) = d(afterC) {
+                    if let (e, afterE) = e(afterD) {
+                        if let (f, afterF) = f(afterE) {
+                            return ((a, b, c, d, e, f), afterF)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return nil
+}
+

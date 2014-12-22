@@ -107,7 +107,6 @@ public final class Interpreter {
 
     // MARK: - Parsing
 
-
     func parseInputLine(input: InputLine) -> Line {
         let start = InputPosition(input, 0)
 
@@ -151,192 +150,107 @@ public final class Interpreter {
         }
     }
 
+
     /// Parse a statement
-    ///
-    /// Looks for a keyword at the start of the line, and then delegates
-    /// to a keyword-specific function to parse whatever arguments belong
-    /// with the keyword.
     ///
     /// Returns parsed statement (which may be a Statement.Error) and index
     /// of character following the end of the statement
     func statement(pos: InputPosition) -> (Statement, InputPosition) {
         // "PRINT"
-        if let (_, nextPos) = literal("PRINT", pos) {
-            return parsePrintArguments(nextPos)
+        if let ((PRINT, plist), nextPos) = parse(pos, lit("PRINT"), printList) {
+            return ((.Print(plist)), nextPos)
         }
 
         // "PR" is an abbreviation for "PRINT"
-        if let (_, nextPos) = literal("PR", pos) {
-            return parsePrintArguments(nextPos)
+        if let ((PRINT, plist), nextPos) = parse(pos, lit("PR"), printList) {
+            return ((.Print(plist)), nextPos)
         }
 
         // "?" is a synonym for "PRINT"
-        if let (_, nextPos) = literal("?", pos) {
-            return parsePrintArguments(nextPos)
+        if let ((PRINT, plist), nextPos) = parse(pos, lit("?"), printList) {
+            return ((.Print(plist)), nextPos)
         }
 
         // "INPUT"
-        if let (_, nextPos) = literal("INPUT", pos) {
-            return parseInputArguments(nextPos)
+        if let ((INPUT, vars), nextPos) = parse(pos, lit("INPUT"), varList) {
+            return ((.Input(vars)), nextPos)
         }
 
         // "IN" is an abbreviation for "INPUT"
-        if let (_, nextPos) = literal("IN", pos) {
-            return parseInputArguments(nextPos)
+        if let ((INPUT, vars), nextPos) = parse(pos, lit("IN"), varList) {
+            return ((.Input(vars)), nextPos)
         }
 
         // "LET"
-        if let (_, nextPos) = literal("LET", pos) {
-            return parseLetArguments(nextPos)
+        if let ((LET, v, EQ, expr), nextPos) =
+            parse(pos, lit("LET"), variableName, lit("="), expression)
+        {
+            return ((.Let(v, expr)), nextPos)
         }
 
         // "IF"
-        if let (_, nextPos) = literal("IF", pos) {
-            return parseIfArguments(nextPos)
+        if let ((IF, lhs, op, rhs, THEN, stmt), nextPos) =
+            parse(pos, lit("IF"), expression, relop, expression, lit("THEN"), statement)
+        {
+            return (.If(lhs, op, rhs, Box(stmt)), nextPos)
         }
 
         // "GOTO"
-        if let (_, nextPos) = literal("GOTO", pos) {
-            return parseGotoArguments(nextPos)
+        if let ((GOTO, expr), nextPos) = parse(pos, lit("GOTO"), expression) {
+            return (.Goto(expr), nextPos)
         }
 
-        // "GOSUB"
-        if let (_, nextPos) = literal("GOSUB", pos) {
-            return parseGosubArguments(nextPos)
+        // "GOTO"
+        if let ((GOSUB, expr), nextPos) = parse(pos, lit("GOSUB"), expression) {
+            return (.Gosub(expr), nextPos)
         }
 
         // "RETURN"
-        if let (_, nextPos) = literal("RETURN", pos) {
+        if let (RETURN, nextPos) = literal("RETURN", pos) {
             return (.Return, nextPos)
         }
 
         // "REM"
-        if let (_, nextPos) = literal("REM", pos) {
-            return parseRemArguments(nextPos)
+        if let ((REM, comment), nextPos) = parse(pos, lit("REM"), remainderOfLine) {
+            return (.Rem(comment), nextPos)
         }
 
         // "LIST"
-        if let (_, nextPos) = literal("LIST", pos) {
+        if let (LIST, nextPos) = literal("LIST", pos) {
             return (.List, nextPos)
         }
 
         // "RUN"
-        if let (_, nextPos) = literal("RUN", pos) {
+        if let (RUN, nextPos) = literal("RUN", pos) {
             return (.Run, nextPos)
         }
 
         // "END"
-        if let (_, nextPos) = literal("END", pos) {
+        if let (END, nextPos) = literal("END", pos) {
             return (.End, nextPos)
         }
 
         // "CLEAR"
-        if let (_, nextPos) = literal("CLEAR", pos) {
+        if let (CLEAR, nextPos) = literal("CLEAR", pos) {
             return (.Clear, nextPos)
         }
 
         // "TRON"
-        if let (_, nextPos) = literal("TRON", pos) {
+        if let (TRON, nextPos) = literal("TRON", pos) {
             return (.Tron, nextPos)
         }
 
         // "TROFF"
-        if let (_, nextPos) = literal("TROFF", pos) {
+        if let (TROFF, nextPos) = literal("TROFF", pos) {
             return (.Troff, nextPos)
         }
 
         return (.Error("error: not a valid statement"), pos)
     }
 
-    /// Parse the arguments for a PRINT statement
-    func parsePrintArguments(pos: InputPosition) -> (Statement, InputPosition) {
-        if let (exprList, afterExprList) = printList(pos) {
-            return (.Print(exprList), afterExprList)
-        }
-
-        return (.Error("error: PRINT - invalid syntax"), pos)
-    }
-
-    /// Parse the arguments for an INPUT statement
-    func parseInputArguments(pos: InputPosition) -> (Statement, InputPosition) {
-        if let (varList, afterVarList) = varList(pos) {
-            return (.Input(varList), afterVarList)
-        }
-
-        return (.Error("error: INPUT - invalid syntax"), pos)
-    }
-    
-    /// Parse the arguments for a LET statement
-    ///
-    /// "LET" var "=" expression
-    func parseLetArguments(pos: InputPosition) -> (Statement, InputPosition) {
-        if let (varName, afterVar) = variableName(pos) {
-            if let (_, afterEq) = literal("=", afterVar) {
-                if let (expr, afterExpr) = expression(afterEq) {
-                    return (.Let(varName, expr), afterExpr)
-                }
-            }
-        }
-
-        return (.Error("error: LET - invalid syntax"), pos)
-    }
-
-    /// Parse the arguments for a GOTO statement
-    ///
-    /// "GOTO" expression
-    func parseGotoArguments(pos: InputPosition) -> (Statement, InputPosition) {
-        if let (expr, afterExpr) = expression(pos) {
-            return (.Goto(expr), afterExpr)
-        }
-
-        return (.Error("error: GOTO - invalid syntax"), pos)
-    }
-    
-    /// Parse the arguments for a GOSUB statement
-    ///
-    /// "GOSUB" expression
-    func parseGosubArguments(pos: InputPosition) -> (Statement, InputPosition) {
-        if let (expr, afterExpr) = expression(pos) {
-            return (.Gosub(expr), afterExpr)
-        }
-
-        return (.Error("error: GOSUB - invalid syntax"), pos)
-    }
-    
-    /// Parse the arguments for an IF statement
-    ///
-    /// "IF" expression relop expression "THEN" statement
-    func parseIfArguments(pos: InputPosition) -> (Statement, InputPosition) {
-        if let (lhs, afterLhs) = expression(pos) {
-            if let (relop, afterRelop) = relop(afterLhs) {
-                if let (rhs, afterRhs) = expression(afterRelop) {
-                    if let (_, afterThen) = literal("THEN", afterRhs) {
-                        let (stmt, afterStmt) = statement(afterThen)
-                        switch stmt {
-                        case .Error(_):
-                            return (.Error("error: IF - invalid statement following THEN"), afterStmt)
-                        default:
-                            return (.If(lhs, relop, rhs, Box(stmt)), afterStmt)
-                        }
-                    }
-                }
-            }
-        }
-
-        return (.Error("error: IF - invalid syntax"), pos)
-    }
-
-    /// Parse the arguments for a REM statement
-    ///
-    /// "REM" commentstring
-    func parseRemArguments(pos: InputPosition) -> (Statement, InputPosition) {
-        let commentChars = pos.remainingChars
-        return (.Rem(stringFromChars(commentChars)), pos.endOfLine)
-    }
-
     /// Attempt to parse a PrintList.
     ///
-    /// Returns PrintList and index of next character if successful.  Returns nil otherwise.
+    /// Returns PrintList and position of next character if successful.  Returns nil otherwise.
     func printList(pos: InputPosition) -> (PrintList, InputPosition)? {
         if let (item, afterItem) = printItem(pos) {
 
@@ -369,7 +283,7 @@ public final class Interpreter {
 
     /// Attempt to parse a PrintItem.
     ///
-    /// Returns PrintItem and index of next character if successful.  Returns nil otherwise.
+    /// Returns PrintItem and position of next character if successful.  Returns nil otherwise.
     func printItem(pos: InputPosition) -> (PrintItem, InputPosition)? {
         if let (chars, afterChars) = stringConstant(pos) {
             return (.Str(chars), afterChars)
@@ -384,7 +298,7 @@ public final class Interpreter {
 
     /// Attempt to parse a VarList.
     ///
-    /// Returns VarList and index of next character if successful.  Returns nil otherwise.
+    /// Returns VarList and position of next character if successful.  Returns nil otherwise.
     func varList(pos: InputPosition) -> (VarList, InputPosition)? {
         if let (item, afterItem) = variableName(pos) {
 
@@ -403,7 +317,7 @@ public final class Interpreter {
     
     /// Attempt to parse an Expression.
     /// 
-    /// Returns Expression and index of next character if successful.  Returns nil if not.
+    /// Returns Expression and position of next character if successful.  Returns nil if not.
     func expression(pos: InputPosition) -> (Expression, InputPosition)? {
         var leadingPlus = false
         var leadingMinus = false
@@ -434,31 +348,31 @@ public final class Interpreter {
         return nil
     }
 
-    /// Attempt to parse an UnsignedExpression.  Returns UnsignedExpression and index of next character if successful.  Returns nil if not.
+    /// Attempt to parse an UnsignedExpression.  Returns UnsignedExpression and position of next character if successful.  Returns nil if not.
     func unsignedExpression(pos: InputPosition) -> (UnsignedExpression, InputPosition)? {
-        if let (term, afterTerm) = term(pos) {
+        if let (t, afterTerm) = term(pos) {
 
             // If followed by "+", then it's addition
             if let (_, afterOp) = literal("+", afterTerm) {
                 if let (uexpr, afterExpr) = unsignedExpression(afterOp) {
-                    return (.Sum(term, Box(uexpr)), afterExpr)
+                    return (.Sum(t, Box(uexpr)), afterExpr)
                 }
             }
 
             // If followed by "-", then it's subtraction
             if let (_, afterOp) = literal("-", afterTerm) {
                 if let (uexpr, afterExpr) = unsignedExpression(afterOp) {
-                    return (.Diff(term, Box(uexpr)), afterExpr)
+                    return (.Diff(t, Box(uexpr)), afterExpr)
                 }
             }
 
-            return (.Value(term), afterTerm)
+            return (.Value(t), afterTerm)
         }
 
         return nil
     }
 
-    /// Attempt to parse a Term.  Returns Term and index of next character if successful.  Returns nil if not.
+    /// Attempt to parse a Term.  Returns Term and position of next character if successful.  Returns nil if not.
     func term(pos: InputPosition) -> (Term, InputPosition)? {
         if let (fact, afterFact) = factor(pos) {
 
@@ -482,7 +396,7 @@ public final class Interpreter {
         return nil
     }
 
-    /// Attempt to parse a Factor.  Returns Factor and index of next character if successful.  Returns nil if not.
+    /// Attempt to parse a Factor.  Returns Factor and position of next character if successful.  Returns nil if not.
     func factor(pos: InputPosition) -> (Factor, InputPosition)? {
         // number
         if let (num, afterNum) = numberConstant(pos) {
@@ -490,21 +404,13 @@ public final class Interpreter {
         }
 
         // "RND(" expression ")"
-        if let (_, afterLParen) = literal("RND(", pos) {
-            if let (expr, afterExpr) = expression(afterLParen) {
-                if let (_, afterRParen) = literal(")", afterExpr) {
-                    return (.Rnd(Box(expr)), afterRParen)
-                }
-            }
+        if let ((RND, expr, RPAREN), nextPos) = parse(pos, lit("RND("), expression, lit(")")) {
+            return (.Rnd(Box(expr)), nextPos)
         }
 
         // "(" expression ")"
-        if let (_, afterLParen) = literal("(", pos) {
-            if let (expr, afterExpr) = expression(afterLParen) {
-                if let (_, afterRParen) = literal(")", afterExpr) {
-                    return (.ParenExpr(Box(expr)), afterRParen)
-                }
-            }
+        if let ((LPAREN, expr, RPAREN), nextPos) = parse(pos, lit("("), expression, lit(")")) {
+            return (.ParenExpr(Box(expr)), nextPos)
         }
 
         // variable
@@ -522,7 +428,7 @@ public final class Interpreter {
 
     /// Determine whether the remainder of the line starts with a specified sequence of characters.
     ///
-    /// If true, returns index of the character following the matched string. If false, returns nil.
+    /// If true, returns position of the character following the matched string. If false, returns nil.
     ///
     /// Matching is case-insensitive. Spaces in the input are ignored.
     func literal(s: String, _ pos: InputPosition) -> (String, InputPosition)? {
@@ -531,12 +437,12 @@ public final class Interpreter {
         var matchGoal = chars.count
 
         var i = pos
-        while (matchCount < matchGoal) && !i.isAtEndOfLine {
+        loop: while (matchCount < matchGoal) && !i.isAtEndOfLine {
             let c = i.char
             i = i.next
 
             if c == Char_Space {
-                continue
+                continue loop
             }
             else if toUpper(c) == toUpper(chars[matchCount]) {
                 ++matchCount
@@ -554,7 +460,7 @@ public final class Interpreter {
     }
 
     /// Attempt to read an unsigned number from input.  If successful, returns
-    /// parsed number and index of next input character.  If not, returns nil.
+    /// parsed number and position of next input character.  If not, returns nil.
     func numberConstant(pos: InputPosition) -> (Number, InputPosition)? {
         var i = pos.afterSpaces()
 
@@ -585,7 +491,7 @@ public final class Interpreter {
 
     /// Attempt to parse a string literal
     ///
-    /// Returns characters and index of next character if successful.
+    /// Returns characters and position of next character if successful.
     /// Returns nil otherwise.
     func stringConstant(pos: InputPosition) -> ([Char], InputPosition)? {
         var i = pos.afterSpaces()
@@ -618,7 +524,7 @@ public final class Interpreter {
 
     /// Attempt to read a variable name.
     ///
-    /// Returns variable name and index of next input character on success, or nil otherwise.
+    /// Returns variable name and position of next input character on success, or nil otherwise.
     func variableName(pos: InputPosition) -> (VariableName, InputPosition)? {
         let i = pos.afterSpaces()
         if !pos.isAtEndOfLine {
@@ -633,7 +539,7 @@ public final class Interpreter {
 
     /// Attempt to read a relational operator (=, <, >, <=, >=, <>, ><)
     ///
-    /// Returns operator and index of next input character on success, or nil otherwise.
+    /// Returns operator and position of next input character on success, or nil otherwise.
     func relop(pos: InputPosition) -> (Relop, InputPosition)? {
         let firstPos = pos.afterSpaces()
         if !firstPos.isAtEndOfLine {
@@ -679,6 +585,11 @@ public final class Interpreter {
         }
 
         return nil
+    }
+
+    /// Return the remaining characters in the line as a String
+    func remainderOfLine(pos: InputPosition) -> (String, InputPosition)? {
+        return (stringFromChars(pos.remainingChars), pos.endOfLine)
     }
 
 
@@ -1001,7 +912,7 @@ public final class Interpreter {
         var lineBuffer: InputLine = Array()
 
         if var c = io.getInputChar(self) {
-            while c != Char_Linefeed {
+            loop: while c != Char_Linefeed {
                 if isGraphicChar(c) {
                     lineBuffer.append(c)
                 }
@@ -1015,7 +926,7 @@ public final class Interpreter {
                 }
                 else {
                     // Hit EOF, so return what we've read up to now
-                    break
+                    break loop
                 }
             }
         }
