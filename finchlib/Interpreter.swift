@@ -122,14 +122,14 @@ public final class Interpreter {
             let (stmt, afterStmt) = statement(afterNum)
             switch stmt {
             case .Error(let message):
-                return .Error(message)
+                return .Error("line \(num): \(message)")
 
             default:
                 if afterStmt.isRemainingLineEmpty {
                     return .NumberedStatement(num, stmt)
                 }
                 else {
-                    return .Error("error: unexpected characters following complete statement")
+                    return .Error("line \(num): error: unexpected characters following complete statement")
                 }
             }
         }
@@ -343,7 +343,9 @@ public final class Interpreter {
         return nil
     }
 
-    /// Attempt to parse an UnsignedExpression.  Returns UnsignedExpression and position of next character if successful.  Returns nil if not.
+    /// Attempt to parse an UnsignedExpression.
+    ///
+    /// Returns UnsignedExpression and position of next character if successful.  Returns nil if not.
     func unsignedExpression(pos: InputPosition) -> (UnsignedExpression, InputPosition)? {
         if let (t, afterTerm) = term(pos) {
 
@@ -364,7 +366,9 @@ public final class Interpreter {
         return nil
     }
 
-    /// Attempt to parse a Term.  Returns Term and position of next character if successful.  Returns nil if not.
+    /// Attempt to parse a Term.
+    ///
+    /// Returns Term and position of next character if successful.  Returns nil if not.
     func term(pos: InputPosition) -> (Term, InputPosition)? {
         if let (fact, afterFact) = factor(pos) {
 
