@@ -432,6 +432,26 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected lines")
     }
 
+    func testRemTick() {
+        io.inputString = lines(
+            "10  ' This is a comment",
+            "20  end",
+            "list",
+            "run"
+        )
+
+        let expectedOutput = lines(
+            "10 REM This is a comment",
+            "20 END",
+            ""
+        )
+
+        interpreter.interpretInputLines()
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected lines")
+    }
+    
     func testClear() {
         io.inputString = lines(
             "10  rem-This is a comment",

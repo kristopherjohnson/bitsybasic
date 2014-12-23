@@ -220,7 +220,11 @@ public final class Interpreter {
         }
 
         // "REM" commentstring
+        // "'" commentstring
         if let ((REM, comment), nextPos) = parse(pos, lit("REM"), remainderOfLine) {
+            return (.Rem(comment), nextPos)
+        }
+        else if let ((TICK, comment), nextPos) = parse(pos, lit("'"), remainderOfLine) {
             return (.Rem(comment), nextPos)
         }
 

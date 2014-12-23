@@ -82,12 +82,13 @@ FinchBasic supports this syntax:
                   var = expression
                   GOSUB expression
                   RETURN
+                  END
                   CLEAR
                   LIST
                   LIST expression
-                  LIST expression, expresion
+                  LIST expression, expression
                   RUN
-                  END
+                  REM commentstring | ' commentstring
                   TRON
                   TROFF
 
