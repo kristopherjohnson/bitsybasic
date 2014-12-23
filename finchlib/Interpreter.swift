@@ -243,6 +243,16 @@ public final class Interpreter {
             return (.List(.All), nextPos)
         }
 
+        // "SAVE" filenamestring
+        if let ((SAVE, filename), nextPos) = parse(pos, lit("SAVE"), stringConstant) {
+            return (.Save(stringFromChars(filename)), nextPos)
+        }
+
+        // "LOAD" filenamestring
+        if let ((LOAD, filename), nextPos) = parse(pos, lit("LOAD"), stringConstant) {
+            return (.Load(stringFromChars(filename)), nextPos)
+        }
+
         // "RUN"
         if let (RUN, nextPos) = literal("RUN", pos) {
             return (.Run, nextPos)
@@ -654,6 +664,8 @@ public final class Interpreter {
         case let .Gosub(expr):               GOSUB(expr)
         case .Return:                        RETURN()
         case let .List(range):               LIST(range)
+        case let .Save(filename):            SAVE(filename)
+        case let .Load(filename):            LOAD(filename)
         case .Run:                           RUN()
         case .End:                           END()
         case .Clear:                         CLEAR()
@@ -802,6 +814,57 @@ public final class Interpreter {
         }
     }
 
+    /// Execute SAVE statement
+    func SAVE(filename: String) {
+        let filenameCString = (filename as NSString).UTF8String
+        let modeCString = ("w" as NSString).UTF8String
+
+        let file = fopen(filenameCString, modeCString)
+        if file != nil {
+            for (lineNumber, stmt) in program {
+                let outputLine = "\(lineNumber) \(stmt.listText)\n"
+                let outputLineChars = charsFromString(outputLine)
+                fwrite(outputLineChars, 1, UInt(outputLineChars.count), file)
+            }
+            fclose(file)
+        }
+        else {
+            abortRunWithErrorMessage("error: SAVE - unable to open file \"\(filename)\": \(errnoMessage())")
+        }
+    }
+
+    /// Execute LOAD statement
+    func LOAD(filename: String) {
+        let filenameCString = (filename as NSString).UTF8String
+        let modeCString = ("r" as NSString).UTF8String
+
+        let file = fopen(filenameCString, modeCString)
+        if file != nil {
+            loop: while true {
+                let maybeInputLine = getInputLine {
+                    let c = fgetc(file)
+                    return (c == EOF) ? nil : Char(c)
+                }
+
+                if let inputLine = maybeInputLine {
+                    processInput(inputLine)
+                }
+                else {
+                    break loop
+                }
+            }
+
+            if ferror(file) != 0 {
+                abortRunWithErrorMessage("error: LOAD - read error for file \"\(filename)\": \(errnoMessage())")
+            }
+
+            fclose(file)
+        }
+        else {
+            abortRunWithErrorMessage("error: LOAD - unable to open file \"\(filename)\": \(errnoMessage())")
+        }
+    }
+
     /// Execute RUN statement
     func RUN() {
         if program.count == 0 {
@@ -927,16 +990,30 @@ public final class Interpreter {
         io.showError(self, message: message)
     }
 
-    /// Read a line of input.  Return array of characters, or nil if at end of input stream.
+    /// Read a line using the InterpreterIO interface.
+    /// 
+    /// Return array of characters, or nil if at end of input stream.
     ///
     /// Result does not include any non-graphic characters that were in the input stream.
     /// Any horizontal tab ('\t') in the input will be converted to a single space.
     ///
     /// Result may be an empty array, indicating an empty input line, not end of input.
     func readInputLine() -> InputLine? {
+        return getInputLine { self.io.getInputChar(self) }
+    }
+
+    /// Get a line of input, using specified function to retrieve characters.
+    /// 
+    /// Return array of characters, or nil if at end of input stream.
+    ///
+    /// Result does not include any non-graphic characters that were in the input stream.
+    /// Any horizontal tab ('\t') in the input will be converted to a single space.
+    ///
+    /// Result may be an empty array, indicating an empty input line, not end of input.
+    func getInputLine(getChar: () -> Char?) -> InputLine? {
         var lineBuffer = InputLine()
 
-        if var c = io.getInputChar(self) {
+        if var c = getChar() {
             loop: while c != Char_Linefeed {
                 if isGraphicChar(c) {
                     lineBuffer.append(c)
@@ -946,7 +1023,7 @@ public final class Interpreter {
                     lineBuffer.append(Char_Space)
                 }
 
-                if let nextChar = io.getInputChar(self) {
+                if let nextChar = getChar() {
                     c = nextChar
                 }
                 else {

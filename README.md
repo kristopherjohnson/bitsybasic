@@ -87,8 +87,10 @@ FinchBasic supports this syntax:
                   LIST
                   LIST expression
                   LIST expression , expression
+                  SAVE string
+                  LOAD string
                   RUN
-                  REM commentstring | ' commentstring
+                  REM comment | ' comment
                   TRON
                   TROFF
 
@@ -107,6 +109,8 @@ FinchBasic supports this syntax:
     number ::= digit digit*
 
     digit ::= 0 | 1 | 2 | 3 | ... | 8 | 9
+
+    string ::= " char* "
 
     relop ::= < (>|=|ε) | > (<|=|ε) | =
 
@@ -150,6 +154,36 @@ If there are more input numbers than variables, then the extra inputs are ignore
 `LIST` followed by a single expression will display the specified line
 
 `LIST` followed by two expressions separated by a comma will display the lines between the first line number and second line number, including those line numbers.
+
+
+**`SAVE`**
+
+The `SAVE` command writes the program text to a file, as if `LIST` output was redirected to that file.
+
+For example, after this:
+
+    10 print "This is a saved file."
+    20 end
+    save "myfile.bas"
+
+`myfile.bas` will have these contents:
+
+    10 PRINT "This is a saved file."
+    20 END
+
+
+**`LOAD`**
+
+The `LOAD` command reads lines from a file, as if the user was typing them.
+
+This is typically used to read a program from a file.  For example, if the file `myfile.bas` contains a complete program, you can enter these commands to run the program:
+
+    load "myfile.bas"
+    run
+
+However, the file need not contain only numbered program lines. It can contain commands to be executed immediately.
+
+You should use the `CLEAR` command before `LOAD` if you want to avoid the possibility of merging incompatible program lines into an existing program.
 
 
 **`TRON`/`TROFF`**
@@ -224,7 +258,7 @@ So, if you want to implement your own control-flow statements, you probably just
 
 These fixes/changes/enhancements are planned:
 
-- Add `LOAD "filename"` and `SAVE "filename"`
+- Add `LOAD "filename"`
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app
 

@@ -48,3 +48,9 @@ public func lines(strings: String...) -> String {
 public func lines(strings: [String]) -> String {
     return "\n".join(strings)
 }
+
+/// Return error message associated with current value of `errno`
+public func errnoMessage() -> String {
+    let err = strerror(errno)
+    return String.fromCString(err) ?? "unknown error"
+}

@@ -88,8 +88,14 @@ enum Statement {
     /// "END"
     case End
 
-    /// "LIST"
+    /// "LIST" [ expression, [ expression ] ]
     case List(ListRange)
+
+    /// "SAVE" filenamestring
+    case Save(String)
+
+    /// "LOAD" filenamestring
+    case Load(String)
 
     /// "TRON"
     case Tron
@@ -140,6 +146,12 @@ enum Statement {
 
         case let .List(range):
             return "LIST\(range.listText)"
+
+        case let .Save(filename):
+            return "SAVE \"\(filename)\""
+
+        case let .Load(filename):
+            return "LOAD \"\(filename)\""
 
         case .Tron:
             return "TRON"
