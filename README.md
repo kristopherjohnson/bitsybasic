@@ -58,12 +58,12 @@ You can use lowercase letters for BASIC keywords and variable names.  The interp
 
 Another example:
 
-    10 print "Enter first number"
-    20 input a
-    30 print "Enter second number"
-    40 input b
-    50 print a; "+"; b; "="; a + b
-    60 end
+    10 Print "Enter first number"
+    20 Input a
+    30 Print "Enter second number"
+    40 Input b
+    50 Print a; " + "; b; " = "; a + b
+    60 End
     run
 
 
@@ -84,6 +84,8 @@ FinchBasic supports this syntax:
                   RETURN
                   CLEAR
                   LIST
+                  LIST expression
+                  LIST expression, expresion
                   RUN
                   END
                   TRON
@@ -140,14 +142,23 @@ If there are too few numbers, or a syntax error, then an error message is printe
 If there are more input numbers than variables, then the extra inputs are ignored.
 
 
+`LIST`
+
+`LIST` with no arguments will display the entire program.
+
+`LIST` followed by a single expression will display the specified line
+
+`LIST` followed by two expressions separated by a comma will display the lines between the first line number and second line number, including those line numbers.
+
+
 `TRON`/`TROFF`
 
 The `TRON` command enables statement tracing. Line numbers are printed as each statement is executed.  `TROFF` disables statement tracing.
 
 
-`RND(range)`
+`RND(number)`
 
-Returns a randomly generated number between 0 and `range`-1, inclusive. If `range` is less than 1, then the function returns 0.
+Returns a randomly generated number between 0 and `number`-1, inclusive. If `number` is less than 1, then the function returns 0.
 
 
 ## Code Organization

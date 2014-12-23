@@ -91,6 +91,12 @@ enum Statement {
     /// "LIST"
     case List
 
+    /// "LIST" expression
+    case ListLine(Expression)
+
+    /// "LIST" expression "," expression
+    case ListRange(Expression, Expression)
+
     /// "TRON"
     case Tron
 
@@ -111,14 +117,14 @@ enum Statement {
         case let .Input(varlist):
             return "INPUT \(varlist.listText)"
 
-        case let .Let(varname, expression):
-            return "LET \(stringFromChar(varname)) = \(expression.listText)"
+        case let .Let(varname, expr):
+            return "LET \(stringFromChar(varname)) = \(expr.listText)"
 
-        case let .Goto(expression):
-            return "GOTO \(expression.listText)"
+        case let .Goto(expr):
+            return "GOTO \(expr.listText)"
 
-        case let .Gosub(expression):
-            return "GOSUB \(expression.listText)"
+        case let .Gosub(expr):
+            return "GOSUB \(expr.listText)"
             
         case .Return:
             return "RETURN"
@@ -140,6 +146,12 @@ enum Statement {
 
         case .List:
             return "LIST"
+
+        case let .ListLine(expr):
+            return "LIST \(expr.listText)"
+
+        case let .ListRange(fromLine, toLine):
+            return "LIST \(fromLine.listText), \(toLine.listText)"
 
         case .Tron:
             return "TRON"

@@ -225,7 +225,17 @@ public final class Interpreter {
         }
 
         // "LIST"
-        if let (LIST, nextPos) = literal("LIST", pos) {
+        // "LIST" expression
+        // "LIST" expression "," expression
+        if let ((LIST, from, COMMA, to), nextPos) =
+            parse(pos, lit("LIST"), expression, lit(","), expression)
+        {
+            return (.ListRange(from, to), nextPos)
+        }
+        else if let ((LIST, lineNumber), nextPos) = parse(pos, lit("LIST"), expression) {
+            return (.ListLine(lineNumber), nextPos)
+        }
+        else if let (LIST, nextPos) = literal("LIST", pos) {
             return (.List, nextPos)
         }
 
@@ -520,7 +530,7 @@ public final class Interpreter {
     /// Returns variable name and position of next input character on success, or nil otherwise.
     func variableName(pos: InputPosition) -> (VariableName, InputPosition)? {
         let i = pos.afterSpaces()
-        if !pos.isAtEndOfLine {
+        if !i.isAtEndOfLine {
             let c = i.char
             if isAlphabeticChar(c) {
                 return (toUpper(c), i.next)
@@ -640,6 +650,8 @@ public final class Interpreter {
         case let .Gosub(expr):               GOSUB(expr)
         case .Return:                        RETURN()
         case .List:                          LIST()
+        case let .ListLine(expr):            LIST(expr)
+        case let .ListRange(from, to):       LIST(from, to)
         case .Run:                           RUN()
         case .End:                           END()
         case .Clear:                         CLEAR()
@@ -760,10 +772,32 @@ public final class Interpreter {
         }
     }
 
-    /// Execute LIST statement
+    /// Execute LIST statement with no arguments
     func LIST() {
         for (lineNumber, stmt) in program {
             print("\(lineNumber) \(stmt.listText)\n")
+        }
+    }
+
+    /// Execute LIST statement with single argument
+    func LIST(expr: Expression) {
+        let listLineNumber = expr.evaluate(v)
+        for (lineNumber, stmt) in program {
+            if lineNumber == listLineNumber {
+                print("\(lineNumber) \(stmt.listText)\n")
+            }
+        }
+    }
+
+    /// Execute LIST statement with two arguments
+    func LIST(from: Expression, _ to: Expression) {
+        let fromLineNumber = from.evaluate(v)
+        let toLineNumber = to.evaluate(v)
+
+        for (lineNumber, stmt) in program {
+            if isValue(lineNumber, inClosedInterval: fromLineNumber, toLineNumber) {
+                print("\(lineNumber) \(stmt.listText)\n")
+            }
         }
     }
 
