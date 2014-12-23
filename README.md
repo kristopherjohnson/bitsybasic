@@ -31,15 +31,17 @@ The `finchbasic` executable will be in the `build/Release` directory.
 
 To run the interpreter and enter commands, do this:
 
-    ./finchbasic
+    finchbasic
 
-If you want to "load a program" into `finchbasic` and run it, you can do something like this:
+If you want to "load a program" into `finchbasic` and run it from the command line, you can do something like this:
 
-    ./finchbasic < myprogram.basic
+    finchbasic < myprogram.basic
 
-If you want to "load a program" and then interact, you can do this:
+If you want to "load a program" interactively, you can do this:
 
-    cat myprogram.basic - | ./finchbasic
+    finchbasic
+    : load "myprogram.basic"
+    : run
 
 `finchbasic` expects input to be a list of BASIC statements. If a line starts with a line number, then the line is added to the program stored in memory, overwriting any existing line with that same line number. If a line does not start with a line number, then it is executed immediately.
 
@@ -124,14 +126,14 @@ Numbers are 64-bit signed integers on 64-bit platforms, or 32-bit signed integer
 (If your applications rely upon 16-bit overflow behavior, you can change the definition of `Number` in `syntax.swift` from `Int` to `Int16`, and then rebuild `finchbasic`.)
 
 
-**`PRINT`**
+**PRINT**
 
 If expressions are separated by commas, then a tab character is output between them. If expressions are separated by semicolons, then there is no separator output between them.
 
 `PRINT` usually outputs a newline character after the expressions.  You can suppress this behavior by ending the statement with a semicolon.  End the statement with a comma to output a tab character rather than a newline.
 
 
-**`INPUT`**
+**INPUT**
 
 The `INPUT` command displays a question-mark prompt, reads a single input line, and then tries to assign an expression to each variable in the list.  So, for example, if these statements is executed:
 
@@ -147,7 +149,7 @@ If there are too few numbers, or a syntax error, then an error message is printe
 If there are more input numbers than variables, then the extra inputs are ignored.
 
 
-**`LIST`**
+**LIST**
 
 `LIST` with no arguments will display the entire program.
 
@@ -156,7 +158,7 @@ If there are more input numbers than variables, then the extra inputs are ignore
 `LIST` followed by two expressions separated by a comma will display the lines between the first line number and second line number, including those line numbers.
 
 
-**`SAVE`**
+**SAVE**
 
 The `SAVE` command writes the program text to a file, as if `LIST` output was redirected to that file.
 
@@ -172,7 +174,7 @@ For example, after this:
     20 END
 
 
-**`LOAD`**
+**LOAD**
 
 The `LOAD` command reads lines from a file, as if the user was typing them.
 
@@ -186,12 +188,12 @@ However, the file need not contain only numbered program lines. It can contain c
 You should use the `CLEAR` command before `LOAD` if you want to avoid the possibility of merging incompatible program lines into an existing program.
 
 
-**`TRON`/`TROFF`**
+**TRON/TROFF**
 
 The `TRON` command enables statement tracing. Line numbers are printed as each statement is executed.  `TROFF` disables statement tracing.
 
 
-**`RND(number)`**
+**RND(number)**
 
 Returns a randomly generated number between 0 and `number`-1, inclusive. If `number` is less than 1, then the function returns 0.
 
@@ -258,7 +260,6 @@ So, if you want to implement your own control-flow statements, you probably just
 
 These fixes/changes/enhancements are planned:
 
-- Add `LOAD "filename"`
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app
 
