@@ -86,7 +86,7 @@ FinchBasic supports this syntax:
                   CLEAR
                   LIST
                   LIST expression
-                  LIST expression, expression
+                  LIST expression , expression
                   RUN
                   REM commentstring | ' commentstring
                   TRON
@@ -113,21 +113,21 @@ FinchBasic supports this syntax:
 The statements and expressions have the traditional Tiny BASIC behaviors, which are described elsewhere.  Here are some peculiarities of the FinchBasic implementation:
 
 
-*Numbers*
+**Numbers**
 
 Numbers are 64-bit signed integers on 64-bit platforms, or 32-bit signed integers on 32-bit platforms. So if your applications rely on the overflow behavior of 16-bit Tiny BASIC, then you may get unexpected results.
 
 (If your applications rely upon 16-bit overflow behavior, you can change the definition of `Number` in `syntax.swift` from `Int` to `Int16`, and then rebuild `finchbasic`.)
 
 
-`PRINT`
+**`PRINT`**
 
 If expressions are separated by commas, then a tab character is output between them. If expressions are separated by semicolons, then there is no separator output between them.
 
 `PRINT` usually outputs a newline character after the expressions.  You can suppress this behavior by ending the statement with a semicolon.  End the statement with a comma to output a tab character rather than a newline.
 
 
-`INPUT`
+**`INPUT`**
 
 The `INPUT` command displays a question-mark prompt, reads a single input line, and then tries to assign an expression to each variable in the list.  So, for example, if these statements is executed:
 
@@ -143,7 +143,7 @@ If there are too few numbers, or a syntax error, then an error message is printe
 If there are more input numbers than variables, then the extra inputs are ignored.
 
 
-`LIST`
+**`LIST`**
 
 `LIST` with no arguments will display the entire program.
 
@@ -152,12 +152,12 @@ If there are more input numbers than variables, then the extra inputs are ignore
 `LIST` followed by two expressions separated by a comma will display the lines between the first line number and second line number, including those line numbers.
 
 
-`TRON`/`TROFF`
+**`TRON`/`TROFF`**
 
 The `TRON` command enables statement tracing. Line numbers are printed as each statement is executed.  `TROFF` disables statement tracing.
 
 
-`RND(number)`
+**`RND(number)`**
 
 Returns a randomly generated number between 0 and `number`-1, inclusive. If `number` is less than 1, then the function returns 0.
 

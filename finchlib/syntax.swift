@@ -89,13 +89,7 @@ enum Statement {
     case End
 
     /// "LIST"
-    case List
-
-    /// "LIST" expression
-    case ListLine(Expression)
-
-    /// "LIST" expression "," expression
-    case ListRange(Expression, Expression)
+    case List(ListRange)
 
     /// "TRON"
     case Tron
@@ -144,14 +138,8 @@ enum Statement {
         case .Run:
             return "RUN"
 
-        case .List:
-            return "LIST"
-
-        case let .ListLine(expr):
-            return "LIST \(expr.listText)"
-
-        case let .ListRange(fromLine, toLine):
-            return "LIST \(fromLine.listText), \(toLine.listText)"
+        case let .List(range):
+            return "LIST\(range.listText)"
 
         case .Tron:
             return "TRON"
@@ -586,6 +574,28 @@ enum Relop {
         }
     }
 }
+
+/// Range of lines for a LIST operation
+enum ListRange {
+    /// List all lines
+    case All
+
+    /// List a single line
+    case SingleLine(Expression)
+
+    /// List all lines within an inclusive range
+    case Range(Expression, Expression)
+
+    /// Return pretty-printed representation
+    var listText: String {
+        switch self {
+        case .All:                  return ""
+        case let .SingleLine(expr): return " \(expr.listText)"
+        case let .Range(from, to):  return " \(from.listText), \(to.listText)"
+        }
+    }
+}
+
 
 /// A program is a sequence of numbered statements
 typealias Program = [(Number, Statement)]
