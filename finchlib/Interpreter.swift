@@ -81,7 +81,7 @@ public final class Interpreter {
     /// Display prompt and read input lines and interpret them until end of input
     public func interpretInputLines() {
         loop: while true {
-            io.showPrompt(self)
+            io.showCommandPrompt(self)
 
             if let input = readInputLine() {
                 processInput(input)
@@ -690,7 +690,8 @@ public final class Interpreter {
         // - Display a "? " prompt before reading the input line (and provide means to suppress prompt)
         // - Keep prompting for input until valid data is received.  Don't abort on error
         // - Find a cleaner way to iterate through the variable list
-        
+
+        io.showInputPrompt(self)
         if let input = readInputLine() {
             let pos = InputPosition(input, 0)
             switch varlist {

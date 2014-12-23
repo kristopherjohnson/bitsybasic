@@ -40,6 +40,9 @@ class StringIO: InterpreterIO {
     /// Strings passed to showError()
     var errors: [String] = []
 
+    /// Number of times showInputPrompt has been called
+    var inputPromptCount: Int = 0
+
     /// Get/set inputChars as a String value
     var inputString: String {
         get {
@@ -76,8 +79,12 @@ class StringIO: InterpreterIO {
         outputChars.append(c)
     }
 
-    func showPrompt(interpreter: Interpreter) {
+    func showCommandPrompt(interpreter: Interpreter) {
         // does nothing
+    }
+
+    func showInputPrompt(interpreter: Interpreter) {
+        ++inputPromptCount
     }
 
     func showError(interpreter: Interpreter, message: String) {
@@ -455,6 +462,7 @@ class finchlibTests: XCTestCase {
         var expectedOutput = "Enter three numbers:\nThe numbers are \t101\t202\t303\n"
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(1, io.inputPromptCount, "showInputPrompt() should have been called")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
 

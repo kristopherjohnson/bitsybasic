@@ -34,8 +34,11 @@ public protocol InterpreterIO {
     /// Write specified output character
     func putOutputChar(interpreter: Interpreter, _ c: Char)
 
-    /// Display the input prompt to the user
-    func showPrompt(interpreter: Interpreter)
+    /// Display a prompt to the user for entering an immediatel command or line of code
+    func showCommandPrompt(interpreter: Interpreter)
+
+    /// Display a prompt to the user for entering data for an INPUT statement
+    func showInputPrompt(interpreter: Interpreter)
 
     /// Display error message to user
     func showError(interpreter: Interpreter, message: String)
@@ -57,8 +60,14 @@ public final class StandardIO: InterpreterIO {
         fflush(stdin)
     }
 
-    public func showPrompt(interpreter: Interpreter) {
+    public func showCommandPrompt(interpreter: Interpreter) {
         putchar(Int32(Char_Colon))
+        fflush(stdin)
+    }
+
+    public func showInputPrompt(interpreter: Interpreter) {
+        putchar(Int32(Char_QuestionMark))
+        putchar(Int32(Char_Space))
         fflush(stdin)
     }
 
