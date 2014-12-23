@@ -212,10 +212,10 @@ class finchlibTests: XCTestCase {
     }
 
     func testPrintFailForInvalidTrailingCharacters() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10 PRINT 5 + 2   X ",
             "LIST"
-        ])
+        )
         interpreter.interpretInputLines()
 
         XCTAssertEqual(1, io.errors.count, "unexpected \"\(io.firstError)\"")
@@ -223,11 +223,11 @@ class finchlibTests: XCTestCase {
     }
 
     func testLet() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "LET x = 15",
             "let Q = 99",
             "PRINT X, q - 11, a"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -236,11 +236,11 @@ class finchlibTests: XCTestCase {
     }
 
     func testIfEqual() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "IF 0 = 0 THEN PRINT 1",
             "IF 1 = 0 THEN PRINT 2",
             "IF 99 = 99 THEN PRINT 3"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -249,11 +249,11 @@ class finchlibTests: XCTestCase {
     }
 
     func testIfNotEqual() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "IF 1 <> 0 THEN PRINT 1",
             "IF 1 >< 0 THEN PRINT 2",
             "IF 99 <> 99 THEN PRINT 3"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -262,11 +262,11 @@ class finchlibTests: XCTestCase {
     }
     
     func testIfLessThan() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "IF 0 < 0 THEN PRINT 1",
             "IF 1 < 9 THEN PRINT 2",
             "IF -99 < 99 THEN PRINT 3"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -275,11 +275,11 @@ class finchlibTests: XCTestCase {
     }
 
     func testIfLessThanOrEqualTo() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "IF 0 <= 0    THEN PRINT 1",
             "IF 10 <= 9   THEN PRINT 2",
             "IF -99<  =99 THEN PRINT 3"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -288,11 +288,11 @@ class finchlibTests: XCTestCase {
     }
 
     func testIfGreaterThan() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "IF 0 > 0 THEN PRINT 1",
             "IF 9 > 1 THEN PRINT 2",
             "IF 99 > -99 THEN PRINT 3"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -301,11 +301,11 @@ class finchlibTests: XCTestCase {
     }
 
     func testIfGreaterThanOrEqualTo() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "IF 0 >= 0 THEN PRINT 1",
             "IF 1 >= 9 THEN PRINT 2",
             "IF 99>  =-99 THEN PRINT 3"
-            ])
+            )
 
         interpreter.interpretInputLines()
 
@@ -314,7 +314,7 @@ class finchlibTests: XCTestCase {
     }
 
     func testListPrettyPrint() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             " 2 0   if  y < ( x + 1 )  then print \"foo\", \"bar\"  ",
             " 3 0   go to x  +100  ",
             "   1 0  pr \"Hello\", \"world\"  ",
@@ -330,11 +330,11 @@ class finchlibTests: XCTestCase {
             "  1  3  0    tr  off  ",
 
             "list"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
-        let expectedOutput = "\n".join([
+        let expectedOutput = lines(
             "10 PRINT \"Hello\", \"world\""                 ,
             "20 IF Y < (X + 1) THEN PRINT \"foo\", \"bar\"" ,
             "30 GOTO X + 100"                               ,
@@ -349,19 +349,19 @@ class finchlibTests: XCTestCase {
             "120 TRON"                                      ,
             "130 TROFF"                                     ,
             ""
-        ])
+        )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected lines")
     }
     
     func testRun() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10 print \"hello\"",
             "20 print \"world\"",
             "30 end",
             "run"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -379,13 +379,13 @@ class finchlibTests: XCTestCase {
     }
 
     func testGoto() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10 print \"hello\"",
             "15 goto 30",
             "20 print \"world\"",
             "30 end",
             "run"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -394,7 +394,7 @@ class finchlibTests: XCTestCase {
     }
 
     func testGosub() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10 gosub 100",
             "20 gosub 200",
             "30 gosub 100",
@@ -404,7 +404,7 @@ class finchlibTests: XCTestCase {
             "200 print \"goodbye\"",
             "210 return",
             "run"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -413,18 +413,18 @@ class finchlibTests: XCTestCase {
     }
 
     func testRem() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10  rem-This is a comment",
             "20  end",
             "list",
             "run"
-            ])
+            )
 
-        let expectedOutput = "\n".join([
+        let expectedOutput = lines(
             "10 REM-This is a comment",
             "20 END",
             ""
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -433,12 +433,12 @@ class finchlibTests: XCTestCase {
     }
 
     func testClear() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10  rem-This is a comment",
             "20  end",
             "clear",
             "list"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -447,7 +447,7 @@ class finchlibTests: XCTestCase {
     }
 
     func testInput() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10 print \"Enter three numbers:\""      ,
             "20 input a, b, c"                       ,
             "30 print \"The numbers are \", a, b, c" ,
@@ -455,7 +455,7 @@ class finchlibTests: XCTestCase {
             "run"                                    ,
             "101, 202, 303"                          ,
             ""
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -463,6 +463,40 @@ class finchlibTests: XCTestCase {
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(1, io.inputPromptCount, "showInputPrompt() should have been called")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
+
+    func testInputWithBadEntry() {
+        io.inputString = lines(
+            "10 print \"Enter a number:\""                     ,
+            "20 input a"                                       ,
+            "30 print \"Enter another number:\""               ,
+            "40 input b"                                       ,
+            "50 print \"The numbers are \"; a ; \" and \" ; b" ,
+            "60 end"                                           ,
+            "run"                                              ,
+
+            "foo"                                              ,
+            "$"                                                ,
+            "101"                                              ,
+
+            "bar"                                              ,
+            ""                                                 ,
+            "102"                                              ,
+            ""
+        )
+
+        interpreter.interpretInputLines()
+
+        var expectedOutput = lines(
+            "Enter a number:"             ,
+            "Enter another number:"       ,
+            "The numbers are 101 and 102" ,
+            ""
+        )
+
+        XCTAssertEqual(4, io.errors.count, "\(lines(io.errors))")
+        XCTAssertEqual(6, io.inputPromptCount, "should call showInputPrompt for each attempt to read")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
 
@@ -478,12 +512,12 @@ class finchlibTests: XCTestCase {
     }
 
     func testPrintWithTrailingSemicolon() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10 print \"Hello, \";"  ,
             "20 print \"world!\""    ,
             "30 end"                 ,
             "run"
-            ])
+            )
 
         interpreter.interpretInputLines()
 
@@ -494,12 +528,12 @@ class finchlibTests: XCTestCase {
     }
 
     func testPrintWithTrailingComma() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10 print \"Hello, \","  ,
             "20 print \"world!\""    ,
             "30 end"                 ,
             "run"
-            ])
+            )
 
         interpreter.interpretInputLines()
 
@@ -510,7 +544,7 @@ class finchlibTests: XCTestCase {
     }
 
     func testAsciiArt() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10 LET X = 5"               ,
             "20 LET I = X"               ,
             "30 PRINT \"*\";"            ,
@@ -521,24 +555,24 @@ class finchlibTests: XCTestCase {
             "80 PRINT \"\""              ,
             "90 GOTO 20"                 ,
             "RUN"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
-        var expectedOutput = "\n".join([
+        var expectedOutput = lines(
             "*****",
             "****" ,
             "***"  ,
             "**"   ,
             "*"
-        ])
+        )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
 
     func testRnd() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "1 LET N = 1000"                       ,
             "5 LET X = -1"                         ,
             "10 LET X = RND(10)"                   ,
@@ -548,7 +582,7 @@ class finchlibTests: XCTestCase {
             "50 IF N > 0 THEN GOTO 5"              ,
             "60 END"                               ,
             "RUN"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
@@ -557,19 +591,20 @@ class finchlibTests: XCTestCase {
     }
 
     func testLetWithoutLet() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10 N = 100"   ,
             "20 x = 4"     ,
             "LIST"         ,
-        ])
+            ""
+        )
 
         interpreter.interpretInputLines()
 
-        var expectedOutput = "\n".join([
+        var expectedOutput = lines(
             "10 LET N = 100" ,
             "20 LET X = 4"   ,
             ""
-        ])
+        )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
@@ -577,19 +612,19 @@ class finchlibTests: XCTestCase {
 
 
     func testIfWithoutThen() {
-        io.inputString = "\n".join([
+        io.inputString = lines(
             "10 if n = 100 go to 100"                     ,
             "20 if x = 1 if y = 2 if z = 3 print x,y,z"   ,
             "LIST"
-        ])
+        )
 
         interpreter.interpretInputLines()
 
-        var expectedOutput = "\n".join([
+        var expectedOutput = lines(
             "10 IF N = 100 THEN GOTO 100"                                ,
             "20 IF X = 1 THEN IF Y = 2 THEN IF Z = 3 THEN PRINT X, Y, Z" ,
             ""
-        ])
+        )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")

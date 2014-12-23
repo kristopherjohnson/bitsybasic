@@ -187,6 +187,32 @@ enum VarList {
             return result
         }
     }
+
+    /// Return the variable names as an array
+    var asArray: [VariableName] {
+        switch self {
+        case let .Item(variableName):
+            return [variableName]
+
+        case let .Items(firstVarName, items):
+            var result = [firstVarName]
+
+            var x = items.value
+            var done = false
+            loop: while true {
+                switch x {
+                case let .Item(lastVarName):
+                    result.append(lastVarName)
+                    break loop
+                case let .Items(variableName, tail):
+                    result.append(variableName)
+                    x = tail.value
+                }
+            }
+
+            return result
+        }
+    }
 }
 
 /// Protocol supported by elements that provide text for the PRINT statement

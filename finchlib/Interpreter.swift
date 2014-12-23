@@ -685,79 +685,67 @@ public final class Interpreter {
     /// All values must be on a single input line, separated by commas.
     func INPUT(varlist: VarList) {
 
-        // TODO: Re-implement this as follows, so that it is more like other BASICs:
-        //
-        // - Display a "? " prompt before reading the input line (and provide means to suppress prompt)
-        // - Keep prompting for input until valid data is received.  Don't abort on error
-        // - Find a cleaner way to iterate through the variable list
+        let vars = varlist.asArray
 
-        io.showInputPrompt(self)
-        if let input = readInputLine() {
-            let pos = InputPosition(input, 0)
-            switch varlist {
-            case let .Item(variableName):
-                if let (expr, afterExpr) = expression(pos) {
-                    v[variableName] = expr.evaluate(v)
-                }
-                else {
-                    abortRunWithErrorMessage("error: INPUT - unable to parse expression")
-                    return
-                }
+        // Loop until successful
+        inputLoop: while true {
+            io.showInputPrompt(self)
+            if let input = readInputLine() {
+                var pos = InputPosition(input, 0)
 
-            case let .Items(firstVariableName, otherItems):
-                if let (firstExpr, afterExpr) = expression(pos) {
-                    v[firstVariableName] = firstExpr.evaluate(v)
-
-                    var x = otherItems.value
-                    var nextPos = afterExpr
-                    loop: while true {
-                        switch x {
-
-                        case let .Item(lastVariableName):
-                            if let (_, afterLastComma) = literal(",", nextPos) {
-                                if let (lastExpr, afterLastExpr) = expression(afterLastComma) {
-                                    v[lastVariableName] = lastExpr.evaluate(v)
-                                }
-                                else {
-                                    abortRunWithErrorMessage("error: INPUT - unable to read expression")
-                                    return
-                                }
-                            }
-                            else {
-                                abortRunWithErrorMessage("error: INPUT - expecting comma and additional expression")
-                                return
-                            }
-                            break loop
-
-                        case let .Items(thisVariableName, tail):
-                            if let (_, afterThisComma) = literal(",", nextPos) {
-                                if let (thisExpr, afterThisExpr) = expression(afterThisComma) {
-                                    v[thisVariableName] = thisExpr.evaluate(v)
-
-                                    x = tail.value
-                                    nextPos = afterThisExpr
-                                }
-                                else {
-                                    abortRunWithErrorMessage("error: INPUT - unable to read all expressions")
-                                    return
-                                }
-                            }
-                            else {
-                                abortRunWithErrorMessage("error: INPUT - expecting comma and additional expression")
-                                return
-                            }
+                for (index, variable) in enumerate(vars) {
+                    if index == 0 {
+                        if let (num, after) = inputExpression(pos) {
+                            v[variable] = num
+                            pos = after
+                        }
+                        else {
+                            showError("error: INPUT - expected number")
+                            continue inputLoop
                         }
                     }
+                    else if let ((COMMA, num), after) = parse(pos, lit(","), inputExpression) {
+                        v[variable] = num
+                        pos = after
+                    }
+                    else {
+                        showError("error: INPUT - expected comma and number")
+                        continue inputLoop
+                    }
                 }
-                else {
-                    abortRunWithErrorMessage("error: INPUT - unable to parse expression")
-                    return
-                }
+
+                // If we get here, we've read input for all the variables
+                break inputLoop
+            }
+            else {
+                abortRunWithErrorMessage("error - INPUT: end of input stream")
+                break inputLoop
             }
         }
-        else {
-            abortRunWithErrorMessage("error: INPUT - unable to read input stream")
+    }
+
+    /// Parse user entry for INPUT
+    ///
+    /// Return parsed number and following position if successful, or nil otherwise.
+    ///
+    /// Accepts entry of a number, with optional sign (+|-)
+    func inputExpression(pos: InputPosition) -> (Number, InputPosition)? {
+        // number
+        if let (num, nextPos) = numberConstant(pos) {
+            return (num, nextPos)
         }
+
+        // "+" number
+        if let ((PLUS, num), nextPos) = parse(pos, lit("+"), numberConstant) {
+            return (num, nextPos)
+        }
+
+        // "-" number
+        if let ((MINUS, num), nextPos) = parse(pos, lit("-"), numberConstant) {
+            return (-num, nextPos)
+        }
+
+        return nil
     }
 
     /// Execute LET statement
@@ -854,10 +842,11 @@ public final class Interpreter {
                 break
             }
 
-            let (lineNumber, stmt) = program[programIndex++]
+            let (lineNumber, stmt) = program[programIndex]
             if isTraceOn {
                 io.showDebugTrace(self, message: "[\(lineNumber)]")
             }
+            ++programIndex
             execute(stmt)
         }
     }
@@ -869,7 +858,7 @@ public final class Interpreter {
         showError(message)
         if isRunning {
             isRunning = false
-            showError("abort: unrecoverable error")
+            showError("abort: program terminated")
         }
     }
 

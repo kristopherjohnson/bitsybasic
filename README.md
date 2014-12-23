@@ -126,18 +126,18 @@ If expressions are separated by commas, then a tab character is output between t
 
 `INPUT`
 
-The `INPUT` command reads a single line and then tries to assign an expression to each variable in the list.  So, for example, if these statements is executed:
+The `INPUT` command displays a question-mark prompt, reads a single input line, and then tries to assign an expression to each variable in the list.  So, for example, if these statements is executed:
 
     100 PRINT "Enter three numbers:"
     110 INPUT A, B, C
 
 then the user should respond with something like
 
-    123, 456, 789
+    123, 456, -789
 
-If there are too few expressions, or a syntax error, then an error message is printed and the program stops executing.
+If there are too few numbers, or a syntax error, then an error message is printed and the prompt is displayed again.  INPUT will not return control until it successfully reads the expected input or it reaches the end of the input stream.
 
-If there are too many expressions, then the extra expressions are ignored.
+If there are more input numbers than variables, then the extra inputs are ignored.
 
 
 `TRON`/`TROFF`
@@ -212,7 +212,6 @@ So, if you want to implement your own control-flow statements, you probably just
 
 These fixes/changes/enhancements are planned:
 
-- Change `INPUT` so that it shows a "?" prompt and does not return until it has received valid input. (Currently it aborts the program if the user does not enter a valid value.)
 - Add `LOAD "filename"` and `SAVE "filename"`
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app

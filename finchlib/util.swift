@@ -38,3 +38,13 @@ public class Box<T> {
 func isValue <T : Comparable>(value: T, inClosedInterval low: T, high: T) -> Bool {
     return low <= value && value <= high
 }
+
+/// Given list of strings, produce single string with newlines between those strings
+public func lines(strings: String...) -> String {
+    return "\n".join(strings)
+}
+
+/// Given list of strings, produce single string with newlines between those strings
+public func lines(strings: [String]) -> String {
+    return "\n".join(strings)
+}
