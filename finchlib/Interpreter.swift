@@ -159,13 +159,7 @@ public final class Interpreter {
         // "PRINT" printList
         // "PR" printList
         // "?" printList"
-        if let ((PRINT, plist), nextPos) = parse(pos, lit("PRINT"), printList) {
-            return ((.Print(plist)), nextPos)
-        }
-        else if let ((PR, plist), nextPos) = parse(pos, lit("PR"), printList) {
-            return ((.Print(plist)), nextPos)
-        }
-        else if let ((QMARK, plist), nextPos) = parse(pos, lit("?"), printList) {
+        if let ((PRINT, plist), nextPos) = parse(pos, oneOfLiteral("PRINT", "PR", "?"), printList) {
             return ((.Print(plist)), nextPos)
         }
 
@@ -184,10 +178,7 @@ public final class Interpreter {
 
         // "INPUT" varList
         // "IN" varList
-        if let ((INPUT, vars), nextPos) = parse(pos, lit("INPUT"), varList) {
-            return ((.Input(vars)), nextPos)
-        }
-        else if let ((INPUT, vars), nextPos) = parse(pos, lit("IN"), varList) {
+        if let ((INPUT, vars), nextPos) = parse(pos, oneOfLiteral("INPUT", "IN"), varList) {
             return ((.Input(vars)), nextPos)
         }
 
@@ -221,10 +212,7 @@ public final class Interpreter {
 
         // "REM" commentstring
         // "'" commentstring
-        if let ((REM, comment), nextPos) = parse(pos, lit("REM"), remainderOfLine) {
-            return (.Rem(comment), nextPos)
-        }
-        else if let ((TICK, comment), nextPos) = parse(pos, lit("'"), remainderOfLine) {
+        if let ((REM, comment), nextPos) = parse(pos, oneOfLiteral("REM", "'"), remainderOfLine) {
             return (.Rem(comment), nextPos)
         }
 
@@ -474,6 +462,18 @@ public final class Interpreter {
     /// Curried variant of `literal()`, for use with `parse()`
     func lit(s: String)(pos: InputPosition) -> (String, InputPosition)? {
         return literal(s, pos)
+    }
+
+    /// Try to parse one of a set of literals
+    ///
+    /// Returns first match, or nil if there are no matches
+    func oneOfLiteral(strings: String...)(pos: InputPosition) -> (String, InputPosition)? {
+        for s in strings {
+            if let match = literal(s, pos) {
+                return match
+            }
+        }
+        return nil
     }
 
     /// Attempt to read an unsigned number from input.  If successful, returns
