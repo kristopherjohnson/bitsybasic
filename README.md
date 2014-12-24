@@ -99,6 +99,7 @@ FinchBasic supports this syntax:
                   TRON
                   TROFF
                   BYE
+                  HELP
 
     expr-list ::= (string|expression) ((,|;) (string|expression) )* (,|;|ε)
 
@@ -211,6 +212,11 @@ Returns a randomly generated number between 0 and `number`-1, inclusive. If `num
 **BYE**
 
 The `BYE` command causes `finchbasic` to terminate gracefully.
+
+
+**HELP**
+
+The `HELP` command displays a summary of BASIC syntax.
 
 
 ## Code Organization

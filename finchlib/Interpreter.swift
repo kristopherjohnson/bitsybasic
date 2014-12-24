@@ -281,6 +281,11 @@ public final class Interpreter {
             return (.Bye, nextPos)
         }
 
+        // "HELP"
+        if let (HELP, nextPos) = literal("HELP", pos) {
+            return (.Help, nextPos)
+        }
+
         return (.Error("error: not a valid statement"), pos)
     }
 
@@ -695,6 +700,7 @@ public final class Interpreter {
         case .Tron:                          isTraceOn = true
         case .Troff:                         isTraceOn = false
         case .Bye:                           BYE()
+        case .Help:                          HELP()
         case let .Error(message):            abortRunWithErrorMessage(message)
         }
     }
@@ -961,6 +967,35 @@ public final class Interpreter {
     /// Execute BYE statement
     public func BYE() {
         io.bye(self)
+    }
+
+    /// Execute HELP statement
+    public func HELP() {
+        let lines = [
+            "FinchBasic Statements:",
+            "  BYE",
+            "  CLEAR",
+            "  END",
+            "  GOSUB expression",
+            "  GOTO expression",
+            "  HELP",
+            "  IF expression relop expression THEN statement",
+            "  INPUT var-list",
+            "  LET var = expression",
+            "  LIST [firstLine, [lastLine]]",
+            "  LOAD \"filename\"",
+            "  PRINT expr-list",
+            "  REM comment",
+            "  RETURN",
+            "  RUN",
+            "  SAVE \"filename\"",
+            "  TRON | TROFF"
+        ]
+
+        for line in lines {
+            writeOutput(line)
+            writeOutput("\n")
+        }
     }
 
     /// Starting at current program index, execute commands
