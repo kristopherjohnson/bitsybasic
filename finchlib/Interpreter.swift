@@ -161,11 +161,16 @@ public final class Interpreter {
     /// Returns a parsed statement or Statement.Error, and position
     /// of character following the end of the parsed statement
     func statement(pos: InputPosition) -> (Statement, InputPosition) {
-        // "PRINT" printList
-        // "PR" printList
-        // "?" printList"
-        if let ((PRINT, plist), nextPos) = parse(pos, oneOfLiteral("PRINT", "PR", "?"), printList) {
-            return ((.Print(plist)), nextPos)
+        // "PRINT" [ printList ]
+        // "PR" [ printList ]
+        // "?" [ printList" ]
+        if let (PRINT, afterKeyword) = oneOfLiteral("PRINT", "PR", "?")(pos: pos) {
+            if let (plist, afterPrintList) = printList(afterKeyword) {
+                return (.Print(plist), afterPrintList)
+            }
+            else {
+                return (.PrintNewline, afterKeyword)
+            }
         }
 
         // "LET" var = expression
@@ -668,6 +673,7 @@ public final class Interpreter {
     func execute(stmt: Statement) {
         switch stmt {
         case let .Print(exprList):           PRINT(exprList)
+        case .PrintNewline:                  PRINT()
         case let .Input(varList):            INPUT(varList)
         case let .Let(varName, expr):        LET(varName, expr)
         case let .If(lhs, relop, rhs, stmt): IF(lhs, relop, rhs, stmt)
@@ -691,13 +697,13 @@ public final class Interpreter {
     func PRINT(plist: PrintList) {
         switch plist {
         case let .Item(item, terminator):
-            print(item)
-            print(terminator)
+            writeOutput(item)
+            writeOutput(terminator)
 
         case let .Items(item, sep, printList):
             // Print the first item
-            print(item)
-            print(sep)
+            writeOutput(item)
+            writeOutput(sep)
 
             // Walk the list to print remaining items
             var remainder = printList.value
@@ -705,16 +711,21 @@ public final class Interpreter {
                 switch remainder {
                 case let .Item(item, terminator):
                     // last item
-                    print(item)
-                    print(terminator)
+                    writeOutput(item)
+                    writeOutput(terminator)
                     break loop
                 case let .Items(head, sep, tail):
-                    print(head)
-                    print(sep)
+                    writeOutput(head)
+                    writeOutput(sep)
                     remainder = tail.value
                 }
             }
         }
+    }
+
+    /// Execute PRINT statement with no arguments
+    func PRINT() {
+        writeOutput("\n")
     }
 
     /// Execute INPUT statement
@@ -802,14 +813,14 @@ public final class Interpreter {
         switch range {
         case .All:
             for (lineNumber, stmt) in program {
-                print("\(lineNumber) \(stmt.listText)\n")
+                writeOutput("\(lineNumber) \(stmt.listText)\n")
             }
 
         case let .SingleLine(expr):
             let listLineNumber = expr.evaluate(v)
             for (lineNumber, stmt) in program {
                 if lineNumber == listLineNumber {
-                    print("\(lineNumber) \(stmt.listText)\n")
+                    writeOutput("\(lineNumber) \(stmt.listText)\n")
                 }
             }
 
@@ -819,7 +830,7 @@ public final class Interpreter {
 
             for (lineNumber, stmt) in program {
                 if isValue(lineNumber, inClosedInterval: fromLineNumber, toLineNumber) {
-                    print("\(lineNumber) \(stmt.listText)\n")
+                    writeOutput("\(lineNumber) \(stmt.listText)\n")
                 }
             }
         }
@@ -975,25 +986,25 @@ public final class Interpreter {
     // MARK: - I/O
 
     /// Send a single character to the output stream
-    func print(c: Char) {
+    func writeOutput(c: Char) {
         io.putOutputChar(self, c)
     }
 
     /// Send characters to the output stream
-    func print(chars: [Char]) {
+    func writeOutput(chars: [Char]) {
         for c in chars {
             io.putOutputChar(self, c)
         }
     }
 
     /// Send string to the output stream
-    func print(s: String) {
-        return print(charsFromString(s))
+    func writeOutput(s: String) {
+        return writeOutput(charsFromString(s))
     }
 
     /// Print an object that conforms to the PrintTextProvider protocol
-    func print(p: PrintTextProvider) {
-        print(p.printText(v))
+    func writeOutput(p: PrintTextProvider) {
+        writeOutput(p.printText(v))
     }
 
     /// Display error message

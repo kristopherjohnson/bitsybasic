@@ -75,11 +75,14 @@ FinchBasic supports this syntax:
 
     line ::= number statement CR | statement CR
 
-    statement ::= PRINT expr-list | PR expr-list | ? expr-list
+    statement ::= PRINT (expr-list|ε)
+                  PR (expr-list|ε)
+                  ? (expr-list|ε)
                   IF expression relop expression THEN statement
                   IF expression relop expression statement
                   GOTO expression
-                  INPUT var-list | IN var-list
+                  INPUT var-list
+                  IN var-list
                   LET var = expression
                   var = expression
                   GOSUB expression
@@ -128,12 +131,18 @@ Numbers are 64-bit signed integers on 64-bit platforms, or 32-bit signed integer
 
 **PRINT**
 
+`PR` and `?` are both synonyms for `PRINT`
+
+If `PRINT`  has no arguments, it outputs a newline character.
+
 If expressions are separated by commas, then a tab character is output between them. If expressions are separated by semicolons, then there is no separator output between them.
 
 `PRINT` usually outputs a newline character after the expressions.  You can suppress this behavior by ending the statement with a semicolon.  End the statement with a comma to output a tab character rather than a newline.
 
 
 **INPUT**
+
+`IN` is a synonym for `INPUT`.
 
 The `INPUT` command displays a question-mark prompt, reads a single input line, and then tries to assign an expression to each variable in the list.  So, for example, if these statements is executed:
 

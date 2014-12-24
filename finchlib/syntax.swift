@@ -58,6 +58,11 @@ enum Statement {
     /// "?" printlist
     case Print(PrintList)
 
+    /// "PRINT"
+    /// "PR"
+    /// "?"
+    case PrintNewline
+
     /// "INPUT" varlist
     case Input(VarList)
 
@@ -113,6 +118,9 @@ enum Statement {
 
         case let .Print(printList):
             return "PRINT \(printList.listText)"
+
+        case .PrintNewline:
+            return "PRINT"
 
         case let .Input(varlist):
             return "INPUT \(varlist.listText)"

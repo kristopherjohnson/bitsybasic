@@ -668,4 +668,29 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
+
+    func testPrintWithNoArguments() {
+        io.inputString = lines(
+            "PRINT"            ,
+            "PRINT"            ,
+            "PRINT \"hello\""  ,
+            "PRINT"            ,
+            "PRINT"            ,
+            ""
+        )
+
+        interpreter.interpretInputLines()
+
+        var expectedOutput = lines(
+            "",
+            "",
+            "hello",
+            "",
+            "",
+            ""
+        )
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
 }
