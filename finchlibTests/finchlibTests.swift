@@ -43,6 +43,9 @@ class StringIO: InterpreterIO {
     /// Number of times showInputPrompt has been called
     var inputPromptCount: Int = 0
 
+    /// Number of times bye has been called
+    var byeCount: Int = 0
+
     /// Get/set inputChars as a String value
     var inputString: String {
         get {
@@ -93,6 +96,10 @@ class StringIO: InterpreterIO {
 
     func showDebugTrace(interpreter: Interpreter, message: String) {
         // does nothing
+    }
+
+    func bye(interpreter: Interpreter) {
+        ++byeCount
     }
 }
 
@@ -691,6 +698,28 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
+
+    func testBye() {
+        io.inputString = lines(
+            "10  b y e"  ,
+            "20 END"     ,
+            "LIST"       ,
+            "RUN"        ,
+            ""
+        )
+
+        interpreter.interpretInputLines()
+
+        var expectedOutput = lines(
+            "10 BYE",
+            "20 END",
+            ""
+        )
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(1, io.byeCount)
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
 }

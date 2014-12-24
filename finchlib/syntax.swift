@@ -108,6 +108,9 @@ enum Statement {
     /// "TROFF"
     case Troff
 
+    /// "BYE"
+    case Bye
+    
     /// Unable to parse input as statement
     case Error(String)
 
@@ -166,6 +169,9 @@ enum Statement {
 
         case .Troff:
             return "TROFF"
+
+        case .Bye:
+            return "BYE"
             
         case let .Error(message):
             return "statement error: \(message)"

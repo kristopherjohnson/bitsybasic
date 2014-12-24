@@ -98,6 +98,7 @@ FinchBasic supports this syntax:
                   REM comment | ' comment
                   TRON
                   TROFF
+                  BYE
 
     expr-list ::= (string|expression) ((,|;) (string|expression) )* (,|;|ε)
 
@@ -205,6 +206,11 @@ The `TRON` command enables statement tracing. Line numbers are printed as each s
 **RND(number)**
 
 Returns a randomly generated number between 0 and `number`-1, inclusive. If `number` is less than 1, then the function returns 0.
+
+
+**BYE**
+
+The `BYE` command causes `finchbasic` to terminate gracefully.
 
 
 ## Code Organization

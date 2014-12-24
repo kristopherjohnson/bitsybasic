@@ -45,6 +45,9 @@ public protocol InterpreterIO {
 
     /// Display a debug trace message
     func showDebugTrace(interpreter: Interpreter, message: String)
+
+    /// Called when BYE is executed
+    func bye(interpreter: Interpreter)
 }
 
 /// Default implementation of InterpreterIO that reads from stdin,
@@ -82,6 +85,10 @@ public final class StandardIO: InterpreterIO {
         var chars = charsFromString(message)
         fwrite(chars, 1, UInt(chars.count), stdout)
         fflush(stdout)
+    }
+
+    public func bye(interpreter: Interpreter) {
+        exit(EXIT_SUCCESS)
     }
 }
 

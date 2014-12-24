@@ -276,6 +276,11 @@ public final class Interpreter {
             return (.Troff, nextPos)
         }
 
+        // "BYE"
+        if let (BYE, nextPos) = literal("BYE", pos) {
+            return (.Bye, nextPos)
+        }
+
         return (.Error("error: not a valid statement"), pos)
     }
 
@@ -689,6 +694,7 @@ public final class Interpreter {
         case .Rem(_):                        break
         case .Tron:                          isTraceOn = true
         case .Troff:                         isTraceOn = false
+        case .Bye:                           BYE()
         case let .Error(message):            abortRunWithErrorMessage(message)
         }
     }
@@ -950,6 +956,11 @@ public final class Interpreter {
         clearProgram()
         clearReturnStack()
         clearVariables()
+    }
+
+    /// Execute BYE statement
+    public func BYE() {
+        io.bye(self)
     }
 
     /// Starting at current program index, execute commands
