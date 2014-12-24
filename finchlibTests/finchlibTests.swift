@@ -495,6 +495,7 @@ class finchlibTests: XCTestCase {
 
     func testInputWithBadEntry() {
         io.inputString = lines(
+            "5 let x = 23"                                     ,
             "10 print \"Enter a number:\""                     ,
             "20 input a"                                       ,
             "30 print \"Enter another number:\""               ,
@@ -503,13 +504,13 @@ class finchlibTests: XCTestCase {
             "60 end"                                           ,
             "run"                                              ,
 
-            "foo"                                              ,
             "$"                                                ,
+            "  &"                                              ,
             "101"                                              ,
 
-            "bar"                                              ,
             ""                                                 ,
-            "102"                                              ,
+            " @"                                               ,
+            "x"                                                ,
             ""
         )
 
@@ -518,7 +519,7 @@ class finchlibTests: XCTestCase {
         var expectedOutput = lines(
             "Enter a number:"             ,
             "Enter another number:"       ,
-            "The numbers are 101 and 102" ,
+            "The numbers are 101 and 23" ,
             ""
         )
 

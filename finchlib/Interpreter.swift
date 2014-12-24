@@ -745,31 +745,40 @@ public final class Interpreter {
     /// All values must be on a single input line, separated by commas.
     func INPUT(varlist: VarList) {
 
-        let vars = varlist.asArray
+        let varNames = varlist.asArray
 
-        // Loop until successful
+        func showHelpMessage() {
+            if varNames.count > 1 {
+                showError("You must enter a comma-separated list of \(varNames.count) values")
+            }
+            else {
+                showError("You must enter a value.")
+            }
+        }
+
+        // Loop until successful or we hit end of input stream
         inputLoop: while true {
             io.showInputPrompt(self)
             if let input = readInputLine() {
                 var pos = InputPosition(input, 0)
 
-                for (index, variable) in enumerate(vars) {
+                for (index, varName) in enumerate(varNames) {
                     if index == 0 {
                         if let (num, after) = inputExpression(pos) {
-                            v[variable] = num
+                            v[varName] = num
                             pos = after
                         }
                         else {
-                            showError("error: INPUT - expected number")
+                            showHelpMessage()
                             continue inputLoop
                         }
                     }
                     else if let ((COMMA, num), after) = parse(pos, lit(","), inputExpression) {
-                        v[variable] = num
+                        v[varName] = num
                         pos = after
                     }
                     else {
-                        showError("error: INPUT - expected comma and number")
+                        showHelpMessage()
                         continue inputLoop
                     }
                 }
@@ -788,7 +797,7 @@ public final class Interpreter {
     ///
     /// Return parsed number and following position if successful, or nil otherwise.
     ///
-    /// Accepts entry of a number, with optional sign (+|-)
+    /// Accepts entry of a number, with optional sign (+|-), or a variable name.
     func inputExpression(pos: InputPosition) -> (Number, InputPosition)? {
         // number
         if let (num, nextPos) = numberConstant(pos) {
@@ -803,6 +812,11 @@ public final class Interpreter {
         // "-" number
         if let ((MINUS, num), nextPos) = parse(pos, lit("-"), numberConstant) {
             return (-num, nextPos)
+        }
+
+        // variable
+        if let (varname, nextPos) = variableName(pos) {
+            return (v[varname] ?? 0, nextPos)
         }
 
         return nil

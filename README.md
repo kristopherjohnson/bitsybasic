@@ -159,6 +159,21 @@ If there are too few numbers, or a syntax error, then an error message is printe
 
 If there are more input numbers than variables, then the extra inputs are ignored.
 
+The user may enter a variable name instead of a number, and the result will be the value of that variable.  This allows simple character-based input such as this:
+
+    10 LET Y = 999
+    20 LET N = -999
+    30 PRINT "Do you want a pony? (Y/N)"
+    40 INPUT A
+    50 IF A = Y THEN GOTO 100
+    60 IF A = N THEN GOTO 200
+    70 PRINT "You must answer with Y or N."
+    80 GOTO 30
+    100 PRINT "OK, you get a pony!"
+    110 END
+    200 PRINT "OK, here is a lollipop."
+    210 END
+
 
 **LIST**
 
