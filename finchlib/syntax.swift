@@ -628,6 +628,9 @@ enum Line {
     // Empty input line
     case Empty
 
+    // Input line with only a line number
+    case EmptyNumberedLine(Number)
+
     // Error occurred while parsing the line, resulting in error message
     case Error(String)
 }

@@ -649,4 +649,23 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
+
+    func testLineNumberOnly() {
+        io.inputString = lines(
+            "10 if n = 100 go to 100"                     ,
+            "20 if x = 1 if y = 2 if z = 3 print x,y,z"   ,
+            "10"                                          ,
+            "  20  "                                      ,
+            "LIST"
+        )
+
+        interpreter.interpretInputLines()
+
+        var expectedOutput = lines(
+            ""
+        )
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
 }

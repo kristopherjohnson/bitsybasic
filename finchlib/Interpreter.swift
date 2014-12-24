@@ -99,6 +99,7 @@ public final class Interpreter {
         switch line {
         case let .UnnumberedStatement(stmt):    execute(stmt)
         case let .NumberedStatement(num, stmt): insertLineIntoProgram(num, stmt)
+        case let .EmptyNumberedLine(num):       deleteLineFromProgram(num)
         case .Empty:                            break
         case let .Error(message):               showError(message)
         }
@@ -119,6 +120,10 @@ public final class Interpreter {
 
         // If line starts with a number, add the statement to the program
         if let (num, afterNum) = numberConstant(i) {
+            if afterNum.isRemainingLineEmpty {
+                return .EmptyNumberedLine(num)
+            }
+
             let (stmt, afterStmt) = statement(afterNum)
             switch stmt {
             case .Error(let message):
@@ -628,6 +633,12 @@ public final class Interpreter {
 
             // Re-sort by line numbers
             program.sort { $0.0 < $1.0 }
+        }
+    }
+
+    func deleteLineFromProgram(lineNumber: Number) {
+        if let index = indexOfProgramLineWithNumber(lineNumber) {
+            program.removeAtIndex(index)
         }
     }
 
