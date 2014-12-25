@@ -723,4 +723,57 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(1, io.byeCount)
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
+
+    func testLeftAssociativeProductsAndQuotients() {
+        io.inputString = lines(
+            "print 1999/100*100"
+        )
+
+        interpreter.interpretInputLines()
+
+        var expectedOutput = lines(
+            "1900",
+            ""
+        )
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
+
+    func testLeftAssociativeSumsAndDifferences() {
+        io.inputString = lines(
+            "print 10-7+100"
+        )
+
+        interpreter.interpretInputLines()
+
+        var expectedOutput = lines(
+            "103",
+            ""
+        )
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
+
+
+    func testPrecedence() {
+        io.inputString = lines(
+            "print 3*7+4*9"     ,
+            "print 3*(7+4)*9"   ,
+            "print 20/2-15*3"
+        )
+
+        interpreter.interpretInputLines()
+
+        var expectedOutput = lines(
+            "57",
+            "297",
+            "-35",
+            ""
+        )
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
 }

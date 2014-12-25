@@ -32,6 +32,49 @@ import Foundation
 //     http://www.ittybittycomputers.com/IttyBitty/TinyBasic/TBuserMan.htm
 
 
+let Token_Asterisk       = "*"
+let Token_Comma          = ","
+let Token_Equal          = "="
+let Token_LParen         = "("
+let Token_Minus          = "-"
+let Token_Plus           = "+"
+let Token_QuestionMark   = "?"
+let Token_RParen         = ")"
+let Token_Semicolon      = ";"
+let Token_Slash          = "/"
+let Token_Tick           = "'"
+
+let Token_Greater        = ">"
+let Token_GreaterOrEqual = ">="
+let Token_Less           = "<"
+let Token_LessOrEqual    = "<="
+let Token_NotEqual       = "<>"
+let Token_NotEqualAlt    = "><"
+
+let Token_BYE            = "BYE"
+let Token_CLEAR          = "CLEAR"
+let Token_END            = "END"
+let Token_GOSUB          = "GOSUB"
+let Token_GOTO           = "GOTO"
+let Token_HELP           = "HELP"
+let Token_IF             = "IF"
+let Token_IN             = "IN"
+let Token_INPUT          = "INPUT"
+let Token_LET            = "LET"
+let Token_LIST           = "LIST"
+let Token_LOAD           = "LOAD"
+let Token_PR             = "PR"
+let Token_PRINT          = "PRINT"
+let Token_REM            = "REM"
+let Token_RETURN         = "RETURN"
+let Token_RND            = "RND"
+let Token_RUN            = "RUN"
+let Token_SAVE           = "SAVE"
+let Token_THEN           = "THEN"
+let Token_TROFF          = "TROFF"
+let Token_TRON           = "TRON"
+
+
 /// A Finch numeric value is a signed integer
 ///
 /// Note: Traditionally, Tiny Basic uses 16-bit integers, but we'll
@@ -79,7 +122,7 @@ enum Statement {
     case Return
 
     /// "IF" expression relop expression "THEN" statement
-    case If(Expression, Relop, Expression, Box<Statement>)
+    case If(Expression, RelOp, Expression, Box<Statement>)
 
     /// "REM" commentstring
     case Rem(String)
@@ -113,7 +156,7 @@ enum Statement {
 
     /// "HELP"
     case Help
-    
+
     /// Unable to parse input as statement
     case Error(String)
 
@@ -123,61 +166,61 @@ enum Statement {
         switch self {
 
         case let .Print(printList):
-            return "PRINT \(printList.listText)"
+            return "\(Token_PRINT) \(printList.listText)"
 
         case .PrintNewline:
-            return "PRINT"
+            return Token_PRINT
 
         case let .Input(varlist):
-            return "INPUT \(varlist.listText)"
+            return "\(Token_INPUT) \(varlist.listText)"
 
         case let .Let(varname, expr):
-            return "LET \(stringFromChar(varname)) = \(expr.listText)"
+            return "\(Token_LET) \(stringFromChar(varname)) \(Token_Equal) \(expr.listText)"
 
         case let .Goto(expr):
-            return "GOTO \(expr.listText)"
+            return "\(Token_GOTO) \(expr.listText)"
 
         case let .Gosub(expr):
-            return "GOSUB \(expr.listText)"
-            
+            return "\(Token_GOSUB) \(expr.listText)"
+
         case .Return:
-            return "RETURN"
-            
+            return Token_RETURN
+
         case let .If(lhs, relop, rhs, box):
-            return "IF \(lhs.listText) \(relop.listText) \(rhs.listText) THEN \(box.value.listText)"
+            return "\(Token_IF) \(lhs.listText) \(relop.listText) \(rhs.listText) \(Token_THEN) \(box.value.listText)"
 
         case let .Rem(comment):
-            return "REM\(comment)"
+            return "\(Token_REM)\(comment)"
 
         case .Clear:
-            return "CLEAR"
+            return Token_CLEAR
 
         case .End:
-            return "END"
+            return Token_END
 
         case .Run:
-            return "RUN"
+            return Token_RUN
 
         case let .List(range):
-            return "LIST\(range.listText)"
+            return "\(Token_LIST)\(range.listText)"
 
         case let .Save(filename):
-            return "SAVE \"\(filename)\""
+            return "\(Token_SAVE) \"\(filename)\""
 
         case let .Load(filename):
-            return "LOAD \"\(filename)\""
+            return "\(Token_LOAD) \"\(filename)\""
 
         case .Tron:
-            return "TRON"
+            return Token_TRON
 
         case .Troff:
-            return "TROFF"
+            return Token_TROFF
 
         case .Bye:
-            return "BYE"
+            return Token_BYE
 
         case .Help:
-            return "HELP"
+            return Token_HELP
 
         case let .Error(message):
             return "statement error: \(message)"
@@ -378,6 +421,20 @@ enum Expression {
     case Minus(UnsignedExpression)
 
 
+    /// Return program text
+    var listText: String {
+        switch self {
+        case let .UnsignedExpr(uexpr):
+            return uexpr.listText
+
+        case let .Plus(uexpr):
+            return "\(Token_Plus)\(uexpr.listText)"
+
+        case let .Minus(uexpr):
+            return "\(Token_Minus)\(uexpr.listText)"
+        }
+    }
+
     /// Return the value of the expression
     func evaluate(v: VariableBindings) -> Number {
         switch self {
@@ -389,38 +446,39 @@ enum Expression {
             return uexpr.evaluate(v)
 
         case let .Minus(uexpr):
-            // The leading minus sign must be applied to the
-            // first term in the expression (not to the entire expression)
             switch uexpr {
 
             case .Value(_):
                 return -(uexpr.evaluate(v))
 
-            case let .Sum(term, remainder):
+            case let .Compound(term, op, remainder):
+                // Construct a new Expression with the first term negated, and evaluate that
                 let termValue = term.evaluate(v)
-                return -termValue &+ remainder.value.evaluate(v)
-
-            case let .Diff(term, remainder):
-                let termValue = term.evaluate(v)
-                return -termValue &- remainder.value.evaluate(v)
+                let negatedFactor = Factor.Num(-termValue)
+                let negatedTerm = Term.Value(negatedFactor)
+                let newExpr = Expression.UnsignedExpr(UnsignedExpression.Compound(negatedTerm, op, remainder))
+                return newExpr.evaluate(v)
             }
         }
     }
-
-    /// Return program text
-    var listText: String {
-        switch self {
-        case let .UnsignedExpr(uexpr):
-            return uexpr.listText
-
-        case let .Plus(uexpr):
-            return "+\(uexpr.listText)"
-
-        case let .Minus(uexpr):
-            return "-\(uexpr.listText)"
-        }
-    }
 }
+
+/// Binary operator for Numbers
+struct ArithOp {
+
+    let fn: (Number, Number) -> Number
+    let listText: String
+
+    func apply(lhs: Number, _ rhs: Number) -> Number {
+        return fn(lhs, rhs)
+    }
+
+    static let Add      = ArithOp(fn: &+, listText: Token_Plus)
+    static let Subtract = ArithOp(fn: &-, listText: Token_Minus)
+    static let Multiply = ArithOp(fn: &*, listText: Token_Asterisk)
+    static let Divide   = ArithOp(fn: &/, listText: Token_Slash)
+}
+
 /// Result of parsing an unsigned expression
 ///
 /// Note that "unsigned" means "does not have a leading + or - sign".
@@ -430,28 +488,9 @@ enum UnsignedExpression {
     case Value(Term)
 
     /// term "+" unsignedexpression
-    case Sum(Term, Box<UnsignedExpression>)
-
     /// term "-" unsignedexpression
-    case Diff(Term, Box<UnsignedExpression>)
+    case Compound(Term, ArithOp, Box<UnsignedExpression>)
 
-
-    /// Return the value of this UnsignedExpression
-    func evaluate(v: VariableBindings) -> Number {
-        switch self {
-
-        case let .Value(term):
-            return term.evaluate(v)
-
-        case let .Sum(term, boxedExpr):
-            let expr = boxedExpr.value
-            return term.evaluate(v) &+ expr.evaluate(v)
-
-        case let .Diff(term, boxedExpr):
-            let expr = boxedExpr.value
-            return term.evaluate(v) &- expr.evaluate(v)
-        }
-    }
 
     /// Return pretty-printed program text
     var listText: String {
@@ -459,11 +498,34 @@ enum UnsignedExpression {
         case let .Value(term):
             return term.listText
 
-        case let .Sum(term, boxedExpr):
-            return "\(term.listText) + \(boxedExpr.value.listText)"
+        case let .Compound(term, op, boxedExpr):
+            return "\(term.listText) \(op.listText) \(boxedExpr.value.listText)"
+        }
+    }
 
-        case let .Diff(term, boxedExpr):
-            return "\(term.listText) - \(boxedExpr.value.listText)"
+    /// Evaluate the expression using the specified bindings
+    func evaluate(v: VariableBindings) -> Number {
+
+        switch self {
+        case let .Value(t):
+            return t.evaluate(v)
+
+        case let .Compound(t, op, uexpr):
+            var accumulator = t.evaluate(v)
+            var lastOp = op
+
+            var next = uexpr.value
+            while true {
+                switch next {
+                case let .Value(lastTerm):
+                    return lastOp.apply(accumulator, lastTerm.evaluate(v))
+
+                case let .Compound(nextTerm, op, tail):
+                    accumulator = lastOp.apply(accumulator, nextTerm.evaluate(v))
+                    lastOp = op
+                    next = tail.value
+                }
+            }
         }
     }
 }
@@ -474,33 +536,9 @@ enum Term {
     case Value(Factor)
 
     /// factor "*" term
-    case Product(Factor, Box<Term>)
-
     /// factor "/" term
-    case Quotient(Factor, Box<Term>)
+    case Compound(Factor, ArithOp, Box<Term>)
 
-
-    /// Return the value of this Term
-    func evaluate(v: VariableBindings) -> Number {
-        switch self {
-
-        case let .Value(factor):
-            return factor.evaluate(v)
-
-        case let .Product(factor, boxedTerm):
-            let term = boxedTerm.value
-            return factor.evaluate(v) &* term.evaluate(v)
-
-        case let .Quotient(factor, boxedTerm):
-            let term = boxedTerm.value
-            let divisor = term.evaluate(v)
-            if divisor == 0 {
-                // TODO: signal a divide-by-zero error
-                return 0
-            }
-            return factor.evaluate(v) &/ divisor
-        }
-    }
 
     /// Return pretty-printed program text
     var listText: String {
@@ -509,11 +547,34 @@ enum Term {
         case let .Value(factor):
             return factor.listText
 
-        case let .Product(factor, boxedTerm):
-            return "\(factor.listText) * \(boxedTerm.value.listText)"
+        case let .Compound(factor, op, boxedTerm):
+            return "\(factor.listText) \(op.listText) \(boxedTerm.value.listText)"
+        }
+    }
 
-        case let .Quotient(factor, boxedTerm):
-            return "\(factor.listText) / \(boxedTerm.value.listText)"
+    /// Evaluate the expression using the specified bindings
+    func evaluate(v: VariableBindings) -> Number {
+
+        switch self {
+        case let .Value(fact):
+            return fact.evaluate(v)
+
+        case let .Compound(fact, op, trm):
+            var accumulator = fact.evaluate(v)
+            var lastOp = op
+
+            var next = trm.value
+            while true {
+                switch next {
+                case let .Value(lastFact):
+                    return lastOp.apply(accumulator, lastFact.evaluate(v))
+
+                case let .Compound(fact, op, tail):
+                    accumulator = lastOp.apply(accumulator, fact.evaluate(v))
+                    lastOp = op
+                    next = tail.value
+                }
+            }
         }
     }
 }
@@ -533,6 +594,16 @@ enum Factor {
     case Rnd(Box<Expression>)
 
 
+    /// Return pretty-printed program text
+    var listText: String {
+        switch self {
+        case let .Var(varname):    return stringFromChar(varname)
+        case let .Num(number):     return "\(number)"
+        case let .ParenExpr(expr): return "(\(expr.value.listText))"
+        case let .Rnd(expr):       return "\(Token_RND)(\(expr.value.listText))"
+        }
+    }
+
     /// Return the value of this Term
     func evaluate(v: VariableBindings) -> Number {
         switch self {
@@ -549,60 +620,50 @@ enum Factor {
             return Number(arc4random_uniform(UInt32(n)))
         }
     }
+}
+
+/// Result of parsing a relational operator
+enum RelOp {
+    /// "<"
+    case Less
+
+    /// ">"
+    case Greater
+
+    /// "="
+    case Equal
+
+    /// "<="
+    case LessOrEqual
+
+    /// ">="
+    case GreaterOrEqual
+
+    /// "<>" or "><"
+    case NotEqual
+
 
     /// Return pretty-printed program text
     var listText: String {
         switch self {
-        case let .Var(varname):    return stringFromChar(varname)
-        case let .Num(number):     return "\(number)"
-        case let .ParenExpr(expr): return "(\(expr.value.listText))"
-        case let .Rnd(expr):       return "RND(\(expr.value.listText))"
+        case .Less:           return Token_Less
+        case .Greater:        return Token_Greater
+        case .Equal:          return Token_Equal
+        case .LessOrEqual:    return Token_LessOrEqual
+        case .GreaterOrEqual: return Token_GreaterOrEqual
+        case .NotEqual:       return Token_NotEqual
         }
     }
-}
-
-/// Result of parsing a relational operator
-enum Relop {
-    /// "<"
-    case LessThan
-
-    /// ">"
-    case GreaterThan
-
-    /// "="
-    case EqualTo
-
-    /// "<="
-    case LessThanOrEqualTo
-
-    /// ">="
-    case GreaterThanOrEqualTo
-
-    /// "<>" or "><"
-    case NotEqualTo
-
 
     /// Determine whether the relation is true for specified values
     func isTrueForNumbers(lhs: Number, _ rhs: Number) -> Bool {
         switch self {
-        case .LessThan:             return lhs < rhs
-        case .GreaterThan:          return lhs > rhs
-        case .EqualTo:              return lhs == rhs
-        case .LessThanOrEqualTo:    return lhs <= rhs
-        case .GreaterThanOrEqualTo: return lhs >= rhs
-        case .NotEqualTo:           return lhs != rhs
-        }
-    }
-
-    /// Return pretty-printed program text
-    var listText: String {
-        switch self {
-        case .LessThan:             return "<"
-        case .GreaterThan:          return ">"
-        case .EqualTo:              return "="
-        case .LessThanOrEqualTo:    return "<="
-        case .GreaterThanOrEqualTo: return ">="
-        case .NotEqualTo:           return "<>"
+        case .Less:           return lhs < rhs
+        case .Greater:        return lhs > rhs
+        case .Equal:          return lhs == rhs
+        case .LessOrEqual:    return lhs <= rhs
+        case .GreaterOrEqual: return lhs >= rhs
+        case .NotEqual:       return lhs != rhs
         }
     }
 }
@@ -641,16 +702,16 @@ typealias Program = [(Number, Statement)]
 enum Line {
     // Parsed statement with a line number
     case NumberedStatement(Number, Statement)
-
+    
     // Parsed statement without a preceding line number
     case UnnumberedStatement(Statement)
-
+    
     // Empty input line
     case Empty
-
+    
     // Input line with only a line number
     case EmptyNumberedLine(Number)
-
+    
     // Error occurred while parsing the line, resulting in error message
     case Error(String)
 }

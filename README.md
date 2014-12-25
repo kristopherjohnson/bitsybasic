@@ -296,6 +296,10 @@ So, if you want to implement your own control-flow statements, you probably just
 
 These fixes/changes/enhancements are planned:
 
+- Features from Palo Alto Tiny BASIC:
+   - `@` array
+   - `ABS()`
+- Statements/functions to read/write characters
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app
 
