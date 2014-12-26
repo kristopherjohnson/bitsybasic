@@ -167,6 +167,7 @@ public final class Interpreter {
     /// Returns a parsed statement or Statement.Error, and position
     /// of character following the end of the parsed statement
     func statement(pos: InputPosition) -> (Statement, InputPosition) {
+
         // "PRINT" [ printList ]
         // "PR" [ printList ]
         // "?" [ printList" ]
@@ -221,7 +222,9 @@ public final class Interpreter {
         }
 
         // "GOTO" expression
-        if let ((GOTO, expr), nextPos) = parse(pos, lit(Token_GOTO), expression) {
+        if let ((GOTO, expr), nextPos) =
+            parse(pos, lit(Token_GOTO), expression)
+        {
             return (.Goto(expr), nextPos)
         }
 
@@ -230,14 +233,11 @@ public final class Interpreter {
             return (.Gosub(expr), nextPos)
         }
 
-        // "RETURN"
-        if let (RETURN, nextPos) = literal(Token_RETURN, pos) {
-            return (.Return, nextPos)
-        }
-
         // "REM" commentstring
         // "'" commentstring
-        if let ((REM, comment), nextPos) = parse(pos, oneOfLiteral(Token_REM, Token_Tick), remainderOfLine) {
+        if let ((REM, comment), nextPos) =
+            parse(pos, oneOfLiteral(Token_REM, Token_Tick), remainderOfLine)
+        {
             return (.Rem(comment), nextPos)
         }
 
@@ -249,56 +249,45 @@ public final class Interpreter {
         {
             return (.List(.Range(from, to)), nextPos)
         }
-        else if let ((LIST, lineNumber), nextPos) = parse(pos, lit(Token_LIST), expression) {
+        else if let ((LIST, lineNumber), nextPos) =
+            parse(pos, lit(Token_LIST), expression)
+        {
             return (.List(.SingleLine(lineNumber)), nextPos)
         }
-        else if let (LIST, nextPos) = literal(Token_LIST, pos) {
+        else if let (LIST, nextPos) = literal(Token_LIST, pos)
+        {
             return (.List(.All), nextPos)
         }
 
         // "SAVE" filenamestring
-        if let ((SAVE, filename), nextPos) = parse(pos, lit(Token_SAVE), stringConstant) {
+        if let ((SAVE, filename), nextPos) =
+            parse(pos, lit(Token_SAVE), stringConstant)
+        {
             return (.Save(stringFromChars(filename)), nextPos)
         }
 
         // "LOAD" filenamestring
-        if let ((LOAD, filename), nextPos) = parse(pos, lit(Token_LOAD), stringConstant) {
+        if let ((LOAD, filename), nextPos) =
+            parse(pos, lit(Token_LOAD), stringConstant)
+        {
             return (.Load(stringFromChars(filename)), nextPos)
         }
 
-        // "RUN"
-        if let (RUN, nextPos) = literal(Token_RUN, pos) {
-            return (.Run, nextPos)
-        }
-
-        // "END"
-        if let (END, nextPos) = literal(Token_END, pos) {
-            return (.End, nextPos)
-        }
-
-        // "CLEAR"
-        if let (CLEAR, nextPos) = literal(Token_CLEAR, pos) {
-            return (.Clear, nextPos)
-        }
-
-        // "TRON"
-        if let (TRON, nextPos) = literal(Token_TRON, pos) {
-            return (.Tron, nextPos)
-        }
-
-        // "TROFF"
-        if let (TROFF, nextPos) = literal(Token_TROFF, pos) {
-            return (.Troff, nextPos)
-        }
-
-        // "BYE"
-        if let (BYE, nextPos) = literal(Token_BYE, pos) {
-            return (.Bye, nextPos)
-        }
-
-        // "HELP"
-        if let (HELP, nextPos) = literal(Token_HELP, pos) {
-            return (.Help, nextPos)
+        // For statements that consist only of a keyword, we use this table
+        let simpleStatements: [(String, Statement)] = [
+            (Token_RETURN, .Return),
+            (Token_RUN,    .Run   ),
+            (Token_END,    .End   ),
+            (Token_CLEAR,  .Clear ),
+            (Token_BYE,    .Bye   ),
+            (Token_TRON,   .Tron  ),
+            (Token_TROFF,  .Troff ),
+            (Token_HELP,   .Help  )
+        ]
+        for (token, stmt) in simpleStatements {
+            if let (_, nextPos) = literal(token, pos) {
+                return (stmt, nextPos)
+            }
         }
 
         return (.Error("error: not a valid statement"), pos)
