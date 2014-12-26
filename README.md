@@ -14,9 +14,10 @@ The syntax and implementation are based upon these online sources:
 - ["The Return of Tiny Basic"](http://www.drdobbs.com/web-development/the-return-of-tiny-basic/184406381)
 - [Tiny Basic User's Manual](http://www.ittybittycomputers.com/IttyBitty/TinyBasic/TBuserMan.htm)
 - [TinyBasic.c](http://www.ittybittycomputers.com/IttyBitty/TinyBasic/TinyBasic.c)
+- [tinybc: Tiny BASIC for Beginners](http://tinybc.sourceforge.net/tinybctut.txt)
 
 
-## Building
+## Building FinchBasic
 
 To build the `finchbasic` executable, `cd` to the project directory and do this:
 
@@ -25,7 +26,7 @@ To build the `finchbasic` executable, `cd` to the project directory and do this:
 The `finchbasic` executable will be in the `build/Release` directory.
 
 
-## Using
+## Using FinchBasic
 
 `finchbasic` currently only reads from standard input, writes to standard output, and sends error messages to standard error.
 
@@ -266,15 +267,25 @@ The `HELP` command displays a summary of BASIC syntax.
    - `main.swift` - main entry point for the command-line tool
 - `finchlib/` - source for `finchbasic` executable and `finchlib` framework
    - `Interpreter.swift` - defines the `Interpreter` class
+   - `io.swift` - defines the `InterpreterIO` protocol used for interface between `Interpreter` and its environment, and the `StandardIO` implementation of that protocol
    - `syntax.swift` - defines the parse-tree data structures
-   - `char.swift` - ASCII character constants and functions for converting between String and arrays of ASCII/UTF8 characters
-   - `util.swift` - miscellaneous
+   - `char.swift` - ASCII character constants and functions for converting between String and arrays of ASCII characters
+   - `util.swift` - miscellaneous auxiliary types and functions
 - `finchlibTests/` - unit tests that exercise `finchlib`
 
 
 ## Hacking FinchBasic
 
 One of the goals of FinchBasic is that it should be easily "hackable", meaning that it is easy for programmers to modify it to support new statement types, new expression types, and so on.  You are encouraged to experiment with the code.
+
+### Using Other Schemes
+
+Running `xcodebuild` with no arguments builds the `finchbasic` scheme, which is the easiest way to build a runnable and releasable executable.  There are other schemes available in the project which may be more suitable for you if you want to work on the FinchBasic source code.  These are brief descriptions of each:
+
+- `finchbasic` builds and runs the OS X command-line tool.
+- `finchlib` builds an OS X Cocoa framework containing all of the FinchBasic code and a unit test bundle. This is the scheme used most often for development.  See the `finchlibTests.swift` file for the unit tests.
+- `finchlib_Release` is like `finchlib`, but uses the Release configuration instead of Debug for unit tests and other tasks.  Use this profile to verify that code correctly when built with Swift compiler optimization enabled.
+
 
 ### Parsing and Evaluation
 

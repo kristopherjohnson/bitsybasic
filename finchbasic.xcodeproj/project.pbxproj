@@ -13,9 +13,7 @@
 		4E20473B1A43C8AD0016822F /* char.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047391A43C69C0016822F /* char.swift */; };
 		4E20473C1A43C8B30016822F /* syntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047351A43C5810016822F /* syntax.swift */; };
 		4E20473D1A43C8B80016822F /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047371A43C6310016822F /* util.swift */; };
-		4E5784E91A4879CA005486EB /* input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784E81A4879CA005486EB /* input.swift */; };
 		4E5784EB1A487A3E005486EB /* io.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784EA1A487A3E005486EB /* io.swift */; };
-		4E5784EC1A487EF2005486EB /* input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784E81A4879CA005486EB /* input.swift */; };
 		4E5784ED1A487EF8005486EB /* io.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784EA1A487A3E005486EB /* io.swift */; };
 		4EC1B5311A428CFF0060EEDE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5301A428CFF0060EEDE /* main.swift */; };
 		4EC1B5411A428D400060EEDE /* finchlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EC1B5401A428D400060EEDE /* finchlib.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -51,7 +49,6 @@
 		4E2047351A43C5810016822F /* syntax.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = syntax.swift; sourceTree = "<group>"; };
 		4E2047371A43C6310016822F /* util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = util.swift; sourceTree = "<group>"; };
 		4E2047391A43C69C0016822F /* char.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = char.swift; sourceTree = "<group>"; };
-		4E5784E81A4879CA005486EB /* input.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = input.swift; sourceTree = "<group>"; };
 		4E5784EA1A487A3E005486EB /* io.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = io.swift; sourceTree = "<group>"; };
 		4EC1B52D1A428CFF0060EEDE /* finchbasic */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = finchbasic; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EC1B5301A428CFF0060EEDE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -123,7 +120,6 @@
 			children = (
 				4EC1B53E1A428D400060EEDE /* Supporting Files */,
 				4E2047391A43C69C0016822F /* char.swift */,
-				4E5784E81A4879CA005486EB /* input.swift */,
 				4EC1B5551A428D5E0060EEDE /* Interpreter.swift */,
 				4E5784EA1A487A3E005486EB /* io.swift */,
 				4E2047351A43C5810016822F /* syntax.swift */,
@@ -291,7 +287,6 @@
 				4E5784ED1A487EF8005486EB /* io.swift in Sources */,
 				4E20473C1A43C8B30016822F /* syntax.swift in Sources */,
 				4E20473D1A43C8B80016822F /* util.swift in Sources */,
-				4E5784EC1A487EF2005486EB /* input.swift in Sources */,
 				4EC1B5311A428CFF0060EEDE /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -300,7 +295,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4E5784E91A4879CA005486EB /* input.swift in Sources */,
 				4E5784EB1A487A3E005486EB /* io.swift in Sources */,
 				4E2047381A43C6310016822F /* util.swift in Sources */,
 				4E2047361A43C5810016822F /* syntax.swift in Sources */,
@@ -401,7 +395,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Release;
 		};
