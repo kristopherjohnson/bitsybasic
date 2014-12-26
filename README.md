@@ -78,20 +78,21 @@ FinchBasic supports this syntax:
     statement ::= PRINT (expr-list|ε)
                   PR (expr-list|ε)
                   ? (expr-list|ε)
-                  IF expression relop expression THEN statement
-                  IF expression relop expression statement
-                  GOTO expression
-                  INPUT var-list
-                  IN var-list
-                  LET var = expression
-                  var = expression
-                  GOSUB expression
+                  LET lvalue = expr
+                  lvalue = expr
+                  INPUT lvalue-list
+                  IN lvalue-list
+                  DIM "@(" expr ")"
+                  IF expr relop expr THEN statement
+                  IF expr relop expr statement
+                  GOTO expr
+                  GOSUB expr
                   RETURN
                   END
                   CLEAR
                   LIST
-                  LIST expression
-                  LIST expression , expression
+                  LIST expr
+                  LIST expr , expr
                   SAVE string
                   LOAD string
                   RUN
@@ -101,15 +102,17 @@ FinchBasic supports this syntax:
                   BYE
                   HELP
 
-    expr-list ::= (string|expression) ((,|;) (string|expression) )* (,|;|ε)
+    expr-list ::= (string|expr) ((,|;) (string|expr) )* (,|;|ε)
 
-    var-list ::= var (, var)*
+    lvalue-list ::= lvalue (, lvalue)*
 
-    expression ::= (+|-|ε) term ((+|-) term)*
+    expr ::= (+|-|ε) term ((+|-) term)*
 
     term ::= factor ((*|/) factor)*
 
-    factor ::= var | number | ( expression ) | RND(expression)
+    factor ::= var | "@(" expr ")" | number | "(" expr ")" | "RND(" expr ")"
+
+    lvalue ::= var | "@(" expr ")"
 
     var ::= A | B | C ... | Y | Z
 
@@ -121,19 +124,19 @@ FinchBasic supports this syntax:
 
     relop ::= < (>|=|ε) | > (<|=|ε) | =
 
-The statements and expressions have the traditional Tiny BASIC behaviors, which are described elsewhere.  Here are some peculiarities of the FinchBasic implementation:
+Most of these statements and expressions have the traditional Tiny BASIC behaviors, which are described elsewhere.  What follows are some peculiarities of the FinchBasic implementation:
 
 
 **Numbers**
 
-Numbers are 64-bit signed integers on 64-bit platforms, or 32-bit signed integers on 32-bit platforms. So if your applications rely on the overflow behavior of 16-bit Tiny BASIC, then you may get unexpected results.
+Numbers are 64-bit signed integers on 64-bit platforms, or 32-bit signed integers on 32-bit platforms. So if your applications rely on the overflow behavior of 16-bit Tiny BASIC numbers, then you may get unexpected results.
 
 (If your applications rely upon 16-bit overflow behavior, you can change the definition of `Number` in `syntax.swift` from `Int` to `Int16`, and then rebuild `finchbasic`.)
 
 
 **PRINT**
 
-`PR` and `?` are both synonyms for `PRINT`
+`PR` and `?` are both synonyms for `PRINT`.
 
 If `PRINT`  has no arguments, it outputs a newline character.
 
@@ -173,6 +176,29 @@ The user may enter a variable name instead of a number, and the result will be t
     110 END
     200 PRINT "OK, here is a lollipop."
     210 END
+
+
+**@**
+
+FinchBasic provides an array of numbers, named `@`.  An array element is addressed as `@(i)`, where `i` is the index of the element.
+
+By default, the array has 1024 elements, numbered 0-1023.  You can change the number of elements in the array with `DIM @(` *newsize* `)`.  Calling `DIM` also clears all array element values to zero.
+
+You can use a negative index value to specify an element at the end of the array. For example, `@(-1)` is the last array element, `@(-2)` is the one before that, and so on.
+
+You can use `LET` or `INPUT` to set array element values, and you can use array elements in numeric expressions.  For example,
+
+    10 let p = 1
+    20 print "Enter three numbers"
+    30 input @(p), @(p+1), @(p+2)
+    40 let @(p+3) = @(p) + @(p+1) + @(p+2)
+    50 print "Their sum is "; @(p+3)
+    60 end
+
+
+**CLEAR**
+
+Clear removes any existing program from memory, and resets all variables and array elements to zero.
 
 
 **LIST**
@@ -296,10 +322,7 @@ So, if you want to implement your own control-flow statements, you probably just
 
 These fixes/changes/enhancements are planned:
 
-- Features from Palo Alto Tiny BASIC:
-   - `@` array
-   - `ABS()`
-- Statements/functions to read/write characters
+- Statements to read/write characters
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app
 

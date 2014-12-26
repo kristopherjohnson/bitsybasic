@@ -33,6 +33,7 @@ import Foundation
 
 
 let Token_Asterisk       = "*"
+let Token_At             = "@"
 let Token_Comma          = ","
 let Token_Equal          = "="
 let Token_LParen         = "("
@@ -53,6 +54,7 @@ let Token_NotEqualAlt    = "><"
 
 let Token_BYE            = "BYE"
 let Token_CLEAR          = "CLEAR"
+let Token_DIM            = "DIM"
 let Token_END            = "END"
 let Token_GOSUB          = "GOSUB"
 let Token_GOTO           = "GOTO"
@@ -107,10 +109,13 @@ enum Statement {
     case PrintNewline
 
     /// "INPUT" varlist
-    case Input(VarList)
+    case Input(LvalueList)
 
-    /// "LET" var "=" expression
-    case Let(VariableName, Expression)
+    /// "LET" lvalue "=" expression
+    case Let(Lvalue, Expression)
+
+    /// "DIM @(" expression ")"
+    case DimArray(Expression)
 
     /// "GOTO" expression
     case Goto(Expression)
@@ -174,9 +179,12 @@ enum Statement {
         case let .Input(varlist):
             return "\(Token_INPUT) \(varlist.listText)"
 
-        case let .Let(varname, expr):
-            return "\(Token_LET) \(stringFromChar(varname)) \(Token_Equal) \(expr.listText)"
+        case let .Let(lvalue, expr):
+            return "\(Token_LET) \(lvalue.listText) \(Token_Equal) \(expr.listText)"
 
+        case let .DimArray(expr):
+            return "\(Token_DIM) \(Token_At)\(Token_LParen)\(expr.listText)\(Token_RParen)"
+            
         case let .Goto(expr):
             return "\(Token_GOTO) \(expr.listText)"
 
@@ -228,34 +236,46 @@ enum Statement {
     }
 }
 
-/// Result of parsing a varlist
-enum VarList {
-    /// "A" | "B" | ... | "Y" | "Z"
-    case Item(VariableName)
+/// An element that can be assigned a value with LET or INPUT
+enum Lvalue {
+    case Var(VariableName)
+    case ArrayElement(Expression)
 
-    /// var "," varlist
-    case Items(VariableName, Box<VarList>)
+    var listText: String {
+        switch self {
+        case let Var(varname):       return stringFromChar(varname)
+        case let ArrayElement(expr): return "@(\(expr.listText))"
+        }
+    }
+}
+
+/// Result of parsing a varlist
+enum LvalueList {
+    /// lvalue
+    case Item(Lvalue)
+
+    /// lvalue "," lvaluelist
+    case Items(Lvalue, Box<LvalueList>)
 
 
     /// Return pretty-printed program text
     var listText: String {
         switch self {
-        case let .Item(variableName):
-            return stringFromChar(variableName)
+        case let .Item(lvalue):
+            return lvalue.listText
 
-        case let .Items(firstVarName, items):
-            var result = stringFromChar(firstVarName)
+        case let .Items(firstLvalue, items):
+            var result = firstLvalue.listText
 
-            var x = items.value
-            var done = false
+            var next = items.value
             loop: while true {
-                switch x {
+                switch next {
                 case let .Item(lastVarName):
-                    result.extend(", \(stringFromChar(lastVarName))")
+                    result.extend(", \(lastVarName.listText)")
                     break loop
-                case let .Items(variableName, box):
-                    result.extend(", \(stringFromChar(variableName))")
-                    x = box.value
+                case let .Items(lvalue, box):
+                    result.extend(", \(lvalue.listText)")
+                    next = box.value
                 }
             }
 
@@ -263,25 +283,24 @@ enum VarList {
         }
     }
 
-    /// Return the variable names as an array
-    var asArray: [VariableName] {
+    /// Return the lvalues as an array
+    var asArray: [Lvalue] {
         switch self {
-        case let .Item(variableName):
-            return [variableName]
+        case let .Item(lvalue):
+            return [lvalue]
 
-        case let .Items(firstVarName, items):
-            var result = [firstVarName]
+        case let .Items(firstLvalue, items):
+            var result = [firstLvalue]
 
-            var x = items.value
-            var done = false
+            var next = items.value
             loop: while true {
-                switch x {
-                case let .Item(lastVarName):
-                    result.append(lastVarName)
+                switch next {
+                case let .Item(lastLvalue):
+                    result.append(lastLvalue)
                     break loop
-                case let .Items(variableName, tail):
-                    result.append(variableName)
-                    x = tail.value
+                case let .Items(lvalue, tail):
+                    result.append(lvalue)
+                    next = tail.value
                 }
             }
 
@@ -293,7 +312,7 @@ enum VarList {
 /// Protocol supported by elements that provide text for the PRINT statement
 protocol PrintTextProvider {
     /// Return output text associated with this element
-    func printText(v: VariableBindings) -> String
+    func printText(v: VariableBindings, _ a: [Number]) -> String
 }
 
 /// Result of parsing a printlist
@@ -339,7 +358,7 @@ enum PrintListSeparator: PrintTextProvider {
     case Empty
 
     /// Return text that should be included in output for this element
-    func printText(v: VariableBindings) -> String {
+    func printText(v: VariableBindings, _ a: [Number]) -> String {
         switch self {
         case .Tab:   return "\t"
         case .Empty: return ""
@@ -366,7 +385,7 @@ enum PrintListTerminator: PrintTextProvider {
     case Empty
 
     /// Return text that should be included in output for this element
-    func printText(v: VariableBindings) -> String {
+    func printText(v: VariableBindings, _ a: [Number]) -> String {
         switch self {
         case .Newline: return "\n"
         case .Tab:     return "\t"
@@ -393,10 +412,10 @@ enum PrintItem: PrintTextProvider {
     case Str([Char])
 
     /// Return text that should be included in output for this element
-    func printText(v: VariableBindings) -> String {
+    func printText(v: VariableBindings, _ a: [Number]) -> String {
         switch self {
         case let .Str(chars):       return stringFromChars(chars)
-        case let .Expr(expression): return "\(expression.evaluate(v))"
+        case let .Expr(expression): return "\(expression.evaluate(v, a))"
         }
     }
 
@@ -436,28 +455,28 @@ enum Expression {
     }
 
     /// Return the value of the expression
-    func evaluate(v: VariableBindings) -> Number {
+    func evaluate(v: VariableBindings, _ a: [Number]) -> Number {
         switch self {
 
         case let .UnsignedExpr(uexpr):
-            return uexpr.evaluate(v)
+            return uexpr.evaluate(v, a)
 
         case let .Plus(uexpr):
-            return uexpr.evaluate(v)
+            return uexpr.evaluate(v, a)
 
         case let .Minus(uexpr):
             switch uexpr {
 
             case .Value(_):
-                return -(uexpr.evaluate(v))
+                return -(uexpr.evaluate(v, a))
 
             case let .Compound(term, op, remainder):
                 // Construct a new Expression with the first term negated, and evaluate that
-                let termValue = term.evaluate(v)
+                let termValue = term.evaluate(v, a)
                 let negatedFactor = Factor.Num(-termValue)
                 let negatedTerm = Term.Value(negatedFactor)
                 let newExpr = Expression.UnsignedExpr(UnsignedExpression.Compound(negatedTerm, op, remainder))
-                return newExpr.evaluate(v)
+                return newExpr.evaluate(v, a)
             }
         }
     }
@@ -504,24 +523,24 @@ enum UnsignedExpression {
     }
 
     /// Evaluate the expression using the specified bindings
-    func evaluate(v: VariableBindings) -> Number {
+    func evaluate(v: VariableBindings, _ a: [Number]) -> Number {
 
         switch self {
         case let .Value(t):
-            return t.evaluate(v)
+            return t.evaluate(v, a)
 
         case let .Compound(t, op, uexpr):
-            var accumulator = t.evaluate(v)
+            var accumulator = t.evaluate(v, a)
             var lastOp = op
 
             var next = uexpr.value
             while true {
                 switch next {
                 case let .Value(lastTerm):
-                    return lastOp.apply(accumulator, lastTerm.evaluate(v))
+                    return lastOp.apply(accumulator, lastTerm.evaluate(v, a))
 
                 case let .Compound(nextTerm, op, tail):
-                    accumulator = lastOp.apply(accumulator, nextTerm.evaluate(v))
+                    accumulator = lastOp.apply(accumulator, nextTerm.evaluate(v, a))
                     lastOp = op
                     next = tail.value
                 }
@@ -553,24 +572,24 @@ enum Term {
     }
 
     /// Evaluate the expression using the specified bindings
-    func evaluate(v: VariableBindings) -> Number {
+    func evaluate(v: VariableBindings, _ a: [Number]) -> Number {
 
         switch self {
         case let .Value(fact):
-            return fact.evaluate(v)
+            return fact.evaluate(v, a)
 
         case let .Compound(fact, op, trm):
-            var accumulator = fact.evaluate(v)
+            var accumulator = fact.evaluate(v, a)
             var lastOp = op
 
             var next = trm.value
             while true {
                 switch next {
                 case let .Value(lastFact):
-                    return lastOp.apply(accumulator, lastFact.evaluate(v))
+                    return lastOp.apply(accumulator, lastFact.evaluate(v, a))
 
                 case let .Compound(fact, op, tail):
-                    accumulator = lastOp.apply(accumulator, fact.evaluate(v))
+                    accumulator = lastOp.apply(accumulator, fact.evaluate(v, a))
                     lastOp = op
                     next = tail.value
                 }
@@ -583,6 +602,9 @@ enum Term {
 enum Factor {
     /// var
     case Var(VariableName)
+
+    /// "@(" expression ")"
+    case ArrayElement(Box<Expression>)
 
     /// number
     case Num(Number)
@@ -597,22 +619,33 @@ enum Factor {
     /// Return pretty-printed program text
     var listText: String {
         switch self {
-        case let .Var(varname):    return stringFromChar(varname)
-        case let .Num(number):     return "\(number)"
-        case let .ParenExpr(expr): return "(\(expr.value.listText))"
-        case let .Rnd(expr):       return "\(Token_RND)(\(expr.value.listText))"
+        case let .Var(varname):       return stringFromChar(varname)
+        case let .ArrayElement(expr): return "@(\(expr.value.listText))"
+        case let .Num(number):        return "\(number)"
+        case let .ParenExpr(expr):    return "(\(expr.value.listText))"
+        case let .Rnd(expr):          return "\(Token_RND)(\(expr.value.listText))"
         }
     }
 
     /// Return the value of this Term
-    func evaluate(v: VariableBindings) -> Number {
+    func evaluate(v: VariableBindings, _ a: [Number]) -> Number {
         switch self {
-        case let .Var(varname):    return v[varname] ?? 0
-        case let .Num(number):     return number
-        case let .ParenExpr(expr): return expr.value.evaluate(v)
+        case let .Var(varname):       return v[varname] ?? 0
+        case let .Num(number):        return number
+        case let .ParenExpr(expr):    return expr.value.evaluate(v, a)
+
+        case let .ArrayElement(expr):
+            let index = expr.value.evaluate(v, a)
+            let remainderIndex = index % a.count
+            if remainderIndex < 0 {
+                return a[a.count + remainderIndex]
+            }
+            else {
+                return a[remainderIndex]
+            }
 
         case let .Rnd(expr):
-            let n = expr.value.evaluate(v)
+            let n = expr.value.evaluate(v, a)
             if n < 1 {
                 // TODO: signal a runtime error?
                 return 0

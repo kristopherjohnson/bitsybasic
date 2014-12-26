@@ -31,6 +31,9 @@ public final class Interpreter {
     /// Variable values
     var v: VariableBindings = [:]
 
+    /// Array of numbers, addressable using the syntax "@(i)"
+    var a: [Number] = Array(count: 1024, repeatedValue: 0)
+
     /// Low-level I/O interface
     var io: InterpreterIO
 
@@ -53,13 +56,16 @@ public final class Interpreter {
     /// Initialize, optionally passing in a custom InterpreterIO handler
     public init(interpreterIO: InterpreterIO = StandardIO()) {
         io = interpreterIO
-        clearVariables()
+        clearVariablesAndArray()
     }
 
-    /// Set values of all variables to zero
-    func clearVariables() {
+    /// Set values of all variables and array elements to zero
+    func clearVariablesAndArray() {
         for varname in Char_A...Char_Z {
             v[varname] = 0
+        }
+        for i in 0..<a.count {
+            a[i] = 0
         }
     }
 
@@ -173,23 +179,32 @@ public final class Interpreter {
             }
         }
 
-        // "LET" var = expression
-        // var = expression
+        // "LET" lvalue = expression
+        // lvalue = expression
         if let ((LET, v, EQ, expr), nextPos) =
-            parse(pos, lit(Token_LET), variableName, lit(Token_Equal), expression)
+            parse(pos, lit(Token_LET), lvalue, lit(Token_Equal), expression)
         {
-            return ((.Let(v, expr)), nextPos)
+            return (.Let(v, expr), nextPos)
         }
         else if let ((v, EQ, expr), nextPos) =
-            parse(pos, variableName, lit(Token_Equal), expression)
+            parse(pos, lvalue, lit(Token_Equal), expression)
         {
-            return ((.Let(v, expr)), nextPos)
+            return (.Let(v, expr), nextPos)
         }
 
-        // "INPUT" varList
-        // "IN" varList
-        if let ((INPUT, vars), nextPos) = parse(pos, oneOfLiteral(Token_INPUT, Token_IN), varList) {
-            return ((.Input(vars)), nextPos)
+        // "INPUT" lvalueList
+        // "IN" lvalueList
+        if let ((INPUT, lvalues), nextPos) =
+            parse(pos, oneOfLiteral(Token_INPUT, Token_IN), lvalueList)
+        {
+            return (.Input(lvalues), nextPos)
+        }
+
+        // "DIM @(" expr ")"
+        if let ((DIM, AT, LPAREN, expr, RPAREN), nextPos) =
+            parse(pos, lit(Token_DIM), lit(Token_At), lit(Token_LParen), expression, lit(Token_RParen))
+        {
+            return (.DimArray(expr), nextPos)
         }
 
         // "IF" lhs relop rhs "THEN" statement
@@ -340,15 +355,16 @@ public final class Interpreter {
         return nil
     }
 
-    /// Attempt to parse a VarList.
+    /// Attempt to parse a LvalueList.
     ///
-    /// Returns VarList and position of next character if successful.  Returns nil otherwise.
-    func varList(pos: InputPosition) -> (VarList, InputPosition)? {
-        if let (item, afterItem) = variableName(pos) {
+    /// Returns LvalueList and position of next character if successful.  Returns nil otherwise.
+    func lvalueList(pos: InputPosition) -> (LvalueList, InputPosition)? {
+        // lvalue
+        if let (item, afterItem) = lvalue(pos) {
 
-            // "," varList
+            // "," lvalueList
             if let (_, afterSep) = literal(Token_Comma, afterItem) {
-                if let (tail, afterTail) = varList(afterSep) {
+                if let (tail, afterTail) = lvalueList(afterSep) {
                     return (.Items(item, Box(tail)), afterTail)
                 }
             }
@@ -439,6 +455,11 @@ public final class Interpreter {
         // "(" expression ")"
         if let ((LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(Token_LParen), expression, lit(Token_RParen)) {
             return (.ParenExpr(Box(expr)), nextPos)
+        }
+
+        // "@(" expression ")"
+        if let ((AT, LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(Token_At), lit(Token_LParen), expression, lit(Token_RParen)) {
+            return (.ArrayElement(Box(expr)), nextPos)
         }
 
         // variable
@@ -562,6 +583,18 @@ public final class Interpreter {
         return nil
     }
 
+    func lvalue(pos: InputPosition) -> (Lvalue, InputPosition)? {
+        if let (v, nextPos) = variableName(pos) {
+            return (.Var(v), nextPos)
+        }
+
+        if let ((AT, LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(Token_At), lit(Token_LParen), expression, lit(Token_RParen)) {
+            return (.ArrayElement(expr), nextPos)
+        }
+
+        return nil
+    }
+
     /// Attempt to read a variable name.
     ///
     /// Returns variable name and position of next input character on success, or nil otherwise.
@@ -667,8 +700,9 @@ public final class Interpreter {
         switch stmt {
         case let .Print(exprList):           PRINT(exprList)
         case .PrintNewline:                  PRINT()
-        case let .Input(varList):            INPUT(varList)
-        case let .Let(varName, expr):        LET(varName, expr)
+        case let .Input(lvalueList):         INPUT(lvalueList)
+        case let .Let(lvalue, expr):         LET(lvalue, expr)
+        case let .DimArray(expr):            DIM(expr)
         case let .If(lhs, relop, rhs, stmt): IF(lhs, relop, rhs, stmt)
         case let .Goto(expr):                GOTO(expr)
         case let .Gosub(expr):               GOSUB(expr)
@@ -726,13 +760,13 @@ public final class Interpreter {
     /// Execute INPUT statement
     /// 
     /// All values must be on a single input line, separated by commas.
-    func INPUT(varlist: VarList) {
+    func INPUT(lvalueList: LvalueList) {
 
-        let varNames = varlist.asArray
+        let lvalues = lvalueList.asArray
 
         func showHelpMessage() {
-            if varNames.count > 1 {
-                showError("You must enter a comma-separated list of \(varNames.count) values")
+            if lvalues.count > 1 {
+                showError("You must enter a comma-separated list of \(lvalues.count) values")
             }
             else {
                 showError("You must enter a value.")
@@ -745,10 +779,10 @@ public final class Interpreter {
             if let input = readInputLine() {
                 var pos = InputPosition(input, 0)
 
-                for (index, varName) in enumerate(varNames) {
+                for (index, lvalue) in enumerate(lvalues) {
                     if index == 0 {
                         if let (num, after) = inputExpression(pos) {
-                            v[varName] = num
+                            assignToLvalue(lvalue, number: num)
                             pos = after
                         }
                         else {
@@ -757,7 +791,7 @@ public final class Interpreter {
                         }
                     }
                     else if let ((COMMA, num), after) = parse(pos, lit(Token_Comma), inputExpression) {
-                        v[varName] = num
+                        assignToLvalue(lvalue, number: num)
                         pos = after
                     }
                     else {
@@ -806,13 +840,41 @@ public final class Interpreter {
     }
 
     /// Execute LET statement
-    func LET(variableName: VariableName, _ expression: Expression) {
-        v[variableName] = expression.evaluate(v)
+    func LET(lvalue: Lvalue, _ expression: Expression) {
+        assignToLvalue(lvalue, number: expression.evaluate(v, a))
+    }
+
+    /// Assign a new value for a specified Lvalue
+    func assignToLvalue(lvalue: Lvalue, number: Number) {
+        switch lvalue {
+        case let .Var(variableName):
+            v[variableName] = number
+
+        case let .ArrayElement(indexExpr):
+            let index = indexExpr.evaluate(v, a) % a.count
+            if index < 0 {
+                a[a.count + index] = number
+            }
+            else {
+                a[index] = number
+            }
+        }
+    }
+
+    /// Execute DIM @() statement
+    func DIM(expr: Expression) {
+        let newCount = expr.evaluate(v, a)
+        if newCount < 0 {
+            abortRunWithErrorMessage("error: DIM - size cannot be negative")
+            return
+        }
+
+        a = Array(count: newCount, repeatedValue: 0)
     }
 
     /// Execute IF statement
     func IF(lhs: Expression, _ relop: RelOp, _ rhs: Expression, _ stmt: Box<Statement>) {
-        if relop.isTrueForNumbers(lhs.evaluate(v), rhs.evaluate(v)) {
+        if relop.isTrueForNumbers(lhs.evaluate(v, a), rhs.evaluate(v, a)) {
             execute(stmt.value)
         }
     }
@@ -826,7 +888,7 @@ public final class Interpreter {
             }
 
         case let .SingleLine(expr):
-            let listLineNumber = expr.evaluate(v)
+            let listLineNumber = expr.evaluate(v, a)
             for (lineNumber, stmt) in program {
                 if lineNumber == listLineNumber {
                     writeOutput("\(lineNumber) \(stmt.listText)\n")
@@ -834,8 +896,8 @@ public final class Interpreter {
             }
 
         case let .Range(from, to):
-            let fromLineNumber = from.evaluate(v)
-            let toLineNumber = to.evaluate(v)
+            let fromLineNumber = from.evaluate(v, a)
+            let toLineNumber = to.evaluate(v, a)
 
             for (lineNumber, stmt) in program {
                 if isValue(lineNumber, inClosedInterval: fromLineNumber, toLineNumber) {
@@ -904,7 +966,7 @@ public final class Interpreter {
         }
 
         programIndex = 0
-        clearVariables()
+        clearVariablesAndArray()
         clearReturnStack()
         doRunLoop()
     }
@@ -916,7 +978,7 @@ public final class Interpreter {
 
     /// Execute GOTO statement
     func GOTO(expr: Expression) {
-        let lineNumber = expr.evaluate(v)
+        let lineNumber = expr.evaluate(v, a)
         if let i = indexOfProgramLineWithNumber(lineNumber) {
             programIndex = i
             if !isRunning {
@@ -930,7 +992,7 @@ public final class Interpreter {
 
     /// Execute GOSUB statement
     func GOSUB(expr: Expression) {
-        let lineNumber = expr.evaluate(v)
+        let lineNumber = expr.evaluate(v, a)
         if let i = indexOfProgramLineWithNumber(lineNumber) {
             returnStack.append(programIndex)
             programIndex = i
@@ -958,7 +1020,7 @@ public final class Interpreter {
     public func CLEAR() {
         clearProgram()
         clearReturnStack()
-        clearVariables()
+        clearVariablesAndArray()
     }
 
     /// Execute BYE statement
@@ -1047,7 +1109,7 @@ public final class Interpreter {
 
     /// Print an object that conforms to the PrintTextProvider protocol
     func writeOutput(p: PrintTextProvider) {
-        writeOutput(p.printText(v))
+        writeOutput(p.printText(v, a))
     }
 
     /// Display error message

@@ -756,7 +756,6 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
 
-
     func testPrecedence() {
         io.inputString = lines(
             "print 3*7+4*9"     ,
@@ -770,6 +769,30 @@ class finchlibTests: XCTestCase {
             "57",
             "297",
             "-35",
+            ""
+        )
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
+
+    func testArray() {
+        io.inputString = lines(
+            "10 let x = 99"                          ,
+            "20 print \"Enter three numbers\""       ,
+            "30 input @(x), @(x+1), @(x+2)"          ,
+            "40 let @(x+3) = @(x) + @(x+1) + @(x+2)" ,
+            "50 print \"Their sum is \"; @(x+3)"     ,
+            "60 end"                                 ,
+            "run"                                    ,
+            "123, 456, 789"
+        )
+
+        interpreter.interpretInputLines()
+
+        var expectedOutput = lines(
+            "Enter three numbers" ,
+            "Their sum is 1368"   ,
             ""
         )
 
