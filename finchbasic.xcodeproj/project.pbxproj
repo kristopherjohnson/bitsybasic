@@ -21,6 +21,24 @@
 		4EC1B54E1A428D400060EEDE /* finchlibTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B54D1A428D400060EEDE /* finchlibTests.swift */; };
 		4EC1B5561A428D5E0060EEDE /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5551A428D5E0060EEDE /* Interpreter.swift */; };
 		4EC1B5571A428D5E0060EEDE /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5551A428D5E0060EEDE /* Interpreter.swift */; };
+		4EC42A141A4E33B0004581C6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC42A131A4E33B0004581C6 /* AppDelegate.swift */; };
+		4EC42A161A4E33B0004581C6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC42A151A4E33B0004581C6 /* ViewController.swift */; };
+		4EC42A191A4E33B0004581C6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EC42A171A4E33B0004581C6 /* Main.storyboard */; };
+		4EC42A1B1A4E33B0004581C6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EC42A1A1A4E33B0004581C6 /* Images.xcassets */; };
+		4EC42A2A1A4E33B1004581C6 /* BitsyBASICTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC42A291A4E33B1004581C6 /* BitsyBASICTests.swift */; };
+		4EC42A311A4E33C4004581C6 /* char.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047391A43C69C0016822F /* char.swift */; };
+		4EC42A321A4E33C4004581C6 /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5551A428D5E0060EEDE /* Interpreter.swift */; };
+		4EC42A331A4E33C4004581C6 /* io.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784EA1A487A3E005486EB /* io.swift */; };
+		4EC42A341A4E33C4004581C6 /* syntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047351A43C5810016822F /* syntax.swift */; };
+		4EC42A351A4E33C4004581C6 /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047371A43C6310016822F /* util.swift */; };
+		4EC42A361A4E33C6004581C6 /* char.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047391A43C69C0016822F /* char.swift */; };
+		4EC42A371A4E33C6004581C6 /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5551A428D5E0060EEDE /* Interpreter.swift */; };
+		4EC42A381A4E33C6004581C6 /* io.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784EA1A487A3E005486EB /* io.swift */; };
+		4EC42A391A4E33C6004581C6 /* syntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047351A43C5810016822F /* syntax.swift */; };
+		4EC42A3A1A4E33C6004581C6 /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047371A43C6310016822F /* util.swift */; };
+		4EC42A3B1A4E33D7004581C6 /* finchlibTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B54D1A428D400060EEDE /* finchlibTests.swift */; };
+		4EC42A3E1A4E3A6B004581C6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EC42A3C1A4E3A6B004581C6 /* LaunchScreen.storyboard */; };
+		4EC42A401A4E3EF5004581C6 /* KeyboardNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC42A3F1A4E3EF5004581C6 /* KeyboardNotification.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,6 +48,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4EC1B53B1A428D400060EEDE;
 			remoteInfo = finchlib;
+		};
+		4EC42A241A4E33B1004581C6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4EC1B5251A428CFE0060EEDE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4EC42A0E1A4E33B0004581C6;
+			remoteInfo = BitsyBASIC;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -59,6 +84,17 @@
 		4EC1B54C1A428D400060EEDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4EC1B54D1A428D400060EEDE /* finchlibTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = finchlibTests.swift; sourceTree = "<group>"; };
 		4EC1B5551A428D5E0060EEDE /* Interpreter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Interpreter.swift; sourceTree = "<group>"; };
+		4EC42A0F1A4E33B0004581C6 /* BitsyBASIC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BitsyBASIC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EC42A121A4E33B0004581C6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4EC42A131A4E33B0004581C6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		4EC42A151A4E33B0004581C6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		4EC42A181A4E33B0004581C6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		4EC42A1A1A4E33B0004581C6 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		4EC42A231A4E33B0004581C6 /* BitsyBASICTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BitsyBASICTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EC42A281A4E33B1004581C6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4EC42A291A4E33B1004581C6 /* BitsyBASICTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitsyBASICTests.swift; sourceTree = "<group>"; };
+		4EC42A3D1A4E3A6B004581C6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		4EC42A3F1A4E3EF5004581C6 /* KeyboardNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardNotification.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +120,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4EC42A0C1A4E33B0004581C6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EC42A201A4E33B0004581C6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -93,6 +143,8 @@
 				4EC1B52F1A428CFF0060EEDE /* finchbasic */,
 				4EC1B53D1A428D400060EEDE /* finchlib */,
 				4EC1B54A1A428D400060EEDE /* finchlibTests */,
+				4EC42A101A4E33B0004581C6 /* BitsyBASIC */,
+				4EC42A261A4E33B1004581C6 /* BitsyBASICTests */,
 				4EC1B52E1A428CFF0060EEDE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -103,6 +155,8 @@
 				4EC1B52D1A428CFF0060EEDE /* finchbasic */,
 				4EC1B53C1A428D400060EEDE /* finchlib.framework */,
 				4EC1B5461A428D400060EEDE /* finchlibTests.xctest */,
+				4EC42A0F1A4E33B0004581C6 /* BitsyBASIC.app */,
+				4EC42A231A4E33B0004581C6 /* BitsyBASICTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -150,6 +204,45 @@
 			isa = PBXGroup;
 			children = (
 				4EC1B54C1A428D400060EEDE /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		4EC42A101A4E33B0004581C6 /* BitsyBASIC */ = {
+			isa = PBXGroup;
+			children = (
+				4EC42A131A4E33B0004581C6 /* AppDelegate.swift */,
+				4EC42A1A1A4E33B0004581C6 /* Images.xcassets */,
+				4EC42A3C1A4E3A6B004581C6 /* LaunchScreen.storyboard */,
+				4EC42A171A4E33B0004581C6 /* Main.storyboard */,
+				4EC42A111A4E33B0004581C6 /* Supporting Files */,
+				4EC42A151A4E33B0004581C6 /* ViewController.swift */,
+				4EC42A3F1A4E3EF5004581C6 /* KeyboardNotification.swift */,
+			);
+			path = BitsyBASIC;
+			sourceTree = "<group>";
+		};
+		4EC42A111A4E33B0004581C6 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4EC42A121A4E33B0004581C6 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		4EC42A261A4E33B1004581C6 /* BitsyBASICTests */ = {
+			isa = PBXGroup;
+			children = (
+				4EC42A291A4E33B1004581C6 /* BitsyBASICTests.swift */,
+				4EC42A271A4E33B1004581C6 /* Supporting Files */,
+			);
+			path = BitsyBASICTests;
+			sourceTree = "<group>";
+		};
+		4EC42A271A4E33B1004581C6 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4EC42A281A4E33B1004581C6 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -221,6 +314,41 @@
 			productReference = 4EC1B5461A428D400060EEDE /* finchlibTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		4EC42A0E1A4E33B0004581C6 /* BitsyBASIC */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4EC42A2F1A4E33B1004581C6 /* Build configuration list for PBXNativeTarget "BitsyBASIC" */;
+			buildPhases = (
+				4EC42A0B1A4E33B0004581C6 /* Sources */,
+				4EC42A0C1A4E33B0004581C6 /* Frameworks */,
+				4EC42A0D1A4E33B0004581C6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BitsyBASIC;
+			productName = BitsyBASIC;
+			productReference = 4EC42A0F1A4E33B0004581C6 /* BitsyBASIC.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4EC42A221A4E33B0004581C6 /* BitsyBASICTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4EC42A301A4E33B1004581C6 /* Build configuration list for PBXNativeTarget "BitsyBASICTests" */;
+			buildPhases = (
+				4EC42A1F1A4E33B0004581C6 /* Sources */,
+				4EC42A201A4E33B0004581C6 /* Frameworks */,
+				4EC42A211A4E33B0004581C6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4EC42A251A4E33B1004581C6 /* PBXTargetDependency */,
+			);
+			name = BitsyBASICTests;
+			productName = BitsyBASICTests;
+			productReference = 4EC42A231A4E33B0004581C6 /* BitsyBASICTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -239,6 +367,13 @@
 					4EC1B5451A428D400060EEDE = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
+					4EC42A0E1A4E33B0004581C6 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+					4EC42A221A4E33B0004581C6 = {
+						CreatedOnToolsVersion = 6.1.1;
+						TestTargetID = 4EC42A0E1A4E33B0004581C6;
+					};
 				};
 			};
 			buildConfigurationList = 4EC1B5281A428CFE0060EEDE /* Build configuration list for PBXProject "finchbasic" */;
@@ -247,6 +382,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 4EC1B5241A428CFE0060EEDE;
 			productRefGroup = 4EC1B52E1A428CFF0060EEDE /* Products */;
@@ -256,6 +392,8 @@
 				4EC1B52C1A428CFF0060EEDE /* finchbasic */,
 				4EC1B53B1A428D400060EEDE /* finchlib */,
 				4EC1B5451A428D400060EEDE /* finchlibTests */,
+				4EC42A0E1A4E33B0004581C6 /* BitsyBASIC */,
+				4EC42A221A4E33B0004581C6 /* BitsyBASICTests */,
 			);
 		};
 /* End PBXProject section */
@@ -269,6 +407,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4EC1B5441A428D400060EEDE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EC42A0D1A4E33B0004581C6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EC42A3E1A4E3A6B004581C6 /* LaunchScreen.storyboard in Resources */,
+				4EC42A191A4E33B0004581C6 /* Main.storyboard in Resources */,
+				4EC42A1B1A4E33B0004581C6 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EC42A211A4E33B0004581C6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -311,6 +466,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4EC42A0B1A4E33B0004581C6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EC42A351A4E33C4004581C6 /* util.swift in Sources */,
+				4EC42A321A4E33C4004581C6 /* Interpreter.swift in Sources */,
+				4EC42A161A4E33B0004581C6 /* ViewController.swift in Sources */,
+				4EC42A331A4E33C4004581C6 /* io.swift in Sources */,
+				4EC42A311A4E33C4004581C6 /* char.swift in Sources */,
+				4EC42A401A4E3EF5004581C6 /* KeyboardNotification.swift in Sources */,
+				4EC42A341A4E33C4004581C6 /* syntax.swift in Sources */,
+				4EC42A141A4E33B0004581C6 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EC42A1F1A4E33B0004581C6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EC42A3B1A4E33D7004581C6 /* finchlibTests.swift in Sources */,
+				4EC42A371A4E33C6004581C6 /* Interpreter.swift in Sources */,
+				4EC42A2A1A4E33B1004581C6 /* BitsyBASICTests.swift in Sources */,
+				4EC42A391A4E33C6004581C6 /* syntax.swift in Sources */,
+				4EC42A3A1A4E33C6004581C6 /* util.swift in Sources */,
+				4EC42A361A4E33C6004581C6 /* char.swift in Sources */,
+				4EC42A381A4E33C6004581C6 /* io.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -319,7 +503,31 @@
 			target = 4EC1B53B1A428D400060EEDE /* finchlib */;
 			targetProxy = 4EC1B5481A428D400060EEDE /* PBXContainerItemProxy */;
 		};
+		4EC42A251A4E33B1004581C6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4EC42A0E1A4E33B0004581C6 /* BitsyBASIC */;
+			targetProxy = 4EC42A241A4E33B1004581C6 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		4EC42A171A4E33B0004581C6 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4EC42A181A4E33B0004581C6 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		4EC42A3C1A4E3A6B004581C6 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4EC42A3D1A4E3A6B004581C6 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		4EC1B5321A428CFF0060EEDE /* Debug */ = {
@@ -491,6 +699,78 @@
 			};
 			name = Release;
 		};
+		4EC42A2B1A4E33B1004581C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = BitsyBASIC/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4EC42A2C1A4E33B1004581C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				INFOPLIST_FILE = BitsyBASIC/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		4EC42A2D1A4E33B1004581C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = BitsyBASICTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BitsyBASIC.app/BitsyBASIC";
+			};
+			name = Debug;
+		};
+		4EC42A2E1A4E33B1004581C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = BitsyBASICTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BitsyBASIC.app/BitsyBASIC";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -529,6 +809,22 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		4EC42A2F1A4E33B1004581C6 /* Build configuration list for PBXNativeTarget "BitsyBASIC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EC42A2B1A4E33B1004581C6 /* Debug */,
+				4EC42A2C1A4E33B1004581C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		4EC42A301A4E33B1004581C6 /* Build configuration list for PBXNativeTarget "BitsyBASICTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EC42A2D1A4E33B1004581C6 /* Debug */,
+				4EC42A2E1A4E33B1004581C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

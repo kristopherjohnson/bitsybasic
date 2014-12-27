@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="NSH-oM-rX7">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--Console-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="BitsyBASIC" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="10 PRINT &quot;Hello, world!&quot;" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="kMD-La-RiN">
+                                <rect key="frame" x="16" y="562" width="568" height="30"/>
+                                <fontDescription key="fontDescription" name="Courier-Bold" family="Courier" pointSize="15"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Qb-1d-h3H">
+                                <rect key="frame" x="0.0" y="64" width="600" height="490"/>
+                                <color key="backgroundColor" red="0.07736600935459137" green="0.06981157511472702" blue="0.046232186257839203" alpha="1" colorSpace="calibratedRGB"/>
+                                <string key="text">10 PRINT "Hello, world!"
+20 END</string>
+                                <color key="textColor" red="0.99697762727737427" green="0.85326880216598511" blue="0.42702367901802063" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" name="Courier" family="Courier" pointSize="16"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="kMD-La-RiN" secondAttribute="bottom" constant="8" id="0hn-xF-2U4"/>
+                            <constraint firstItem="3Qb-1d-h3H" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="14Q-NS-5PM"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="kMD-La-RiN" secondAttribute="trailing" id="D9a-WR-VK8"/>
+                            <constraint firstItem="3Qb-1d-h3H" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="Hxr-bG-OIz"/>
+                            <constraint firstItem="3Qb-1d-h3H" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="WfR-YJ-lyS"/>
+                            <constraint firstAttribute="trailing" secondItem="3Qb-1d-h3H" secondAttribute="trailing" id="fgr-h1-CXZ"/>
+                            <constraint firstItem="kMD-La-RiN" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="vgN-B1-6GH"/>
+                            <constraint firstItem="kMD-La-RiN" firstAttribute="top" secondItem="3Qb-1d-h3H" secondAttribute="bottom" constant="8" id="yNH-Tl-WSD"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="Hxr-bG-OIz"/>
+                            </mask>
+                        </variation>
+                    </view>
+                    <navigationItem key="navigationItem" title="Console" id="t4U-Zp-Axw">
+                        <barButtonItem key="backBarButtonItem" title="Console" id="0Sq-rO-w5D"/>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="inputTextFieldBottomLayoutConstraint" destination="0hn-xF-2U4" id="gZn-oo-H56"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1898" y="375"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="1eI-UB-b3H">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="NSH-oM-rX7" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="lOB-PW-vcn">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="XZV-nn-Ae0"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="bna-aL-Svf" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1202" y="375"/>
+        </scene>
+    </scenes>
+</document>
