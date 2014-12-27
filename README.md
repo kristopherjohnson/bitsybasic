@@ -77,12 +77,9 @@ FinchBasic supports this syntax:
     line ::= number statement CR | statement CR
 
     statement ::= PRINT (expr-list|ε)
-                  PR (expr-list|ε)
-                  ? (expr-list|ε)
                   LET lvalue = expr
                   lvalue = expr
                   INPUT lvalue-list
-                  IN lvalue-list
                   DIM "@(" expr ")"
                   IF expr relop expr THEN statement
                   IF expr relop expr statement
@@ -91,9 +88,7 @@ FinchBasic supports this syntax:
                   RETURN
                   END
                   CLEAR
-                  LIST
-                  LIST expr
-                  LIST expr , expr
+                  LIST (ε|expr (ε|(, expr)))
                   SAVE string
                   LOAD string
                   RUN
@@ -124,6 +119,18 @@ FinchBasic supports this syntax:
     string ::= " char* "
 
     relop ::= < (>|=|ε) | > (<|=|ε) | =
+
+Abbreviations can be used when typing some of the keywords:
+
+- `PRINT`: `PR` or `?`
+- `INPUT`: `IN`
+- `GOTO`: `GT`
+- `GOSUB`: `GS`
+- `RETURN`: `RT`
+- `LIST`: `LS`
+- `RUN`: `RN`
+- `SAVE`: `SV`
+- `LOAD`: `LD`
 
 Most of these statements and expressions have the traditional Tiny BASIC behaviors, which are described elsewhere.  What follows are some peculiarities of the FinchBasic implementation:
 

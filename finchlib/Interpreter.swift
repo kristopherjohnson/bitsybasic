@@ -209,14 +209,14 @@ public final class Interpreter {
 
         // "GOTO" expression
         if let ((GOTO, expr), nextPos) =
-            parse(pos, lit(T_GOTO), expression)
+            parse(pos, oneOfLit(T_GOTO, T_GT), expression)
         {
             return (.Goto(expr), nextPos)
         }
 
         // "GOSUB" expression
         if let ((GOSUB, expr), nextPos) =
-            parse(pos, lit(T_GOSUB), expression)
+            parse(pos, oneOfLit(T_GOSUB, T_GS), expression)
         {
             return (.Gosub(expr), nextPos)
         }
@@ -232,9 +232,6 @@ public final class Interpreter {
         // "LIST"
         // "LIST" expression
         // "LIST" expression "," expression
-        //
-        // We allow "LS" as an undocumented synonym for "LIST", because
-        // Kris is stupid and always types "LS".
         if let ((LIST, from, COMMA, to), nextPos) =
             parse(pos, oneOfLit(T_LIST, T_LS), expression, lit(T_Comma), expression)
         {
@@ -252,14 +249,14 @@ public final class Interpreter {
 
         // "SAVE" filenamestring
         if let ((SAVE, filename), nextPos) =
-            parse(pos, lit(T_SAVE), stringLiteral)
+            parse(pos, oneOfLit(T_SAVE, T_SV), stringLiteral)
         {
             return (.Save(stringFromChars(filename)), nextPos)
         }
 
         // "LOAD" filenamestring
         if let ((LOAD, filename), nextPos) =
-            parse(pos, lit(T_LOAD), stringLiteral)
+            parse(pos, oneOfLit(T_LOAD, T_LD), stringLiteral)
         {
             return (.Load(stringFromChars(filename)), nextPos)
         }
@@ -267,7 +264,9 @@ public final class Interpreter {
         // For statements that consist only of a keyword, we can use a simple table
         let simpleStatements: [(String, Statement)] = [
             (T_RETURN, .Return),
+            (T_RT,     .Return),
             (T_RUN,    .Run   ),
+            (T_RN,     .Run   ),
             (T_END,    .End   ),
             (T_CLEAR,  .Clear ),
             (T_BYE,    .Bye   ),

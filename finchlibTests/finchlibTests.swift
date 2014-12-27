@@ -26,11 +26,6 @@ import XCTest
 
 #if os(OSX)
     import finchlib
-//    import class finchlib.Interpreter
-//    import protocol finchlib.InterpreterIO
-//    import typealias finchlib.Char
-//    import func finchlib.stringFromChars
-//    import func finchlib.lines
 #endif
 
 /// Implementation of InterpreterIO that uses strings for
@@ -809,4 +804,39 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
+
+    func testAbbreviations() {
+        io.inputString = lines(
+            "10  p r 99"                              ,
+            "20 ? \"hello, world\""                 ,
+            "30  i n @(x), @(x+1), @(x+2)"            ,
+            "40  g t 100"                             ,
+            "50  g s 200"                             ,
+            "60  r t"                                 ,
+            "70  l s"                                 ,
+            "80  r n"                                 ,
+            "90  s v \"foo.bas\""                     ,
+            "100  l d \"foo.bas\""                    ,
+            "list",
+            ""
+        )
+
+        interpreter.interpretInputLines()
+
+        var expectedOutput = lines(
+            "10 PRINT 99"                       ,
+            "20 PRINT \"hello, world\""         ,
+            "30 INPUT @(X), @(X + 1), @(X + 2)" ,
+            "40 GOTO 100"                       ,
+            "50 GOSUB 200"                      ,
+            "60 RETURN"                         ,
+            "70 LIST"                           ,
+            "80 RUN"                            ,
+            "90 SAVE \"foo.bas\""               ,
+            "100 LOAD \"foo.bas\""              ,
+            ""
+        )
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")    }
 }
