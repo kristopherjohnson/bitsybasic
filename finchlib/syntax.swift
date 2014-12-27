@@ -162,9 +162,6 @@ enum Statement {
     /// "HELP"
     case Help
 
-    /// Unable to parse input as statement
-    case Error(String)
-
 
     /// Return pretty-printed statement
     var listText: String {
@@ -229,9 +226,6 @@ enum Statement {
 
         case .Help:
             return Token_HELP
-
-        case let .Error(message):
-            return "statement error: \(message)"
         }
     }
 }

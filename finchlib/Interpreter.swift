@@ -131,43 +131,29 @@ public final class Interpreter {
             }
 
             if let (stmt, afterStmt) = statement(afterNum) {
-                switch stmt {
-                case .Error(let message):
-                    return .Error("line \(num): \(message)")
-
-                default:
-                    if afterStmt.isRemainingLineEmpty {
-                        return .NumberedStatement(num, stmt)
-                    }
-                    else {
-                        return .Error("line \(num): error: unexpected characters following complete statement")
-                    }
+                if afterStmt.isRemainingLineEmpty {
+                    return .NumberedStatement(num, stmt)
+                }
+                else {
+                    return .Error("line \(num): error: unexpected characters following complete statement")
                 }
             }
             else {
-                assert(false, "error: statement() should never return nil")
-                return .Error("line \(num): error: unable to parse statement")
+                return .Error("line \(num): error: not a valid statement")
             }
         }
 
         // Otherwise, try to execute statement immediately
         if let (stmt, afterStmt) = statement(afterSpaces) {
-            switch stmt {
-            case .Error(let message):
-                return .Error(message)
-
-            default:
-                if afterStmt.isRemainingLineEmpty {
-                    return .UnnumberedStatement(stmt)
-                }
-                else {
-                    return .Error("error: unexpected characters following complete statement")
-                }
+            if afterStmt.isRemainingLineEmpty {
+                return .UnnumberedStatement(stmt)
+            }
+            else {
+                return .Error("error: unexpected characters following complete statement")
             }
         }
         else {
-            assert(false, "statement() should never return nil")
-            return .Error("error: unable to parse statement")
+            return .Error("error: not a valid statement")
         }
     }
 
@@ -176,10 +162,6 @@ public final class Interpreter {
     ///
     /// Returns a parsed statement or Statement.Error, and position
     /// of character following the end of the parsed statement
-    ///
-    /// Note that this is declared to return an Optional result, so
-    /// it will conform to the interface expected by the parse()
-    /// functions, but it will never return nil.
     func statement(pos: InputPosition) -> (Statement, InputPosition)? {
 
         // "PRINT" [ printList ]
@@ -197,12 +179,7 @@ public final class Interpreter {
         // "LET" lvalue = expression
         // lvalue = expression
         if let ((LET, v, EQ, expr), nextPos) =
-            parse(pos, lit(Token_LET), lvalue, lit(Token_Equal), expression)
-        {
-            return (.Let(v, expr), nextPos)
-        }
-        else if let ((v, EQ, expr), nextPos) =
-            parse(pos, lvalue, lit(Token_Equal), expression)
+            parse(pos, optLit(Token_LET), lvalue, lit(Token_Equal), expression)
         {
             return (.Let(v, expr), nextPos)
         }
@@ -225,12 +202,7 @@ public final class Interpreter {
         // "IF" lhs relop rhs "THEN" statement
         // "IF" lhs relop rhs statement
         if let ((IF, lhs, op, rhs, THEN, stmt), nextPos) =
-            parse(pos, lit(Token_IF), expression, relop, expression, lit(Token_THEN), statement)
-        {
-            return (.If(lhs, op, rhs, Box(stmt)), nextPos)
-        }
-        else if let ((IF, lhs, op, rhs, stmt), nextPos) =
-            parse(pos, lit(Token_IF), expression, relop, expression, statement)
+            parse(pos, lit(Token_IF), expression, relop, expression, optLit(Token_THEN), statement)
         {
             return (.If(lhs, op, rhs, Box(stmt)), nextPos)
         }
@@ -287,7 +259,7 @@ public final class Interpreter {
             return (.Load(stringFromChars(filename)), nextPos)
         }
 
-        // For statements that consist only of a keyword, we use this table
+        // For statements that consist only of a keyword, we can use a simple table
         let simpleStatements: [(String, Statement)] = [
             (Token_RETURN, .Return),
             (Token_RUN,    .Run   ),
@@ -299,12 +271,12 @@ public final class Interpreter {
             (Token_HELP,   .Help  )
         ]
         for (token, stmt) in simpleStatements {
-            if let (_, nextPos) = literal(token, pos) {
+            if let (TOKEN, nextPos) = literal(token, pos) {
                 return (stmt, nextPos)
             }
         }
 
-        return (.Error("error: not a valid statement"), pos)
+        return nil
     }
 
     /// Attempt to parse a PrintList.
@@ -509,6 +481,27 @@ public final class Interpreter {
     /// Curried variant of `literal()`, for use with `parse()`
     func lit(s: String)(pos: InputPosition) -> (String, InputPosition)? {
         return literal(s, pos)
+    }
+
+    /// Check for a literal at the specified position.
+    ///
+    /// If the literal is present, then return it and the following position.
+    ///
+    /// If the literal is not present, then just return it and the original position.
+    ///
+    /// This is used in situations where a statement allows an optional keyword,
+    /// such as LET or THEN, that can be ignored if present.
+    func optLiteral(s: String, _ pos: InputPosition) -> (String, InputPosition)? {
+        if let (lit, nextPos) = literal(s, pos) {
+            return (lit, nextPos)
+        }
+
+        return (s, pos)
+    }
+
+    /// Curried variant of `optLiteral`, for use with `parse()`.
+    func optLit(s: String)(pos: InputPosition) -> (String, InputPosition)? {
+        return optLiteral(s, pos)
     }
 
     /// Try to parse one of a set of literals
@@ -721,7 +714,6 @@ public final class Interpreter {
         case .Troff:                         isTraceOn = false
         case .Bye:                           BYE()
         case .Help:                          HELP()
-        case let .Error(message):            abortRunWithErrorMessage(message)
         }
     }
 
