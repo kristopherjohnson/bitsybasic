@@ -64,19 +64,19 @@ public final class StandardIO: InterpreterIO {
     }
 
     public func showCommandPrompt(interpreter: Interpreter) {
-        putchar(Int32(Char_Colon))
+        putchar(Int32(Ch_Colon))
         fflush(stdin)
     }
 
     public func showInputPrompt(interpreter: Interpreter) {
-        putchar(Int32(Char_QuestionMark))
-        putchar(Int32(Char_Space))
+        putchar(Int32(Ch_QuestionMark))
+        putchar(Int32(Ch_Space))
         fflush(stdin)
     }
 
     public func showError(interpreter: Interpreter, message: String) {
         var chars = charsFromString(message)
-        chars.append(Char_Linefeed)
+        chars.append(Ch_Linefeed)
         fwrite(chars, 1, UInt(chars.count), stderr)
         fflush(stderr)
     }

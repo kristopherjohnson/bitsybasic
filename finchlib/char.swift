@@ -31,46 +31,46 @@ import Foundation
 public typealias Char = UInt8
 
 // ASCII/UTF8 character codes that we use
-let Char_Tab:          Char = 9   // '\t'
-let Char_Linefeed:     Char = 10  // '\n'
-let Char_Space:        Char = 32  // ' '
-let Char_DQuote:       Char = 34  // '"'
-let Char_Comma:        Char = 44  // ','
-let Char_0:            Char = 48  // '0'
-let Char_9:            Char = 57  // '9'
-let Char_LAngle:       Char = 60  // '<'
-let Char_Equal:        Char = 61  // '='
-let Char_RAngle:       Char = 62  // '>'
-let Char_QuestionMark: Char = 63  // '?'
-let Char_Colon:        Char = 58  // ':'
-let Char_Semicolon:    Char = 59  // ';'
-let Char_A:            Char = 65  // 'A'
-let Char_Z:            Char = 90  // 'Z'
-let Char_a:            Char = 97  // 'a'
-let Char_z:            Char = 122 // 'z'
-let Char_Tilde:        Char = 126 // '~'
+let Ch_Tab:          Char = 9   // '\t'
+let Ch_Linefeed:     Char = 10  // '\n'
+let Ch_Space:        Char = 32  // ' '
+let Ch_DQuote:       Char = 34  // '"'
+let Ch_Comma:        Char = 44  // ','
+let Ch_0:            Char = 48  // '0'
+let Ch_9:            Char = 57  // '9'
+let Ch_LAngle:       Char = 60  // '<'
+let Ch_Equal:        Char = 61  // '='
+let Ch_RAngle:       Char = 62  // '>'
+let Ch_QuestionMark: Char = 63  // '?'
+let Ch_Colon:        Char = 58  // ':'
+let Ch_Semicolon:    Char = 59  // ';'
+let Ch_A:            Char = 65  // 'A'
+let Ch_Z:            Char = 90  // 'Z'
+let Ch_a:            Char = 97  // 'a'
+let Ch_z:            Char = 122 // 'z'
+let Ch_Tilde:        Char = 126 // '~'
 
 /// Return true if `c` is a printable ASCII character, or false otherwise
 func isGraphicChar(c: Char) -> Bool {
-    return isValue(c, inClosedInterval: Char_Space, Char_Tilde)
+    return isValue(c, inClosedInterval: Ch_Space, Ch_Tilde)
 }
 
 /// Return true if `c` is in the range 'A'...'Z' or 'a'...'z', or false otherwise
 func isAlphabeticChar(c: Char) -> Bool {
-    return isValue(c, inClosedInterval: Char_A, Char_Z)
-        || isValue(c, inClosedInterval: Char_a, Char_z)
+    return isValue(c, inClosedInterval: Ch_A, Ch_Z)
+        || isValue(c, inClosedInterval: Ch_a, Ch_z)
 }
 
 /// Return true if `c` is in the range '0'...'9', or false otherwise
 func isDigitChar(c: Char) -> Bool {
-    return isValue(c, inClosedInterval: Char_0, Char_9)
+    return isValue(c, inClosedInterval: Ch_0, Ch_9)
 }
 
 /// If `c` is in the range 'a'...'z', then return the uppercase variant of that character.
 /// Otherwise, return `c`.
 func toUpper(c: Char) -> Char {
-    if isValue(c, inClosedInterval: Char_a, Char_z) {
-        return c - (Char_a - Char_A)
+    if isValue(c, inClosedInterval: Ch_a, Ch_z) {
+        return c - (Ch_a - Ch_A)
     }
     else {
         return c

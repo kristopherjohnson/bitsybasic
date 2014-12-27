@@ -61,7 +61,7 @@ public final class Interpreter {
 
     /// Set values of all variables and array elements to zero
     func clearVariablesAndArray() {
-        for varname in Char_A...Char_Z {
+        for varname in Ch_A...Ch_Z {
             v[varname] = 0
         }
         for i in 0..<a.count {
@@ -215,7 +215,9 @@ public final class Interpreter {
         }
 
         // "GOSUB" expression
-        if let ((GOSUB, expr), nextPos) = parse(pos, lit(T_GOSUB), expression) {
+        if let ((GOSUB, expr), nextPos) =
+            parse(pos, lit(T_GOSUB), expression)
+        {
             return (.Gosub(expr), nextPos)
         }
 
@@ -357,11 +359,15 @@ public final class Interpreter {
     /// 
     /// Returns Expression and position of next character if successful.  Returns nil if not.
     func expression(pos: InputPosition) -> (Expression, InputPosition)? {
-        if let ((PLUS, uexpr), nextPos) = parse(pos, lit(T_Plus), unsignedExpression) {
+        if let ((PLUS, uexpr), nextPos) =
+            parse(pos, lit(T_Plus), unsignedExpression)
+        {
             return (.Plus(uexpr), nextPos)
         }
 
-        if let ((MINUS, uexpr), nextPos) = parse(pos, lit(T_Minus), unsignedExpression) {
+        if let ((MINUS, uexpr), nextPos) =
+            parse(pos, lit(T_Minus), unsignedExpression)
+        {
             return (.Minus(uexpr), nextPos)
         }
 
@@ -379,12 +385,16 @@ public final class Interpreter {
         if let (t, afterTerm) = term(pos) {
 
             // If followed by "+", then it's addition
-            if let ((PLUS, uexpr), afterExpr) = parse(afterTerm, lit(T_Plus), unsignedExpression) {
+            if let ((PLUS, uexpr), afterExpr) =
+                parse(afterTerm, lit(T_Plus), unsignedExpression)
+            {
                 return (.Compound(t, ArithOp.Add, Box(uexpr)), afterExpr)
             }
 
             // If followed by "-", then it's subtraction
-            if let ((MINUS, uexpr), afterExpr) = parse(afterTerm, lit(T_Minus), unsignedExpression) {
+            if let ((MINUS, uexpr), afterExpr) =
+                parse(afterTerm, lit(T_Minus), unsignedExpression)
+            {
                 return (.Compound(t, ArithOp.Subtract, Box(uexpr)), afterExpr)
             }
 
@@ -402,12 +412,16 @@ public final class Interpreter {
         if let (fact, afterFact) = factor(pos) {
 
             // If followed by "*", then it's a product
-            if let ((MULT, t), afterTerm) = parse(afterFact, lit(T_Asterisk), term) {
+            if let ((MULT, t), afterTerm) =
+                parse(afterFact, lit(T_Asterisk), term)
+            {
                 return (.Compound(fact, ArithOp.Multiply, Box(t)), afterTerm)
             }
 
             // If followed by "/", then it's a quotient
-            if let ((DIV, t), afterTerm) = parse(afterFact, lit(T_Slash), term) {
+            if let ((DIV, t), afterTerm) =
+                parse(afterFact, lit(T_Slash), term)
+            {
                 return (.Compound(fact, ArithOp.Divide, Box(t)), afterTerm)
             }
 
@@ -426,17 +440,23 @@ public final class Interpreter {
         }
 
         // "RND(" expression ")"
-        if let ((RND, LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(T_RND), lit(T_LParen), expression, lit(T_RParen)) {
+        if let ((RND, LPAREN, expr, RPAREN), nextPos) =
+            parse(pos, lit(T_RND), lit(T_LParen), expression, lit(T_RParen))
+        {
             return (.Rnd(Box(expr)), nextPos)
         }
 
         // "(" expression ")"
-        if let ((LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(T_LParen), expression, lit(T_RParen)) {
+        if let ((LPAREN, expr, RPAREN), nextPos) =
+            parse(pos, lit(T_LParen), expression, lit(T_RParen))
+        {
             return (.ParenExpr(Box(expr)), nextPos)
         }
 
         // "@(" expression ")"
-        if let ((AT, LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(T_At), lit(T_LParen), expression, lit(T_RParen)) {
+        if let ((AT, LPAREN, expr, RPAREN), nextPos) =
+            parse(pos, lit(T_At), lit(T_LParen), expression, lit(T_RParen))
+        {
             return (.ArrayElement(Box(expr)), nextPos)
         }
 
@@ -463,7 +483,7 @@ public final class Interpreter {
             let c = i.char
             i = i.next
 
-            if c == Char_Space {
+            if c == Ch_Space {
                 continue loop
             }
             else if toUpper(c) == toUpper(chars[matchCount]) {
@@ -538,14 +558,14 @@ public final class Interpreter {
             return nil
         }
 
-        var num = Number(i.char - Char_0)
+        var num = Number(i.char - Ch_0)
         i = i.next
         loop: while !i.isAtEndOfLine {
             let c = i.char
             if isDigitChar(c) {
-                num = (num &* 10) &+ Number(c - Char_0)
+                num = (num &* 10) &+ Number(c - Ch_0)
             }
-            else if c != Char_Space {
+            else if c != Ch_Space {
                 break loop
             }
             i = i.next
@@ -561,7 +581,7 @@ public final class Interpreter {
     func stringLiteral(pos: InputPosition) -> ([Char], InputPosition)? {
         var i = pos.afterSpaces()
         if !i.isAtEndOfLine {
-            if i.char == Char_DQuote {
+            if i.char == Ch_DQuote {
                 i = i.next
                 var stringChars: [Char] = []
                 var foundTrailingDelim = false
@@ -569,7 +589,7 @@ public final class Interpreter {
                 loop: while !i.isAtEndOfLine {
                     let c = i.char
                     i = i.next
-                    if c == Char_DQuote {
+                    if c == Ch_DQuote {
                         foundTrailingDelim = true
                         break loop
                     }
@@ -1144,13 +1164,13 @@ public final class Interpreter {
         var lineBuffer = InputLine()
 
         if var c = getChar() {
-            loop: while c != Char_Linefeed {
+            loop: while c != Ch_Linefeed {
                 if isGraphicChar(c) {
                     lineBuffer.append(c)
                 }
-                else if c == Char_Tab {
+                else if c == Ch_Tab {
                     // Convert tabs to spaces
-                    lineBuffer.append(Char_Space)
+                    lineBuffer.append(Ch_Space)
                 }
 
                 if let nextChar = getChar() {
@@ -1232,7 +1252,7 @@ struct InputPosition {
     func afterSpaces() -> InputPosition {
         var i = index
         let count = input.count
-        while i < count && input[i] == Char_Space {
+        while i < count && input[i] == Ch_Space {
             ++i
         }
         return InputPosition(input, i)
