@@ -167,7 +167,7 @@ public final class Interpreter {
         // "PRINT" [ printList ]
         // "PR" [ printList ]
         // "?" [ printList" ]
-        if let (PRINT, afterKeyword) = oneOfLiteral(Token_PRINT, Token_PR, Token_QuestionMark)(pos: pos) {
+        if let (PRINT, afterKeyword) = oneOfLit(Token_PRINT, Token_PR, Token_QuestionMark)(pos: pos) {
             if let (plist, afterPrintList) = printList(afterKeyword) {
                 return (.Print(plist), afterPrintList)
             }
@@ -187,7 +187,7 @@ public final class Interpreter {
         // "INPUT" lvalueList
         // "IN" lvalueList
         if let ((INPUT, lvalues), nextPos) =
-            parse(pos, oneOfLiteral(Token_INPUT, Token_IN), lvalueList)
+            parse(pos, oneOfLit(Token_INPUT, Token_IN), lvalueList)
         {
             return (.Input(lvalues), nextPos)
         }
@@ -222,7 +222,7 @@ public final class Interpreter {
         // "REM" commentstring
         // "'" commentstring
         if let ((REM, comment), nextPos) =
-            parse(pos, oneOfLiteral(Token_REM, Token_Tick), remainderOfLine)
+            parse(pos, oneOfLit(Token_REM, Token_Tick), remainderOfLine)
         {
             return (.Rem(comment), nextPos)
         }
@@ -230,17 +230,20 @@ public final class Interpreter {
         // "LIST"
         // "LIST" expression
         // "LIST" expression "," expression
+        //
+        // We allow "LS" as an undocumented synonym for "LIST", because
+        // Kris is stupid and always types "LS".
         if let ((LIST, from, COMMA, to), nextPos) =
-            parse(pos, lit(Token_LIST), expression, lit(Token_Comma), expression)
+            parse(pos, oneOfLit(Token_LIST, Token_LS), expression, lit(Token_Comma), expression)
         {
             return (.List(.Range(from, to)), nextPos)
         }
         else if let ((LIST, lineNumber), nextPos) =
-            parse(pos, lit(Token_LIST), expression)
+            parse(pos, oneOfLit(Token_LIST, Token_LS), expression)
         {
             return (.List(.SingleLine(lineNumber)), nextPos)
         }
-        else if let (LIST, nextPos) = literal(Token_LIST, pos)
+        else if let (LIST, nextPos) = oneOfLiteral([Token_LIST, Token_LS], pos)
         {
             return (.List(.All), nextPos)
         }
@@ -507,13 +510,18 @@ public final class Interpreter {
     /// Try to parse one of a set of literals
     ///
     /// Returns first match, or nil if there are no matches
-    func oneOfLiteral(strings: String...)(pos: InputPosition) -> (String, InputPosition)? {
+    func oneOfLiteral(strings: [String], _ pos: InputPosition) -> (String, InputPosition)? {
         for s in strings {
             if let match = literal(s, pos) {
                 return match
             }
         }
         return nil
+    }
+
+    /// Curried form of `oneOfLiteral()`, for use with `parse`
+    func oneOfLit(strings: String...)(pos: InputPosition) -> (String, InputPosition)? {
+        return oneOfLiteral(strings, pos)
     }
 
     /// Attempt to read an unsigned number from input.  If successful, returns
