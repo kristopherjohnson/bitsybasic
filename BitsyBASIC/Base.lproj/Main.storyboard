@@ -8,7 +8,7 @@
         <!--Console-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="BitsyBASIC" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ConsoleViewController" customModule="BitsyBASIC" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -17,10 +17,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="10 PRINT &quot;Hello, world!&quot;" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="kMD-La-RiN">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="10 PRINT &quot;Hello, world!&quot;" borderStyle="roundedRect" placeholder="Statement/command" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="kMD-La-RiN">
                                 <rect key="frame" x="16" y="562" width="568" height="30"/>
                                 <fontDescription key="fontDescription" name="Courier-Bold" family="Courier" pointSize="15"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" enablesReturnKeyAutomatically="YES"/>
                             </textField>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Qb-1d-h3H">
                                 <rect key="frame" x="0.0" y="64" width="600" height="490"/>
@@ -32,28 +32,24 @@
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
                             </textView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.96862745098039216" green="0.96862745098039216" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="kMD-La-RiN" secondAttribute="bottom" constant="8" id="0hn-xF-2U4"/>
                             <constraint firstItem="3Qb-1d-h3H" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="14Q-NS-5PM"/>
                             <constraint firstAttribute="trailingMargin" secondItem="kMD-La-RiN" secondAttribute="trailing" id="D9a-WR-VK8"/>
-                            <constraint firstItem="3Qb-1d-h3H" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="Hxr-bG-OIz"/>
                             <constraint firstItem="3Qb-1d-h3H" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="WfR-YJ-lyS"/>
                             <constraint firstAttribute="trailing" secondItem="3Qb-1d-h3H" secondAttribute="trailing" id="fgr-h1-CXZ"/>
                             <constraint firstItem="kMD-La-RiN" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="vgN-B1-6GH"/>
                             <constraint firstItem="kMD-La-RiN" firstAttribute="top" secondItem="3Qb-1d-h3H" secondAttribute="bottom" constant="8" id="yNH-Tl-WSD"/>
                         </constraints>
-                        <variation key="default">
-                            <mask key="constraints">
-                                <exclude reference="Hxr-bG-OIz"/>
-                            </mask>
-                        </variation>
                     </view>
                     <navigationItem key="navigationItem" title="Console" id="t4U-Zp-Axw">
                         <barButtonItem key="backBarButtonItem" title="Console" id="0Sq-rO-w5D"/>
                     </navigationItem>
                     <connections>
-                        <outlet property="inputTextFieldBottomLayoutConstraint" destination="0hn-xF-2U4" id="gZn-oo-H56"/>
+                        <outlet property="bottomLayoutConstraint" destination="0hn-xF-2U4" id="crv-zR-8pQ"/>
+                        <outlet property="inputTextField" destination="kMD-La-RiN" id="71K-hT-Bns"/>
+                        <outlet property="textView" destination="3Qb-1d-h3H" id="8gZ-0w-BAb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

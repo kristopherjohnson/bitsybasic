@@ -24,6 +24,15 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import Foundation
 import XCTest
 
+#if os(OSX)
+    import finchlib
+//    import class finchlib.Interpreter
+//    import protocol finchlib.InterpreterIO
+//    import typealias finchlib.Char
+//    import func finchlib.stringFromChars
+//    import func finchlib.lines
+#endif
+
 /// Implementation of InterpreterIO that uses strings for
 /// input and output.  Useful for unit tests.
 class StringIO: InterpreterIO {
@@ -335,7 +344,8 @@ class finchlibTests: XCTestCase {
             " 1    2 0   t r   o N  ",
             "  1  3  0    tr  off  ",
 
-            "list"
+            "list",
+            ""
         )
 
         interpreter.interpretInputLines()
@@ -360,7 +370,7 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected lines")
     }
-    
+
     func testRun() {
         io.inputString = lines(
             "10 print \"hello\"",
@@ -637,12 +647,12 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
     }
 
-
     func testIfWithoutThen() {
         io.inputString = lines(
-            "10 if n = 100 go to 100"                     ,
-            "20 if x = 1 if y = 2 if z = 3 print x,y,z"   ,
-            "LIST"
+            "10 if n = 100 go to 100"                   ,
+            "20 if x = 1 if y = 2 if z = 3 print x,y,z" ,
+            "LIST"                                      ,
+            ""
         )
 
         interpreter.interpretInputLines()
@@ -659,11 +669,12 @@ class finchlibTests: XCTestCase {
 
     func testLineNumberOnly() {
         io.inputString = lines(
-            "10 if n = 100 go to 100"                     ,
-            "20 if x = 1 if y = 2 if z = 3 print x,y,z"   ,
-            "10"                                          ,
-            "  20  "                                      ,
-            "LIST"
+            "10 if n = 100 then go to 100"   ,
+            "20 if x = 1 then y = 2"         ,
+            "10"                             ,
+            "  20  "                         ,
+            "LIST"                           ,
+            ""
         )
 
         interpreter.interpretInputLines()

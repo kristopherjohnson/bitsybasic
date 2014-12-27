@@ -23,17 +23,24 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import UIKit
 
-final class ViewController: UIViewController {
+final class ConsoleViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate {
 
-    @IBOutlet weak var inputTextFieldBottomLayoutConstraint: NSLayoutConstraint!
-    
+    @IBOutlet weak var inputTextField: UITextField!
+
+    @IBOutlet weak var textView: UITextView!
+
+    // This constraint will be updated when the keyboard appears, disappears,
+    // or changes size.
+    @IBOutlet weak var bottomLayoutConstraint: NSLayoutConstraint!
+
     override func viewDidLoad() {
         super.viewDidLoad()
-    }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        inputTextField.text = ""
+        inputTextField.delegate = self
+
+        textView.text = "BitsyBASIC v1.0\n© 2014 Kristopher Johnson\n"
+        textView.delegate = self
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -63,7 +70,7 @@ final class ViewController: UIViewController {
             delay: 0,
             options: UIViewAnimationOptions(rawValue: UInt(animationCurve << 16)),
             animations: { () -> Void in
-                self.inputTextFieldBottomLayoutConstraint.constant = newBottomOffset
+                self.bottomLayoutConstraint.constant = newBottomOffset
             },
             completion: nil
         )

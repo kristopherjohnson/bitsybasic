@@ -117,47 +117,57 @@ public final class Interpreter {
     func parseInputLine(input: InputLine) -> Line {
         let start = InputPosition(input, 0)
 
-        let i = start.afterSpaces()
+        let afterSpaces = start.afterSpaces()
 
         // If there are no non-space characters, skip this line
-        if i.isAtEndOfLine {
+        if afterSpaces.isAtEndOfLine {
             return .Empty
         }
 
         // If line starts with a number, add the statement to the program
-        if let (num, afterNum) = numberConstant(i) {
+        if let (num, afterNum) = numberLiteral(afterSpaces) {
             if afterNum.isRemainingLineEmpty {
                 return .EmptyNumberedLine(num)
             }
 
-            let (stmt, afterStmt) = statement(afterNum)
-            switch stmt {
-            case .Error(let message):
-                return .Error("line \(num): \(message)")
+            if let (stmt, afterStmt) = statement(afterNum) {
+                switch stmt {
+                case .Error(let message):
+                    return .Error("line \(num): \(message)")
 
-            default:
-                if afterStmt.isRemainingLineEmpty {
-                    return .NumberedStatement(num, stmt)
+                default:
+                    if afterStmt.isRemainingLineEmpty {
+                        return .NumberedStatement(num, stmt)
+                    }
+                    else {
+                        return .Error("line \(num): error: unexpected characters following complete statement")
+                    }
                 }
-                else {
-                    return .Error("line \(num): error: unexpected characters following complete statement")
-                }
+            }
+            else {
+                assert(false, "error: statement() should never return nil")
+                return .Error("line \(num): error: unable to parse statement")
             }
         }
 
         // Otherwise, try to execute statement immediately
-        let (stmt, afterStmt) = statement(i)
-        switch stmt {
-        case .Error(let message):
-            return .Error(message)
+        if let (stmt, afterStmt) = statement(afterSpaces) {
+            switch stmt {
+            case .Error(let message):
+                return .Error(message)
 
-        default:
-            if afterStmt.isRemainingLineEmpty {
-                return .UnnumberedStatement(stmt)
+            default:
+                if afterStmt.isRemainingLineEmpty {
+                    return .UnnumberedStatement(stmt)
+                }
+                else {
+                    return .Error("error: unexpected characters following complete statement")
+                }
             }
-            else {
-                return .Error("error: unexpected characters following complete statement")
-            }
+        }
+        else {
+            assert(false, "statement() should never return nil")
+            return .Error("error: unable to parse statement")
         }
     }
 
@@ -166,7 +176,11 @@ public final class Interpreter {
     ///
     /// Returns a parsed statement or Statement.Error, and position
     /// of character following the end of the parsed statement
-    func statement(pos: InputPosition) -> (Statement, InputPosition) {
+    ///
+    /// Note that this is declared to return an Optional result, so
+    /// it will conform to the interface expected by the parse()
+    /// functions, but it will never return nil.
+    func statement(pos: InputPosition) -> (Statement, InputPosition)? {
 
         // "PRINT" [ printList ]
         // "PR" [ printList ]
@@ -261,14 +275,14 @@ public final class Interpreter {
 
         // "SAVE" filenamestring
         if let ((SAVE, filename), nextPos) =
-            parse(pos, lit(Token_SAVE), stringConstant)
+            parse(pos, lit(Token_SAVE), stringLiteral)
         {
             return (.Save(stringFromChars(filename)), nextPos)
         }
 
         // "LOAD" filenamestring
         if let ((LOAD, filename), nextPos) =
-            parse(pos, lit(Token_LOAD), stringConstant)
+            parse(pos, lit(Token_LOAD), stringLiteral)
         {
             return (.Load(stringFromChars(filename)), nextPos)
         }
@@ -333,7 +347,7 @@ public final class Interpreter {
     ///
     /// Returns PrintItem and position of next character if successful.  Returns nil otherwise.
     func printItem(pos: InputPosition) -> (PrintItem, InputPosition)? {
-        if let (chars, afterChars) = stringConstant(pos) {
+        if let (chars, afterChars) = stringLiteral(pos) {
             return (.Str(chars), afterChars)
         }
 
@@ -432,7 +446,7 @@ public final class Interpreter {
     /// Attempt to parse a Factor.  Returns Factor and position of next character if successful.  Returns nil if not.
     func factor(pos: InputPosition) -> (Factor, InputPosition)? {
         // number
-        if let (num, afterNum) = numberConstant(pos) {
+        if let (num, afterNum) = numberLiteral(pos) {
             return (.Num(num), afterNum)
         }
 
@@ -511,7 +525,7 @@ public final class Interpreter {
 
     /// Attempt to read an unsigned number from input.  If successful, returns
     /// parsed number and position of next input character.  If not, returns nil.
-    func numberConstant(pos: InputPosition) -> (Number, InputPosition)? {
+    func numberLiteral(pos: InputPosition) -> (Number, InputPosition)? {
         var i = pos.afterSpaces()
 
         if i.isAtEndOfLine {
@@ -543,7 +557,7 @@ public final class Interpreter {
     ///
     /// Returns characters and position of next character if successful.
     /// Returns nil otherwise.
-    func stringConstant(pos: InputPosition) -> ([Char], InputPosition)? {
+    func stringLiteral(pos: InputPosition) -> ([Char], InputPosition)? {
         var i = pos.afterSpaces()
         if !i.isAtEndOfLine {
             if i.char == Char_DQuote {
@@ -806,17 +820,17 @@ public final class Interpreter {
     /// Accepts entry of a number, with optional sign (+|-), or a variable name.
     func inputExpression(pos: InputPosition) -> (Number, InputPosition)? {
         // number
-        if let (num, nextPos) = numberConstant(pos) {
+        if let (num, nextPos) = numberLiteral(pos) {
             return (num, nextPos)
         }
 
         // "+" number
-        if let ((PLUS, num), nextPos) = parse(pos, lit(Token_Plus), numberConstant) {
+        if let ((PLUS, num), nextPos) = parse(pos, lit(Token_Plus), numberLiteral) {
             return (num, nextPos)
         }
 
         // "-" number
-        if let ((MINUS, num), nextPos) = parse(pos, lit(Token_Plus), numberConstant) {
+        if let ((MINUS, num), nextPos) = parse(pos, lit(Token_Plus), numberLiteral) {
             return (-num, nextPos)
         }
 
