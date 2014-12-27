@@ -31,51 +31,52 @@ import Foundation
 //
 //     http://www.ittybittycomputers.com/IttyBitty/TinyBasic/TBuserMan.htm
 
+// Tokens
 
-let Token_Asterisk       = "*"
-let Token_At             = "@"
-let Token_Comma          = ","
-let Token_Equal          = "="
-let Token_LParen         = "("
-let Token_Minus          = "-"
-let Token_Plus           = "+"
-let Token_QuestionMark   = "?"
-let Token_RParen         = ")"
-let Token_Semicolon      = ";"
-let Token_Slash          = "/"
-let Token_Tick           = "'"
+let T_Asterisk       = "*"
+let T_At             = "@"
+let T_Comma          = ","
+let T_Equal          = "="
+let T_LParen         = "("
+let T_Minus          = "-"
+let T_Plus           = "+"
+let T_QuestionMark   = "?"
+let T_RParen         = ")"
+let T_Semicolon      = ";"
+let T_Slash          = "/"
+let T_Tick           = "'"
 
-let Token_Greater        = ">"
-let Token_GreaterOrEqual = ">="
-let Token_Less           = "<"
-let Token_LessOrEqual    = "<="
-let Token_NotEqual       = "<>"
-let Token_NotEqualAlt    = "><"
+let T_Greater        = ">"
+let T_GreaterOrEqual = ">="
+let T_Less           = "<"
+let T_LessOrEqual    = "<="
+let T_NotEqual       = "<>"
+let T_NotEqualAlt    = "><"
 
-let Token_BYE            = "BYE"
-let Token_CLEAR          = "CLEAR"
-let Token_DIM            = "DIM"
-let Token_END            = "END"
-let Token_GOSUB          = "GOSUB"
-let Token_GOTO           = "GOTO"
-let Token_HELP           = "HELP"
-let Token_IF             = "IF"
-let Token_IN             = "IN"
-let Token_INPUT          = "INPUT"
-let Token_LET            = "LET"
-let Token_LIST           = "LIST"
-let Token_LOAD           = "LOAD"
-let Token_LS             = "LS"
-let Token_PR             = "PR"
-let Token_PRINT          = "PRINT"
-let Token_REM            = "REM"
-let Token_RETURN         = "RETURN"
-let Token_RND            = "RND"
-let Token_RUN            = "RUN"
-let Token_SAVE           = "SAVE"
-let Token_THEN           = "THEN"
-let Token_TROFF          = "TROFF"
-let Token_TRON           = "TRON"
+let T_BYE            = "BYE"
+let T_CLEAR          = "CLEAR"
+let T_DIM            = "DIM"
+let T_END            = "END"
+let T_GOSUB          = "GOSUB"
+let T_GOTO           = "GOTO"
+let T_HELP           = "HELP"
+let T_IF             = "IF"
+let T_IN             = "IN"
+let T_INPUT          = "INPUT"
+let T_LET            = "LET"
+let T_LIST           = "LIST"
+let T_LOAD           = "LOAD"
+let T_LS             = "LS"
+let T_PR             = "PR"
+let T_PRINT          = "PRINT"
+let T_REM            = "REM"
+let T_RETURN         = "RETURN"
+let T_RND            = "RND"
+let T_RUN            = "RUN"
+let T_SAVE           = "SAVE"
+let T_THEN           = "THEN"
+let T_TROFF          = "TROFF"
+let T_TRON           = "TRON"
 
 
 /// A Finch numeric value is a signed integer
@@ -169,64 +170,64 @@ enum Statement {
         switch self {
 
         case let .Print(printList):
-            return "\(Token_PRINT) \(printList.listText)"
+            return "\(T_PRINT) \(printList.listText)"
 
         case .PrintNewline:
-            return Token_PRINT
+            return T_PRINT
 
         case let .Input(varlist):
-            return "\(Token_INPUT) \(varlist.listText)"
+            return "\(T_INPUT) \(varlist.listText)"
 
         case let .Let(lvalue, expr):
-            return "\(Token_LET) \(lvalue.listText) \(Token_Equal) \(expr.listText)"
+            return "\(T_LET) \(lvalue.listText) \(T_Equal) \(expr.listText)"
 
         case let .DimArray(expr):
-            return "\(Token_DIM) \(Token_At)\(Token_LParen)\(expr.listText)\(Token_RParen)"
+            return "\(T_DIM) \(T_At)\(T_LParen)\(expr.listText)\(T_RParen)"
             
         case let .Goto(expr):
-            return "\(Token_GOTO) \(expr.listText)"
+            return "\(T_GOTO) \(expr.listText)"
 
         case let .Gosub(expr):
-            return "\(Token_GOSUB) \(expr.listText)"
+            return "\(T_GOSUB) \(expr.listText)"
 
         case .Return:
-            return Token_RETURN
+            return T_RETURN
 
         case let .If(lhs, relop, rhs, box):
-            return "\(Token_IF) \(lhs.listText) \(relop.listText) \(rhs.listText) \(Token_THEN) \(box.value.listText)"
+            return "\(T_IF) \(lhs.listText) \(relop.listText) \(rhs.listText) \(T_THEN) \(box.value.listText)"
 
         case let .Rem(comment):
-            return "\(Token_REM)\(comment)"
+            return "\(T_REM)\(comment)"
 
         case .Clear:
-            return Token_CLEAR
+            return T_CLEAR
 
         case .End:
-            return Token_END
+            return T_END
 
         case .Run:
-            return Token_RUN
+            return T_RUN
 
         case let .List(range):
-            return "\(Token_LIST)\(range.listText)"
+            return "\(T_LIST)\(range.listText)"
 
         case let .Save(filename):
-            return "\(Token_SAVE) \"\(filename)\""
+            return "\(T_SAVE) \"\(filename)\""
 
         case let .Load(filename):
-            return "\(Token_LOAD) \"\(filename)\""
+            return "\(T_LOAD) \"\(filename)\""
 
         case .Tron:
-            return Token_TRON
+            return T_TRON
 
         case .Troff:
-            return Token_TROFF
+            return T_TROFF
 
         case .Bye:
-            return Token_BYE
+            return T_BYE
 
         case .Help:
-            return Token_HELP
+            return T_HELP
         }
     }
 }
@@ -442,10 +443,10 @@ enum Expression {
             return uexpr.listText
 
         case let .Plus(uexpr):
-            return "\(Token_Plus)\(uexpr.listText)"
+            return "\(T_Plus)\(uexpr.listText)"
 
         case let .Minus(uexpr):
-            return "\(Token_Minus)\(uexpr.listText)"
+            return "\(T_Minus)\(uexpr.listText)"
         }
     }
 
@@ -487,10 +488,10 @@ struct ArithOp {
         return fn(lhs, rhs)
     }
 
-    static let Add      = ArithOp(fn: &+, listText: Token_Plus)
-    static let Subtract = ArithOp(fn: &-, listText: Token_Minus)
-    static let Multiply = ArithOp(fn: &*, listText: Token_Asterisk)
-    static let Divide   = ArithOp(fn: &/, listText: Token_Slash)
+    static let Add      = ArithOp(fn: &+, listText: T_Plus)
+    static let Subtract = ArithOp(fn: &-, listText: T_Minus)
+    static let Multiply = ArithOp(fn: &*, listText: T_Asterisk)
+    static let Divide   = ArithOp(fn: &/, listText: T_Slash)
 }
 
 /// Result of parsing an unsigned expression
@@ -618,7 +619,7 @@ enum Factor {
         case let .ArrayElement(expr): return "@(\(expr.value.listText))"
         case let .Num(number):        return "\(number)"
         case let .ParenExpr(expr):    return "(\(expr.value.listText))"
-        case let .Rnd(expr):          return "\(Token_RND)(\(expr.value.listText))"
+        case let .Rnd(expr):          return "\(T_RND)(\(expr.value.listText))"
         }
     }
 
@@ -674,12 +675,12 @@ enum RelOp {
     /// Return pretty-printed program text
     var listText: String {
         switch self {
-        case .Less:           return Token_Less
-        case .Greater:        return Token_Greater
-        case .Equal:          return Token_Equal
-        case .LessOrEqual:    return Token_LessOrEqual
-        case .GreaterOrEqual: return Token_GreaterOrEqual
-        case .NotEqual:       return Token_NotEqual
+        case .Less:           return T_Less
+        case .Greater:        return T_Greater
+        case .Equal:          return T_Equal
+        case .LessOrEqual:    return T_LessOrEqual
+        case .GreaterOrEqual: return T_GreaterOrEqual
+        case .NotEqual:       return T_NotEqual
         }
     }
 

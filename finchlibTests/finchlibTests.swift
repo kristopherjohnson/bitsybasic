@@ -489,13 +489,13 @@ class finchlibTests: XCTestCase {
             "30 print \"The numbers are \", a, b, c" ,
             "40 end"                                 ,
             "run"                                    ,
-            "101, 202, 303"                          ,
+            "101, -202, 303"                          ,
             ""
         )
 
         interpreter.interpretInputLines()
 
-        var expectedOutput = "Enter three numbers:\nThe numbers are \t101\t202\t303\n"
+        var expectedOutput = "Enter three numbers:\nThe numbers are \t101\t-202\t303\n"
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(1, io.inputPromptCount, "showInputPrompt() should have been called")

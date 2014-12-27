@@ -167,7 +167,7 @@ public final class Interpreter {
         // "PRINT" [ printList ]
         // "PR" [ printList ]
         // "?" [ printList" ]
-        if let (PRINT, afterKeyword) = oneOfLit(Token_PRINT, Token_PR, Token_QuestionMark)(pos: pos) {
+        if let (PRINT, afterKeyword) = oneOfLit(T_PRINT, T_PR, T_QuestionMark)(pos: pos) {
             if let (plist, afterPrintList) = printList(afterKeyword) {
                 return (.Print(plist), afterPrintList)
             }
@@ -179,7 +179,7 @@ public final class Interpreter {
         // "LET" lvalue = expression
         // lvalue = expression
         if let ((LET, v, EQ, expr), nextPos) =
-            parse(pos, optLit(Token_LET), lvalue, lit(Token_Equal), expression)
+            parse(pos, optLit(T_LET), lvalue, lit(T_Equal), expression)
         {
             return (.Let(v, expr), nextPos)
         }
@@ -187,14 +187,14 @@ public final class Interpreter {
         // "INPUT" lvalueList
         // "IN" lvalueList
         if let ((INPUT, lvalues), nextPos) =
-            parse(pos, oneOfLit(Token_INPUT, Token_IN), lvalueList)
+            parse(pos, oneOfLit(T_INPUT, T_IN), lvalueList)
         {
             return (.Input(lvalues), nextPos)
         }
 
         // "DIM @(" expr ")"
         if let ((DIM, AT, LPAREN, expr, RPAREN), nextPos) =
-            parse(pos, lit(Token_DIM), lit(Token_At), lit(Token_LParen), expression, lit(Token_RParen))
+            parse(pos, lit(T_DIM), lit(T_At), lit(T_LParen), expression, lit(T_RParen))
         {
             return (.DimArray(expr), nextPos)
         }
@@ -202,27 +202,27 @@ public final class Interpreter {
         // "IF" lhs relop rhs "THEN" statement
         // "IF" lhs relop rhs statement
         if let ((IF, lhs, op, rhs, THEN, stmt), nextPos) =
-            parse(pos, lit(Token_IF), expression, relop, expression, optLit(Token_THEN), statement)
+            parse(pos, lit(T_IF), expression, relop, expression, optLit(T_THEN), statement)
         {
             return (.If(lhs, op, rhs, Box(stmt)), nextPos)
         }
 
         // "GOTO" expression
         if let ((GOTO, expr), nextPos) =
-            parse(pos, lit(Token_GOTO), expression)
+            parse(pos, lit(T_GOTO), expression)
         {
             return (.Goto(expr), nextPos)
         }
 
         // "GOSUB" expression
-        if let ((GOSUB, expr), nextPos) = parse(pos, lit(Token_GOSUB), expression) {
+        if let ((GOSUB, expr), nextPos) = parse(pos, lit(T_GOSUB), expression) {
             return (.Gosub(expr), nextPos)
         }
 
         // "REM" commentstring
         // "'" commentstring
         if let ((REM, comment), nextPos) =
-            parse(pos, oneOfLit(Token_REM, Token_Tick), remainderOfLine)
+            parse(pos, oneOfLit(T_REM, T_Tick), remainderOfLine)
         {
             return (.Rem(comment), nextPos)
         }
@@ -234,44 +234,44 @@ public final class Interpreter {
         // We allow "LS" as an undocumented synonym for "LIST", because
         // Kris is stupid and always types "LS".
         if let ((LIST, from, COMMA, to), nextPos) =
-            parse(pos, oneOfLit(Token_LIST, Token_LS), expression, lit(Token_Comma), expression)
+            parse(pos, oneOfLit(T_LIST, T_LS), expression, lit(T_Comma), expression)
         {
             return (.List(.Range(from, to)), nextPos)
         }
         else if let ((LIST, lineNumber), nextPos) =
-            parse(pos, oneOfLit(Token_LIST, Token_LS), expression)
+            parse(pos, oneOfLit(T_LIST, T_LS), expression)
         {
             return (.List(.SingleLine(lineNumber)), nextPos)
         }
-        else if let (LIST, nextPos) = oneOfLiteral([Token_LIST, Token_LS], pos)
+        else if let (LIST, nextPos) = oneOfLiteral([T_LIST, T_LS], pos)
         {
             return (.List(.All), nextPos)
         }
 
         // "SAVE" filenamestring
         if let ((SAVE, filename), nextPos) =
-            parse(pos, lit(Token_SAVE), stringLiteral)
+            parse(pos, lit(T_SAVE), stringLiteral)
         {
             return (.Save(stringFromChars(filename)), nextPos)
         }
 
         // "LOAD" filenamestring
         if let ((LOAD, filename), nextPos) =
-            parse(pos, lit(Token_LOAD), stringLiteral)
+            parse(pos, lit(T_LOAD), stringLiteral)
         {
             return (.Load(stringFromChars(filename)), nextPos)
         }
 
         // For statements that consist only of a keyword, we can use a simple table
         let simpleStatements: [(String, Statement)] = [
-            (Token_RETURN, .Return),
-            (Token_RUN,    .Run   ),
-            (Token_END,    .End   ),
-            (Token_CLEAR,  .Clear ),
-            (Token_BYE,    .Bye   ),
-            (Token_TRON,   .Tron  ),
-            (Token_TROFF,  .Troff ),
-            (Token_HELP,   .Help  )
+            (T_RETURN, .Return),
+            (T_RUN,    .Run   ),
+            (T_END,    .End   ),
+            (T_CLEAR,  .Clear ),
+            (T_BYE,    .Bye   ),
+            (T_TRON,   .Tron  ),
+            (T_TROFF,  .Troff ),
+            (T_HELP,   .Help  )
         ]
         for (token, stmt) in simpleStatements {
             if let (TOKEN, nextPos) = literal(token, pos) {
@@ -288,7 +288,7 @@ public final class Interpreter {
     func printList(pos: InputPosition) -> (PrintList, InputPosition)? {
         if let (item, afterItem) = printItem(pos) {
 
-            if let (_, afterSep) = literal(Token_Comma, afterItem) {
+            if let (_, afterSep) = literal(T_Comma, afterItem) {
                 // "," printList
                 // "," (trailing at end of line)
 
@@ -299,7 +299,7 @@ public final class Interpreter {
                     return (.Item(item, .Tab), afterSep)
                 }
             }
-            else if let (_, afterSep) = literal(Token_Semicolon, afterItem) {
+            else if let (_, afterSep) = literal(T_Semicolon, afterItem) {
                 // ";" printList
                 // ";" (trailing at end of line)
 
@@ -341,7 +341,7 @@ public final class Interpreter {
         if let (item, afterItem) = lvalue(pos) {
 
             // "," lvalueList
-            if let (_, afterSep) = literal(Token_Comma, afterItem) {
+            if let (_, afterSep) = literal(T_Comma, afterItem) {
                 if let (tail, afterTail) = lvalueList(afterSep) {
                     return (.Items(item, Box(tail)), afterTail)
                 }
@@ -357,11 +357,11 @@ public final class Interpreter {
     /// 
     /// Returns Expression and position of next character if successful.  Returns nil if not.
     func expression(pos: InputPosition) -> (Expression, InputPosition)? {
-        if let ((PLUS, uexpr), nextPos) = parse(pos, lit(Token_Plus), unsignedExpression) {
+        if let ((PLUS, uexpr), nextPos) = parse(pos, lit(T_Plus), unsignedExpression) {
             return (.Plus(uexpr), nextPos)
         }
 
-        if let ((MINUS, uexpr), nextPos) = parse(pos, lit(Token_Minus), unsignedExpression) {
+        if let ((MINUS, uexpr), nextPos) = parse(pos, lit(T_Minus), unsignedExpression) {
             return (.Minus(uexpr), nextPos)
         }
 
@@ -379,12 +379,12 @@ public final class Interpreter {
         if let (t, afterTerm) = term(pos) {
 
             // If followed by "+", then it's addition
-            if let ((PLUS, uexpr), afterExpr) = parse(afterTerm, lit(Token_Plus), unsignedExpression) {
+            if let ((PLUS, uexpr), afterExpr) = parse(afterTerm, lit(T_Plus), unsignedExpression) {
                 return (.Compound(t, ArithOp.Add, Box(uexpr)), afterExpr)
             }
 
             // If followed by "-", then it's subtraction
-            if let ((MINUS, uexpr), afterExpr) = parse(afterTerm, lit(Token_Minus), unsignedExpression) {
+            if let ((MINUS, uexpr), afterExpr) = parse(afterTerm, lit(T_Minus), unsignedExpression) {
                 return (.Compound(t, ArithOp.Subtract, Box(uexpr)), afterExpr)
             }
 
@@ -402,12 +402,12 @@ public final class Interpreter {
         if let (fact, afterFact) = factor(pos) {
 
             // If followed by "*", then it's a product
-            if let ((MULT, t), afterTerm) = parse(afterFact, lit(Token_Asterisk), term) {
+            if let ((MULT, t), afterTerm) = parse(afterFact, lit(T_Asterisk), term) {
                 return (.Compound(fact, ArithOp.Multiply, Box(t)), afterTerm)
             }
 
             // If followed by "/", then it's a quotient
-            if let ((DIV, t), afterTerm) = parse(afterFact, lit(Token_Slash), term) {
+            if let ((DIV, t), afterTerm) = parse(afterFact, lit(T_Slash), term) {
                 return (.Compound(fact, ArithOp.Divide, Box(t)), afterTerm)
             }
 
@@ -426,17 +426,17 @@ public final class Interpreter {
         }
 
         // "RND(" expression ")"
-        if let ((RND, LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(Token_RND), lit(Token_LParen), expression, lit(Token_RParen)) {
+        if let ((RND, LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(T_RND), lit(T_LParen), expression, lit(T_RParen)) {
             return (.Rnd(Box(expr)), nextPos)
         }
 
         // "(" expression ")"
-        if let ((LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(Token_LParen), expression, lit(Token_RParen)) {
+        if let ((LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(T_LParen), expression, lit(T_RParen)) {
             return (.ParenExpr(Box(expr)), nextPos)
         }
 
         // "@(" expression ")"
-        if let ((AT, LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(Token_At), lit(Token_LParen), expression, lit(Token_RParen)) {
+        if let ((AT, LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(T_At), lit(T_LParen), expression, lit(T_RParen)) {
             return (.ArrayElement(Box(expr)), nextPos)
         }
 
@@ -592,7 +592,7 @@ public final class Interpreter {
             return (.Var(v), nextPos)
         }
 
-        if let ((AT, LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(Token_At), lit(Token_LParen), expression, lit(Token_RParen)) {
+        if let ((AT, LPAREN, expr, RPAREN), nextPos) = parse(pos, lit(T_At), lit(T_LParen), expression, lit(T_RParen)) {
             return (.ArrayElement(expr), nextPos)
         }
 
@@ -619,25 +619,25 @@ public final class Interpreter {
     /// Returns operator and position of next input character on success, or nil otherwise.
     func relop(pos: InputPosition) -> (RelOp, InputPosition)? {
         // Note: We need to test the longer sequences before the shorter
-        if let (op, nextPos) = literal(Token_LessOrEqual, pos) {
+        if let (op, nextPos) = literal(T_LessOrEqual, pos) {
             return (.LessOrEqual, nextPos)
         }
-        if let (op, nextPos) = literal(Token_GreaterOrEqual, pos) {
+        if let (op, nextPos) = literal(T_GreaterOrEqual, pos) {
             return (.GreaterOrEqual, nextPos)
         }
-        if let (op, nextPos) = literal(Token_NotEqual, pos) {
+        if let (op, nextPos) = literal(T_NotEqual, pos) {
             return (.NotEqual, nextPos)
         }
-        if let (op, nextPos) = literal(Token_NotEqualAlt, pos) {
+        if let (op, nextPos) = literal(T_NotEqualAlt, pos) {
             return (.NotEqual, nextPos)
         }
-        if let (op, nextPos) = literal(Token_Less, pos) {
+        if let (op, nextPos) = literal(T_Less, pos) {
             return (.Less, nextPos)
         }
-        if let (op, nextPos) = literal(Token_Greater, pos) {
+        if let (op, nextPos) = literal(T_Greater, pos) {
             return (.Greater, nextPos)
         }
-        if let (op, nextPos) = literal(Token_Equal, pos) {
+        if let (op, nextPos) = literal(T_Equal, pos) {
             return (.Equal, nextPos)
         }
 
@@ -793,7 +793,7 @@ public final class Interpreter {
                             continue inputLoop
                         }
                     }
-                    else if let ((COMMA, num), after) = parse(pos, lit(Token_Comma), inputExpression) {
+                    else if let ((COMMA, num), after) = parse(pos, lit(T_Comma), inputExpression) {
                         assignToLvalue(lvalue, number: num)
                         pos = after
                     }
@@ -825,12 +825,12 @@ public final class Interpreter {
         }
 
         // "+" number
-        if let ((PLUS, num), nextPos) = parse(pos, lit(Token_Plus), numberLiteral) {
+        if let ((PLUS, num), nextPos) = parse(pos, lit(T_Plus), numberLiteral) {
             return (num, nextPos)
         }
 
         // "-" number
-        if let ((MINUS, num), nextPos) = parse(pos, lit(Token_Plus), numberLiteral) {
+        if let ((MINUS, num), nextPos) = parse(pos, lit(T_Minus), numberLiteral) {
             return (-num, nextPos)
         }
 
