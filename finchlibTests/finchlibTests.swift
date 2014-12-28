@@ -24,9 +24,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import Foundation
 import XCTest
 
-#if os(OSX)
+#if os(iOS)
+    import BitsyBASIC
+#else
     import finchlib
 #endif
+
 
 /// Implementation of InterpreterIO that uses strings for
 /// input and output.  Useful for unit tests.
