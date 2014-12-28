@@ -16,6 +16,7 @@
 		4E20473D1A43C8B80016822F /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047371A43C6310016822F /* util.swift */; };
 		4E5784EB1A487A3E005486EB /* io.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784EA1A487A3E005486EB /* io.swift */; };
 		4E5784ED1A487EF8005486EB /* io.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5784EA1A487A3E005486EB /* io.swift */; };
+		4E5EC1061A4EF8C000498F0A /* InterpreterThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E5EC1051A4EF8C000498F0A /* InterpreterThread.swift */; };
 		4EC1B5311A428CFF0060EEDE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5301A428CFF0060EEDE /* main.swift */; };
 		4EC1B5411A428D400060EEDE /* finchlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EC1B5401A428D400060EEDE /* finchlib.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4EC1B5471A428D400060EEDE /* finchlib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4EC1B53C1A428D400060EEDE /* finchlib.framework */; };
@@ -76,6 +77,7 @@
 		4E2047371A43C6310016822F /* util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = util.swift; sourceTree = "<group>"; };
 		4E2047391A43C69C0016822F /* char.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = char.swift; sourceTree = "<group>"; };
 		4E5784EA1A487A3E005486EB /* io.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = io.swift; sourceTree = "<group>"; };
+		4E5EC1051A4EF8C000498F0A /* InterpreterThread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterpreterThread.swift; sourceTree = "<group>"; };
 		4EC1B52D1A428CFF0060EEDE /* finchbasic */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = finchbasic; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EC1B5301A428CFF0060EEDE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		4EC1B53C1A428D400060EEDE /* finchlib.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = finchlib.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -214,6 +216,7 @@
 				4EC42A131A4E33B0004581C6 /* AppDelegate.swift */,
 				4E063C191A4E86340007E4DF /* ConsoleViewController.swift */,
 				4EC42A1A1A4E33B0004581C6 /* Images.xcassets */,
+				4E5EC1051A4EF8C000498F0A /* InterpreterThread.swift */,
 				4EC42A3F1A4E3EF5004581C6 /* KeyboardNotification.swift */,
 				4EC42A3C1A4E3A6B004581C6 /* LaunchScreen.storyboard */,
 				4EC42A171A4E33B0004581C6 /* Main.storyboard */,
@@ -477,6 +480,7 @@
 				4EC42A311A4E33C4004581C6 /* char.swift in Sources */,
 				4EC42A401A4E3EF5004581C6 /* KeyboardNotification.swift in Sources */,
 				4EC42A341A4E33C4004581C6 /* syntax.swift in Sources */,
+				4E5EC1061A4EF8C000498F0A /* InterpreterThread.swift in Sources */,
 				4EC42A141A4E33B0004581C6 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

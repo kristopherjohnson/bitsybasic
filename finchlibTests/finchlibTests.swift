@@ -808,7 +808,7 @@ class finchlibTests: XCTestCase {
     func testAbbreviations() {
         io.inputString = lines(
             "10  p r 99"                              ,
-            "20 ? \"hello, world\""                 ,
+            "20 ? \"hello, world\""                   ,
             "30  i n @(x), @(x+1), @(x+2)"            ,
             "40  g t 100"                             ,
             "50  g s 200"                             ,
@@ -838,5 +838,6 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")    }
+        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+    }
 }

@@ -34,7 +34,7 @@ public protocol InterpreterIO {
     /// Write specified output character
     func putOutputChar(interpreter: Interpreter, _ c: Char)
 
-    /// Display a prompt to the user for entering an immediatel command or line of code
+    /// Display a prompt to the user for entering an immediate command or line of code
     func showCommandPrompt(interpreter: Interpreter)
 
     /// Display a prompt to the user for entering data for an INPUT statement
