@@ -27,9 +27,9 @@ import Foundation
 // MARK: - Interpreter
 
 /// Tiny Basic interpreter
-public final class Interpreter {
+@objc public final class Interpreter {
     /// Variable values
-    var v: VariableBindings = [:]
+    var v: VariableBindings = Dictionary()
 
     /// Array of numbers, addressable using the syntax "@(i)"
     var a: [Number] = Array(count: 1024, repeatedValue: 0)
@@ -41,13 +41,13 @@ public final class Interpreter {
     var isRunning = false
 
     /// Array of program lines
-    var program: Program = []
+    var program: Program = Array()
 
     /// Index of currently executing line in program
     var programIndex: Int = 0
 
     /// Return stack
-    var returnStack: [Int] = []
+    var returnStack: [Int] = Array()
 
     /// If true, print line numbers while program runs
     var isTraceOn = false
@@ -59,6 +59,10 @@ public final class Interpreter {
         clearVariablesAndArray()
     }
 
+    deinit {
+        println("This should not happen")
+    }
+    
     /// Set values of all variables and array elements to zero
     func clearVariablesAndArray() {
         for varname in Ch_A...Ch_Z {
@@ -167,7 +171,7 @@ public final class Interpreter {
         // "PRINT" [ printList ]
         // "PR" [ printList ]
         // "?" [ printList" ]
-        if let (PRINT, afterKeyword) = oneOfLit(T_PRINT, T_PR, T_QuestionMark)(pos: pos) {
+        if let (PRINT, afterKeyword) = oneOfLiteral([T_PRINT, T_PR, T_QuestionMark], pos) {
             if let (plist, afterPrintList) = printList(afterKeyword) {
                 return (.Print(plist), afterPrintList)
             }
@@ -582,7 +586,7 @@ public final class Interpreter {
         if !i.isAtEndOfLine {
             if i.char == Ch_DQuote {
                 i = i.next
-                var stringChars: [Char] = []
+                var stringChars: [Char] = Array()
                 var foundTrailingDelim = false
 
                 loop: while !i.isAtEndOfLine {
@@ -1187,6 +1191,75 @@ public final class Interpreter {
         }
 
         return lineBuffer
+    }
+}
+
+
+// MARK: - System I/O
+
+/// Protocol implemented by object that provides I/O operations for an Interpreter
+public protocol InterpreterIO {
+    /// Return next input character, or nil if at end-of-file or an error occurs
+    func getInputChar(interpreter: Interpreter) -> Char?
+
+    /// Write specified output character
+    func putOutputChar(interpreter: Interpreter, _ c: Char)
+
+    /// Display a prompt to the user for entering an immediate command or line of code
+    func showCommandPrompt(interpreter: Interpreter)
+
+    /// Display a prompt to the user for entering data for an INPUT statement
+    func showInputPrompt(interpreter: Interpreter)
+
+    /// Display error message to user
+    func showError(interpreter: Interpreter, message: String)
+
+    /// Display a debug trace message
+    func showDebugTrace(interpreter: Interpreter, message: String)
+
+    /// Called when BYE is executed
+    func bye(interpreter: Interpreter)
+}
+
+/// Default implementation of InterpreterIO that reads from stdin,
+/// writes to stdout, and sends error messages to stderr.
+public final class StandardIO: InterpreterIO {
+    public func getInputChar(interpreter: Interpreter) -> Char? {
+        let c = getchar()
+        return c == EOF ? nil : Char(c)
+    }
+
+    public func putOutputChar(interpreter: Interpreter, _ c: Char) {
+        putchar(Int32(c))
+        fflush(stdout)
+    }
+
+    public func showCommandPrompt(interpreter: Interpreter) {
+        putchar(Int32(Ch_Colon))
+        fflush(stdout)
+    }
+
+    public func showInputPrompt(interpreter: Interpreter) {
+        putchar(Int32(Ch_QuestionMark))
+        putchar(Int32(Ch_Space))
+        fflush(stdout)
+    }
+
+    public func showError(interpreter: Interpreter, message: String) {
+        var chars = charsFromString(message)
+        chars.append(Ch_Linefeed)
+        fwrite(chars, 1, UInt(chars.count), stderr)
+        fflush(stderr)
+    }
+
+    public func showDebugTrace(interpreter: Interpreter, message: String) {
+        var chars = charsFromString(message)
+        fwrite(chars, 1, UInt(chars.count), stdout)
+        fflush(stdout)
+    }
+
+    public func bye(interpreter: Interpreter) {
+        exit(EXIT_SUCCESS)
     }
 }
 

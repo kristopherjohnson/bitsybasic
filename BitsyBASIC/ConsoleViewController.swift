@@ -58,6 +58,7 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
 
         interpreterIO = ConsoleInterpreterIO(viewController: self)
         interpreterThread = InterpreterThread(interpreterIO: interpreterIO)
+        interpreterThread.name = "Interpreter"
         interpreterThread.start()
     }
 
@@ -120,6 +121,20 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
 
     func showInputPrompt() {
         appendToConsoleText("? ")
+    }
+}
+
+/// Thread in which the interpreter runs
+final class InterpreterThread: NSThread {
+    let interpreter: Interpreter
+
+    init(interpreterIO: InterpreterIO) {
+        interpreter = Interpreter(interpreterIO: interpreterIO)
+        super.init()
+    }
+
+    override func main() {
+        interpreter.interpretInputLines()
     }
 }
 

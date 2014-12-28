@@ -314,7 +314,7 @@ enum LvalueList {
 /// Protocol supported by elements that provide text for the PRINT statement
 protocol PrintTextProvider {
     /// Return output text associated with this element
-    func printText(v: VariableBindings, _ a: [Number]) -> String
+    func printText(v: VariableBindings, _ a: [Number]) -> [Char]
 }
 
 /// Result of parsing a printlist
@@ -360,10 +360,10 @@ enum PrintListSeparator: PrintTextProvider {
     case Empty
 
     /// Return text that should be included in output for this element
-    func printText(v: VariableBindings, _ a: [Number]) -> String {
+    func printText(v: VariableBindings, _ a: [Number]) -> [Char] {
         switch self {
-        case .Tab:   return "\t"
-        case .Empty: return ""
+        case .Tab:   return [Ch_Tab]
+        case .Empty: return []
         }
     }
 
@@ -387,11 +387,11 @@ enum PrintListTerminator: PrintTextProvider {
     case Empty
 
     /// Return text that should be included in output for this element
-    func printText(v: VariableBindings, _ a: [Number]) -> String {
+    func printText(v: VariableBindings, _ a: [Number]) -> [Char] {
         switch self {
-        case .Newline: return "\n"
-        case .Tab:     return "\t"
-        case .Empty:   return ""
+        case .Newline: return [Ch_Linefeed]
+        case .Tab:     return [Ch_Tab]
+        case .Empty:   return []
         }
     }
 
@@ -414,10 +414,10 @@ enum PrintItem: PrintTextProvider {
     case Str([Char])
 
     /// Return text that should be included in output for this element
-    func printText(v: VariableBindings, _ a: [Number]) -> String {
+    func printText(v: VariableBindings, _ a: [Number]) -> [Char] {
         switch self {
-        case let .Str(chars):       return stringFromChars(chars)
-        case let .Expr(expression): return "\(expression.evaluate(v, a))"
+        case let .Str(chars):       return chars
+        case let .Expr(expression): return charsFromString("\(expression.evaluate(v, a))")
         }
     }
 
