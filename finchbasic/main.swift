@@ -23,8 +23,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import Foundation
 
-
-let interpreter = Interpreter()
+func runInterpreter() {
+    let interpreter = Interpreter()
+    interpreter.interpretInputLines()
+}
 
 // Put -DUSE_INTERPRETER_THREAD=1 in Build Settings
 // to run the interpreter in another thread.
@@ -34,27 +36,25 @@ let interpreter = Interpreter()
 // use this for production code.
 #if USE_INTERPRETER_THREAD
 
-    import Cocoa
+    let finished = dispatch_semaphore_create(0)
 
-    let thread = NSThread(target: interpreter,
-        selector: "interpretInputLines",
-        object: nil)
-    thread.name = "Interpreter"
+    final class InterpreterThread: NSThread {
+        override func main() {
+            runInterpreter()
+            dispatch_semaphore_signal(finished)
+        }
+    }
+
+    let thread = InterpreterThread()
     thread.start()
 
-    // Main thread just waits for other thread to finish.
-    //
-    // TODO: Provide a mechanism for the interpreter to
-    // signal when it is complete, rather than polling
-    // like this.
-    while !thread.finished {
-        usleep(1000)
-    }
+    // Main thread waits for the other thread to finish
+    dispatch_semaphore_wait(finished, DISPATCH_TIME_FOREVER)
 
 #else
 
     // Normal case is to run the interpreter in the
     // main thread
-    interpreter.interpretInputLines()
+    runInterpreter()
 
 #endif
