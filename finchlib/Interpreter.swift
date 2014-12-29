@@ -24,10 +24,35 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import Foundation
 
 
+/// State of the interpreter
+///
+/// The interpreter begins in the `.ReadingStatement` state,
+/// and will process numbered and unnumbered statements.
+/// A `RUN` statement will put it into `.Running` state, and it
+/// will execute the stored program.  If an `INPUT` statement
+/// is executed, the interpreter will go into .ReadingInput
+/// state until valid input is received.  The state returns
+/// to `.ReadingStatement` on an `END` statement or if `RUN`
+/// has to abort due to an error.
+public enum InterpreterState {
+    /// Interpreter is trying to read a statement/command
+    case ReadingStatement
+
+    /// Interpreter is running a program
+    case Running
+
+    /// Interpreter is processing an `INPUT` statement
+    case ReadingInput
+}
+
+
 // MARK: - Interpreter
 
 /// Tiny Basic interpreter
 @objc public final class Interpreter {
+    /// Interpreter state
+    var state: InterpreterState = .ReadingStatement
+
     /// Variable values
     var v: VariableBindings = Dictionary()
 
@@ -36,9 +61,6 @@ import Foundation
 
     /// Low-level I/O interface
     var io: InterpreterIO
-
-    /// Set true while RUN is executing
-    var isRunning = false
 
     /// Array of program lines
     var program: Program = Array()
@@ -77,7 +99,7 @@ import Foundation
     func clearProgram() {
         program = []
         programIndex = 0
-        isRunning = false
+        state = .ReadingStatement
     }
 
     /// Remove all items from the return stack
@@ -999,7 +1021,7 @@ import Foundation
 
     /// Execute END statement
     func END() {
-        isRunning = false
+        state = .ReadingStatement
     }
 
     /// Execute GOTO statement
@@ -1007,7 +1029,7 @@ import Foundation
         let lineNumber = expr.evaluate(v, a)
         if let i = indexOfProgramLineWithNumber(lineNumber) {
             programIndex = i
-            if !isRunning {
+            if state != .Running {
                 doRunLoop()
             }
         }
@@ -1022,7 +1044,7 @@ import Foundation
         if let i = indexOfProgramLineWithNumber(lineNumber) {
             returnStack.append(programIndex)
             programIndex = i
-            if !isRunning {
+            if state != .Running {
                 doRunLoop()
             }
         }
@@ -1085,12 +1107,12 @@ import Foundation
 
     /// Starting at current program index, execute commands
     func doRunLoop() {
-        isRunning = true
-        while isRunning {
+        state = .Running
+        loop: while state == .Running {
             if programIndex >= program.count {
                 showError("error: RUN - program does not terminate with END")
-                isRunning = false
-                break
+                state = .ReadingStatement
+                break loop
             }
 
             let (lineNumber, stmt) = program[programIndex]
@@ -1107,8 +1129,8 @@ import Foundation
     /// Call this method if an unrecoverable error happens while executing a statement
     func abortRunWithErrorMessage(message: String) {
         showError(message)
-        if isRunning {
-            isRunning = false
+        if state != .ReadingStatement {
+            state = .ReadingStatement
             showError("abort: program terminated")
         }
     }
