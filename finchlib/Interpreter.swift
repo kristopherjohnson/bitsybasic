@@ -89,7 +89,7 @@ import Foundation
     // MARK: - Top-level loop
 
     /// Display prompt and read input lines and interpret them until end of input
-    public func interpretInputLines() {
+    public func run() {
         loop: while true {
             io.showCommandPrompt(self)
 
@@ -1152,7 +1152,12 @@ import Foundation
     ///
     /// Result may be an empty array, indicating an empty input line, not end of input.
     func readInputLine() -> InputLine? {
-        return getInputLine { self.io.getInputChar(self) }
+        return getInputLine {
+            switch self.io.getInputChar(self) {
+            case let .InputChar(c): return c
+            default:                return nil
+            }
+        }
     }
 
     /// Get a line of input, using specified function to retrieve characters.
@@ -1197,10 +1202,22 @@ import Foundation
 
 // MARK: - System I/O
 
+/// Possible results for the InterpreterIO.getInputChar method
+public enum InputCharResult {
+    /// Char
+    case InputChar(Char)
+
+    /// Reached end of input stream
+    case EndOfStream
+
+    /// No characters available now
+    case Waiting
+}
+
 /// Protocol implemented by object that provides I/O operations for an Interpreter
 public protocol InterpreterIO {
     /// Return next input character, or nil if at end-of-file or an error occurs
-    func getInputChar(interpreter: Interpreter) -> Char?
+    func getInputChar(interpreter: Interpreter) -> InputCharResult
 
     /// Write specified output character
     func putOutputChar(interpreter: Interpreter, _ c: Char)
@@ -1224,9 +1241,9 @@ public protocol InterpreterIO {
 /// Default implementation of InterpreterIO that reads from stdin,
 /// writes to stdout, and sends error messages to stderr.
 public final class StandardIO: InterpreterIO {
-    public func getInputChar(interpreter: Interpreter) -> Char? {
+    public func getInputChar(interpreter: Interpreter) -> InputCharResult {
         let c = getchar()
-        return c == EOF ? nil : Char(c)
+        return c == EOF ? .EndOfStream : .InputChar(Char(c))
     }
 
     public func putOutputChar(interpreter: Interpreter, _ c: Char) {

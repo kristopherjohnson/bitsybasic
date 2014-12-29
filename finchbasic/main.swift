@@ -25,7 +25,7 @@ import Foundation
 
 func runInterpreter() {
     let interpreter = Interpreter()
-    interpreter.interpretInputLines()
+    interpreter.run()
 }
 
 // Put -DUSE_INTERPRETER_THREAD=1 in Build Settings
@@ -34,14 +34,16 @@ func runInterpreter() {
 // This demonstrates that we get EXC_BAD_ACCESS when
 // running the interpreter in another thread.  Do not
 // use this for production code.
+// 
+// See http://www.openradar.me/19353741
 #if USE_INTERPRETER_THREAD
 
-    let finished = dispatch_semaphore_create(0)
-
     final class InterpreterThread: NSThread {
+        let completionSemaphore = dispatch_semaphore_create(0)
+        
         override func main() {
             runInterpreter()
-            dispatch_semaphore_signal(finished)
+            dispatch_semaphore_signal(self.completionSemaphore)
         }
     }
 
@@ -49,7 +51,7 @@ func runInterpreter() {
     thread.start()
 
     // Main thread waits for the other thread to finish
-    dispatch_semaphore_wait(finished, DISPATCH_TIME_FOREVER)
+    dispatch_semaphore_wait(thread.completionSemaphore, DISPATCH_TIME_FOREVER)
 
 #else
 
