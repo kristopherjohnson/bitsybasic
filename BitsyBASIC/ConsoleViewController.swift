@@ -23,18 +23,25 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import UIKit
 
-final class ConsoleViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate {
+final class ConsoleViewController: UIViewController, UITextFieldDelegate {
 
+    /// Text field at bottom where user enters statements
     @IBOutlet weak var inputTextField: UITextField!
 
+    /// Console view
     @IBOutlet weak var textView: UITextView!
 
     // This constraint will be updated when the keyboard appears, disappears,
     // or changes size.
     @IBOutlet weak var bottomLayoutConstraint: NSLayoutConstraint!
 
-    var interpreterIO: ConsoleInterpreterIO!
+    /// FinchBasic interpreter
     var interpreter: Interpreter!
+
+    /// Delegate for interpreter
+    var interpreterIO: ConsoleInterpreterIO!
+
+    /// Set true if we have queued a call to `stepInterpreter()`
     var interpreterScheduled = false
 
 
@@ -56,8 +63,6 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
         inputTextField.text = ""
         inputTextField.delegate = self
 
-        textView.delegate = self
-
         consoleText = "BitsyBASIC v1.0\n© 2014 Kristopher Johnson\n\nREADY\n"
 
         interpreterIO = ConsoleInterpreterIO(viewController: self)
@@ -68,11 +73,13 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
 
+        // Call keyboardWillChangeFrameNotification() when keyboard shows/hides
         NSNotificationCenter.defaultCenter().addObserver(self,
             selector: "keyboardWillChangeFrameNotification:",
             name: UIKeyboardWillChangeFrameNotification,
             object: nil)
 
+        // Scroll console text view to bottom whenever content size changes
         textView.addObserver(self,
             forKeyPath: "contentSize",
             options: NSKeyValueObservingOptions.New,
@@ -89,13 +96,13 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
         super.viewDidDisappear(animated)
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    override func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
+        // textView's contentSize has changed
         scrollConsoleToBottom()
     }
 
-    override func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
-        // textView's contentSize has changed
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         scrollConsoleToBottom()
     }
 
@@ -120,6 +127,9 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
         }
     }
 
+    /// Handle appearance or disappearance of keyboard
+    ///
+    /// Updates bottom constraint so that inputTextField shows above the keyboard.
     func keyboardWillChangeFrameNotification(notification: NSNotification) {
         let change = KeyboardNotification(notification)
         let keyboardFrame = change.frameEndForView(self.view)
@@ -139,11 +149,13 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
         )
     }
 
+    /// Append given text to the console display
     func appendToConsoleText(s: NSString) {
         let newConsoleText = consoleText.stringByAppendingString(s)
         consoleText = newConsoleText
     }
 
+    /// Handle Return key
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         let text = textField.text
         textField.text = ""
@@ -182,6 +194,7 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
         }
     }
 
+    /// Queue a call to stepInterpreter()
     func scheduleInterpreter() {
         interpreterScheduled = true
         dispatch_async(dispatch_get_main_queue()) {
@@ -249,7 +262,7 @@ final class ConsoleInterpreterIO: InterpreterIO {
                 viewController!.appendToConsoleText(s)
             }
             else {
-                assert(false, "should be able to convert chars to string")
+                println("to convert chars to string")
             }
             outputBuffer = Array()
         }

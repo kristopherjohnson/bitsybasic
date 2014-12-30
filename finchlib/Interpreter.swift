@@ -92,6 +92,12 @@ public enum InterpreterState {
     /// If true, have encountered EOF while processing input
     var hasReachedEndOfInput = false
 
+    /// Lvalues being read by current INPUT statement
+    var inputLvalues: [Lvalue] = Array()
+
+    /// State that interpreter was in when INPUT was called
+    var stateBeforeInput: InterpreterState = .Idle
+
     /// Initialize, optionally passing in a custom InterpreterIO handler
     public init(interpreterIO: InterpreterIO = StandardIO()) {
         io = interpreterIO
@@ -160,7 +166,7 @@ public enum InterpreterState {
             executeNextProgramStatement()
 
         case .ReadingInput:
-            break
+            continueInput()
         }
     }
 
@@ -851,26 +857,35 @@ public enum InterpreterState {
     /// 
     /// All values must be on a single input line, separated by commas.
     func INPUT(lvalueList: LvalueList) {
+        inputLvalues = lvalueList.asArray
+        stateBeforeInput = state
+        continueInput()
+    }
 
-        let lvalues = lvalueList.asArray
+    /// Perform an INPUT operation
+    ///
+    /// This may be called by INPUT(), or by next() if resuming an operation
+    /// following a .Waiting result from readInputLine()
+    func continueInput() {
 
+        /// Display a message to the user indicating what they are supposed to do
         func showHelpMessage() {
-            if lvalues.count > 1 {
-                showError("You must enter a comma-separated list of \(lvalues.count) values")
+            if inputLvalues.count > 1 {
+                showError("You must enter a comma-separated list of \(inputLvalues.count) values")
             }
             else {
                 showError("You must enter a value.")
             }
         }
 
-        // Loop until successful or we hit end of input stream
+        // Loop until successful or we hit end of input or a wait condition
         inputLoop: while true {
             io.showInputPrompt(self)
             switch readInputLine() {
             case let .Value(input):
                 var pos = InputPosition(input, 0)
 
-                for (index, lvalue) in enumerate(lvalues) {
+                for (index, lvalue) in enumerate(inputLvalues) {
                     if index == 0 {
                         if let (num, after) = inputExpression(pos) {
                             assignToLvalue(lvalue, number: num)
@@ -892,9 +907,20 @@ public enum InterpreterState {
                 }
 
                 // If we get here, we've read input for all the variables
+                switch stateBeforeInput {
+                case .Running:
+                    state = .Running
+                default:
+                    state = .Idle
+                }
+
                 break inputLoop
 
-            default:
+            case .Waiting:
+                state = .ReadingInput
+                break inputLoop
+
+            case .EndOfStream:
                 // TODO: handle the .Waiting case
                 abortRunWithErrorMessage("error - INPUT: end of input stream")
             }
@@ -1169,10 +1195,13 @@ public enum InterpreterState {
     /// Call this method if an unrecoverable error happens while executing a statement
     func abortRunWithErrorMessage(message: String) {
         showError(message)
-        if state != .ReadingStatement {
-            state = .ReadingStatement
+        switch state {
+        case .Running, .ReadingInput:
             showError("abort: program terminated")
+        default:
+            break
         }
+        state = .Idle
     }
 
 
@@ -1324,7 +1353,7 @@ public final class StandardIO: InterpreterIO {
     }
 
     public func showCommandPrompt(interpreter: Interpreter) {
-        putchar(Int32(Ch_Colon))
+        putchar(Int32(Ch_RAngle))
         fflush(stdout)
     }
 
