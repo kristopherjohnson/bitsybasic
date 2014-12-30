@@ -292,6 +292,7 @@ Running `xcodebuild` with no arguments builds the `finchbasic` scheme, which is 
 - `finchbasic` builds and runs the OS X command-line tool.
 - `finchlib` builds an OS X Cocoa framework containing all of the FinchBasic code and a unit test bundle. This is the scheme used most often for development.  See the `finchlibTests.swift` file for the unit tests.
 - `finchlib_Release` is like `finchlib`, but uses the Release configuration instead of Debug for unit tests and other tasks.  Use this profile to verify that code correctly when built with Swift compiler optimization enabled.
+- `BitsyBASIC` is an iOS app that presents a console-like display and runs the FinchBasic interpreter. This app is in a usable state, but it is a work-in-progress.
 
 
 ### Parsing and Evaluation
