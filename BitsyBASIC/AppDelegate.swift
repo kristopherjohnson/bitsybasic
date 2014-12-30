@@ -30,7 +30,9 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+
+        setWorkingDirectory()
+
         return true
     }
 
@@ -56,6 +58,14 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
-
+    /// Set the working directory to be the user's Documents directory.
+    func setWorkingDirectory() {
+        let documentsPaths = NSSearchPathForDirectoriesInDomains(
+            NSSearchPathDirectory.DocumentDirectory,
+            NSSearchPathDomainMask.UserDomainMask,
+            true)
+        let documentsPath = documentsPaths[0] as NSString
+        chdir(documentsPath.UTF8String)
+    }
 }
 
