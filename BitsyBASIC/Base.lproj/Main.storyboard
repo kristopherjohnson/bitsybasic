@@ -19,7 +19,7 @@
                         <subviews>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="10 PRINT &quot;Hello, world!&quot;" borderStyle="roundedRect" placeholder="Statement/command" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="kMD-La-RiN">
                                 <rect key="frame" x="16" y="562" width="568" height="30"/>
-                                <fontDescription key="fontDescription" name="Courier-Bold" family="Courier" pointSize="15"/>
+                                <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="15"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" enablesReturnKeyAutomatically="YES"/>
                             </textField>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Qb-1d-h3H">
@@ -28,7 +28,7 @@
                                 <string key="text">10 PRINT "Hello, world!"
 20 END</string>
                                 <color key="textColor" red="0.99697762727737427" green="0.85326880216598511" blue="0.42702367901802063" alpha="1" colorSpace="calibratedRGB"/>
-                                <fontDescription key="fontDescription" name="Courier" family="Courier" pointSize="16"/>
+                                <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="16"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
                             </textView>
                         </subviews>

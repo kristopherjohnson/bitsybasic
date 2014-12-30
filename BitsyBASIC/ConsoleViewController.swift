@@ -33,15 +33,19 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
     // or changes size.
     @IBOutlet weak var bottomLayoutConstraint: NSLayoutConstraint!
 
-    var interpreterThread: InterpreterThread!
     var interpreterIO: ConsoleInterpreterIO!
+    var interpreter: Interpreter!
+    var interpreterScheduled = false
 
+
+    /// Text displayed in the console
+    ///
+    /// Setting this property automatically updates the console display
+    /// and scrolls to the bottom.
     var consoleText: NSString = "" {
         didSet {
             if textView != nil {
                 textView.text = consoleText
-                let range = NSRange(location: consoleText.length - 1, length: 0)
-                textView.scrollRangeToVisible(range)
             }
         }
     }
@@ -54,12 +58,11 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
 
         textView.delegate = self
 
-        consoleText = "BitsyBASIC v1.0\n© 2014 Kristopher Johnson\n"
+        consoleText = "BitsyBASIC v1.0\n© 2014 Kristopher Johnson\n\nREADY\n"
 
         interpreterIO = ConsoleInterpreterIO(viewController: self)
-        interpreterThread = InterpreterThread(interpreterIO: interpreterIO)
-        interpreterThread.name = "Interpreter"
-        interpreterThread.start()
+        interpreter = Interpreter(interpreterIO: interpreterIO)
+        scheduleInterpreter()
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -70,27 +73,66 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
             name: UIKeyboardWillChangeFrameNotification,
             object: nil)
 
+        textView.addObserver(self,
+            forKeyPath: "contentSize",
+            options: NSKeyValueObservingOptions.New,
+            context: nil)
+
         inputTextField.becomeFirstResponder()
     }
 
     override func viewDidDisappear(animated: Bool) {
         NSNotificationCenter.defaultCenter().removeObserver(self)
+
+        textView.removeObserver(self, forKeyPath: "contentSize")
+
         super.viewDidDisappear(animated)
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        scrollConsoleToBottom()
+    }
+
+    override func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
+        // textView's contentSize has changed
+        scrollConsoleToBottom()
+    }
+
+    /// Update the text view so that the end of the text is at the bottom of the screen.
+    ///
+    /// Call this whenever views are laid out or when content size changes.
+    ///
+    /// If the content height is smaller than the view height, then contentOffset
+    /// will be set to move the text to the bottom.  Otherwise, will call
+    /// textView.scrollRangeToVisible with the end of the text as the range.
+    func scrollConsoleToBottom() {
+        let viewHeight = textView.bounds.height
+        let contentHeight = textView.contentSize.height
+
+        if contentHeight > viewHeight {
+            textView.contentOffset = CGPointZero
+            let text: NSString = textView.text
+            textView.scrollRangeToVisible(NSRange(location: text.length, length: 0))
+        }
+        else {
+            textView.contentOffset = CGPointMake(0, contentHeight - viewHeight)
+        }
+    }
+
     func keyboardWillChangeFrameNotification(notification: NSNotification) {
-        let n = KeyboardNotification(notification)
-        let keyboardFrame = n.frameEndForView(self.view)
-        let animationDuration = n.animationDuration
-        let animationCurve = n.animationCurve
+        let change = KeyboardNotification(notification)
+        let keyboardFrame = change.frameEndForView(self.view)
+        let animationDuration = change.animationDuration
+        let animationCurve = change.animationCurve
 
         let viewFrame = self.view.frame
         let newBottomOffset = viewFrame.maxY - keyboardFrame.minY + 8
 
         UIView.animateWithDuration(animationDuration,
             delay: 0,
-            options: UIViewAnimationOptions(rawValue: UInt(animationCurve << 16)),
-            animations: { () -> Void in
+            options: UIViewAnimationOptions(UInt(animationCurve << 16)),
+            animations: {
                 self.bottomLayoutConstraint.constant = newBottomOffset
             },
             completion: nil
@@ -110,13 +152,45 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
             appendToConsoleText(line)
             var chars = charsFromString(line)
             interpreterIO.sendInputChars(chars)
+            if !interpreterScheduled {
+                scheduleInterpreter()
+            }
         }
 
         return false
     }
 
+
+    // MARK: - Interpreter
+
+    /// Drive the interpreter
+    ///
+    /// Calls interpreter.next() to get it to do its next action.
+    /// Then schedules another step, unless the interpreter is
+    /// waiting for input and we don't have any to give it.
+    func stepInterpreter() {
+        interpreterScheduled = false
+        interpreter.next()
+
+        switch interpreter.state {
+        case .Idle, .Running:
+            scheduleInterpreter()
+        case .ReadingStatement, .ReadingInput:
+            if interpreterIO.inputBuffer.count > 0 {
+                scheduleInterpreter()
+            }
+        }
+    }
+
+    func scheduleInterpreter() {
+        interpreterScheduled = true
+        dispatch_async(dispatch_get_main_queue()) {
+            self.stepInterpreter()
+        }
+    }
+
     func showCommandPrompt() {
-        appendToConsoleText(":")
+        appendToConsoleText("> ")
     }
 
     func showInputPrompt() {
@@ -124,144 +198,91 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate, UIText
     }
 }
 
-/// Thread in which the interpreter runs
-final class InterpreterThread: NSThread {
-    let interpreter: Interpreter
-
-    init(interpreterIO: InterpreterIO) {
-        interpreter = Interpreter(interpreterIO: interpreterIO)
-        super.init()
-    }
-
-    override func main() {
-        interpreter.interpretInputLines()
-    }
-}
-
 /// Interface between the BASIC interpreter and ConsoleViewController
-///
-/// The interpreter runs in its own thread.  This class takes care
-/// of passing data between that thread and the UI thread safely.
 final class ConsoleInterpreterIO: InterpreterIO {
-    let viewController: ConsoleViewController
+    weak var viewController: ConsoleViewController?
 
-    let syncQueue: dispatch_queue_t
-
-    let inputAvailable: dispatch_semaphore_t
     var inputBuffer: [Char] = Array()
     var inputIndex: Int = 0
-    var nextInputBuffer: [Char] = Array()
 
     var outputBuffer: [Char] = Array()
 
     init(viewController: ConsoleViewController) {
         self.viewController = viewController
-
-        inputAvailable = dispatch_semaphore_create(0)
-
-        syncQueue = dispatch_queue_create(
-            "ConsoleInterpreterIO".UTF8String,
-            DISPATCH_QUEUE_SERIAL)
     }
 
     /// Return next input character for the interpreter,
     /// or nil if at end-of-file or an error occurs.
-    func getInputChar(interpreter: Interpreter) -> Char? {
-        // If processing inputBuffer, return the next character
+    func getInputChar(interpreter: Interpreter) -> InputCharResult {
         if inputIndex < inputBuffer.count {
-            return inputBuffer[inputIndex++]
+            let result: InputCharResult = .Value(inputBuffer[inputIndex])
+            ++inputIndex
+            if inputIndex == inputBuffer.count {
+                inputBuffer = Array()
+                inputIndex = 0
+            }
+            return result
         }
 
-        // Otherwise wait for main thread to put something into nextInputBuffer
-        dispatch_semaphore_wait(inputAvailable, DISPATCH_TIME_FOREVER)
-        dispatch_sync(syncQueue) {
-            self.inputBuffer = self.nextInputBuffer
-            self.inputIndex = 0
-            self.nextInputBuffer = Array()
-        }
-
-        if inputIndex < inputBuffer.count {
-            return inputBuffer[inputIndex++]
-        }
-        else {
-            return nil
-        }
+        return .Waiting
     }
 
     /// Send characters from the console to the interpreter
     func sendInputChars(chars: [Char]) {
-        if chars.count == 0 {
-            return
-        }
-
-        dispatch_sync(syncQueue) {
-            let wasEmpty = self.nextInputBuffer.count == 0
-            self.nextInputBuffer.extend(chars)
-            if wasEmpty {
-                dispatch_semaphore_signal(self.inputAvailable)
-            }
-        }
+        inputBuffer.extend(chars)
     }
 
     /// Write specified output character
     func putOutputChar(interpreter: Interpreter, _ c: Char) {
         outputBuffer.append(c)
-        if c == Ch_Linefeed {
+        if c == Ch_Linefeed || outputBuffer.count >= 40 {
             flushOutput()
         }
     }
 
     func flushOutput() {
         if outputBuffer.count > 0 {
-            dispatch_sync(dispatch_get_main_queue()) {
-                if let s = NSString(bytes: &self.outputBuffer, length: 1, encoding: NSUTF8StringEncoding) {
-                    self.viewController.appendToConsoleText(s)
-                }
-                else {
-                    assert(false, "should be able to convert chars to string")
-                }
-                self.outputBuffer = Array()
+            if let s = NSString(bytes: &self.outputBuffer,
+                length: self.outputBuffer.count,
+                encoding: NSUTF8StringEncoding)
+            {
+                viewController!.appendToConsoleText(s)
             }
+            else {
+                assert(false, "should be able to convert chars to string")
+            }
+            outputBuffer = Array()
         }
     }
 
     /// Display a prompt to the user for entering an immediate command or line of code
     func showCommandPrompt(interpreter: Interpreter) {
         flushOutput()
-        dispatch_sync(dispatch_get_main_queue()) {
-            self.viewController.showCommandPrompt()
-        }
+        viewController!.showCommandPrompt()
     }
 
     /// Display a prompt to the user for entering data for an INPUT statement
     func showInputPrompt(interpreter: Interpreter) {
         flushOutput()
-        dispatch_sync(dispatch_get_main_queue()) {
-            self.viewController.showInputPrompt()
-        }
+        viewController!.showInputPrompt()
     }
 
     /// Display error message to user
     func showError(interpreter: Interpreter, message: String) {
         flushOutput()
-        dispatch_sync(dispatch_get_main_queue()) {
-            self.viewController.appendToConsoleText(message)
-        }
+        let messageWithNewline = "\(message)\n"
+        viewController!.appendToConsoleText(messageWithNewline)
     }
 
     /// Display a debug trace message
     func showDebugTrace(interpreter: Interpreter, message: String) {
         flushOutput()
-        dispatch_sync(dispatch_get_main_queue()) {
-            self.viewController.appendToConsoleText(message)
-        }
+        viewController!.appendToConsoleText(message)
     }
 
     /// Called when BYE is executed
     func bye(interpreter: Interpreter) {
         flushOutput()
-        dispatch_sync(dispatch_get_main_queue()) {
-            self.viewController.appendToConsoleText("error: BYE not available in iOS")
-        }
+        viewController!.appendToConsoleText("error: BYE not available in iOS")
     }
 }

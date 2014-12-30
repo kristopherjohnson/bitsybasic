@@ -26,15 +26,27 @@ import Foundation
 
 /// State of the interpreter
 ///
-/// The interpreter begins in the `.ReadingStatement` state,
-/// and will process numbered and unnumbered statements.
+/// The interpreter begins in the `.Idle` state, which
+/// causes it to immediately display a statement prompt
+/// and then enter the `.ReadingStatement` state, where it
+/// will process numbered and unnumbered statements.
+///
 /// A `RUN` statement will put it into `.Running` state, and it
 /// will execute the stored program.  If an `INPUT` statement
 /// is executed, the interpreter will go into .ReadingInput
-/// state until valid input is received.  The state returns
-/// to `.ReadingStatement` on an `END` statement or if `RUN`
-/// has to abort due to an error.
+/// state until valid input is received, and it will return
+/// to `.Running` state.
+///
+/// The state returns to `.ReadingStatement` on an `END`
+/// statement or if `RUN` has to abort due to an error.
 public enum InterpreterState {
+    /// Interpreter is not "doing anything".
+    /// 
+    /// When in this state, interpreter will display
+    /// statement prompt and then enter the
+    /// `ReadingStatement` state.
+    case Idle
+
     /// Interpreter is trying to read a statement/command
     case ReadingStatement
 
@@ -51,13 +63,16 @@ public enum InterpreterState {
 /// Tiny Basic interpreter
 @objc public final class Interpreter {
     /// Interpreter state
-    var state: InterpreterState = .ReadingStatement
+    var state: InterpreterState = .Idle
 
     /// Variable values
     var v: VariableBindings = Dictionary()
 
     /// Array of numbers, addressable using the syntax "@(i)"
     var a: [Number] = Array(count: 1024, repeatedValue: 0)
+
+    /// Characters that have been read from input but not yet been returned by readInputLine()
+    var inputLineBuffer: InputLine = Array()
 
     /// Low-level I/O interface
     var io: InterpreterIO
@@ -74,6 +89,8 @@ public enum InterpreterState {
     /// If true, print line numbers while program runs
     var isTraceOn = false
 
+    /// If true, have encountered EOF while processing input
+    var hasReachedEndOfInput = false
 
     /// Initialize, optionally passing in a custom InterpreterIO handler
     public init(interpreterIO: InterpreterIO = StandardIO()) {
@@ -99,7 +116,7 @@ public enum InterpreterState {
     func clearProgram() {
         program = []
         programIndex = 0
-        state = .ReadingStatement
+        state = .Idle
     }
 
     /// Remove all items from the return stack
@@ -110,22 +127,47 @@ public enum InterpreterState {
 
     // MARK: - Top-level loop
 
-    /// Display prompt and read input lines and interpret them until end of input
-    public func run() {
-        loop: while true {
-            io.showCommandPrompt(self)
+    /// Display prompt and read input lines and interpret them until end of input.
+    /// 
+    /// This method should only be used when `InterpreterIO.getInputChar()`
+    /// will never return `InputCharResult.Waiting`.
+    /// Otherwise, host should call `next()` in a loop.
+    public func runUntilEndOfInput() {
+        while !hasReachedEndOfInput {
+            next()
+        }
+    }
 
-            if let input = readInputLine() {
-                processInput(input)
+    /// Perform next operation.
+    /// 
+    /// The host can drive the interpreter by calling `next()`
+    /// in a loop.
+    public func next() {
+        switch state {
+
+        case .Idle:
+            io.showCommandPrompt(self)
+            state = .ReadingStatement
+
+        case .ReadingStatement:
+            switch readInputLine() {
+            case let .Value(input): processInput(input)
+            case .EndOfStream:      hasReachedEndOfInput = true
+            case .Waiting:          break
             }
-            else {
-                break loop
-            }
+
+        case .Running:
+            executeNextProgramStatement()
+
+        case .ReadingInput:
+            break
         }
     }
 
     /// Parse an input line and execute it or add it to the program
     func processInput(input: InputLine) {
+        state = .Idle
+
         let line = parseInputLine(input)
 
         switch line {
@@ -824,7 +866,8 @@ public enum InterpreterState {
         // Loop until successful or we hit end of input stream
         inputLoop: while true {
             io.showInputPrompt(self)
-            if let input = readInputLine() {
+            switch readInputLine() {
+            case let .Value(input):
                 var pos = InputPosition(input, 0)
 
                 for (index, lvalue) in enumerate(lvalues) {
@@ -850,10 +893,10 @@ public enum InterpreterState {
 
                 // If we get here, we've read input for all the variables
                 break inputLoop
-            }
-            else {
+
+            default:
+                // TODO: handle the .Waiting case
                 abortRunWithErrorMessage("error - INPUT: end of input stream")
-                break inputLoop
             }
         }
     }
@@ -984,13 +1027,16 @@ public enum InterpreterState {
             loop: while true {
                 let maybeInputLine = getInputLine {
                     let c = fgetc(file)
-                    return (c == EOF) ? nil : Char(c)
+                    return (c == EOF) ? .EndOfStream : .Value(Char(c))
                 }
 
-                if let inputLine = maybeInputLine {
-                    processInput(inputLine)
-                }
-                else {
+                switch maybeInputLine {
+
+                case let .Value(inputLine): processInput(inputLine)
+                case .EndOfStream:          break loop
+
+                case .Waiting:
+                    assert(false, "getInputLine() for file should never return .Waiting")
                     break loop
                 }
             }
@@ -1016,12 +1062,12 @@ public enum InterpreterState {
         programIndex = 0
         clearVariablesAndArray()
         clearReturnStack()
-        doRunLoop()
+        state = .Running
     }
 
     /// Execute END statement
     func END() {
-        state = .ReadingStatement
+        state = .Idle
     }
 
     /// Execute GOTO statement
@@ -1029,9 +1075,7 @@ public enum InterpreterState {
         let lineNumber = expr.evaluate(v, a)
         if let i = indexOfProgramLineWithNumber(lineNumber) {
             programIndex = i
-            if state != .Running {
-                doRunLoop()
-            }
+            state = .Running
         }
         else {
             abortRunWithErrorMessage("error: GOTO \(lineNumber) - no line with that number")
@@ -1044,9 +1088,7 @@ public enum InterpreterState {
         if let i = indexOfProgramLineWithNumber(lineNumber) {
             returnStack.append(programIndex)
             programIndex = i
-            if state != .Running {
-                doRunLoop()
-            }
+            state = .Running
         }
         else {
             abortRunWithErrorMessage("error: GOSUB \(lineNumber) - no line with that number")
@@ -1105,23 +1147,21 @@ public enum InterpreterState {
         }
     }
 
-    /// Starting at current program index, execute commands
-    func doRunLoop() {
-        state = .Running
-        loop: while state == .Running {
-            if programIndex >= program.count {
-                showError("error: RUN - program does not terminate with END")
-                state = .ReadingStatement
-                break loop
-            }
+    func executeNextProgramStatement() {
+        assert(state == .Running, "should only be called in Running state")
 
-            let (lineNumber, stmt) = program[programIndex]
-            if isTraceOn {
-                io.showDebugTrace(self, message: "[\(lineNumber)]")
-            }
-            ++programIndex
-            execute(stmt)
+        if programIndex >= program.count {
+            showError("error: RUN - program does not terminate with END")
+            state = .Idle
+            return
         }
+
+        let (lineNumber, stmt) = program[programIndex]
+        if isTraceOn {
+            io.showDebugTrace(self, message: "[\(lineNumber)]")
+        }
+        ++programIndex
+        execute(stmt)
     }
 
     /// Display error message and stop running
@@ -1173,51 +1213,43 @@ public enum InterpreterState {
     /// Any horizontal tab ('\t') in the input will be converted to a single space.
     ///
     /// Result may be an empty array, indicating an empty input line, not end of input.
-    func readInputLine() -> InputLine? {
-        return getInputLine {
-            switch self.io.getInputChar(self) {
-            case let .InputChar(c): return c
-            default:                return nil
-            }
-        }
+    func readInputLine() -> InputLineResult {
+        return getInputLine { self.io.getInputChar(self) }
     }
 
     /// Get a line of input, using specified function to retrieve characters.
     /// 
-    /// Return array of characters, or nil if at end of input stream.
-    ///
     /// Result does not include any non-graphic characters that were in the input stream.
     /// Any horizontal tab ('\t') in the input will be converted to a single space.
-    ///
-    /// Result may be an empty array, indicating an empty input line, not end of input.
-    func getInputLine(getChar: () -> Char?) -> InputLine? {
-        var lineBuffer = InputLine()
-
-        if var c = getChar() {
-            loop: while c != Ch_Linefeed {
-                if isGraphicChar(c) {
-                    lineBuffer.append(c)
+    func getInputLine(getChar: () -> InputCharResult) -> InputLineResult {
+        loop: while true {
+            switch getChar() {
+            case let .Value(c):
+                if c == Ch_Linefeed {
+                    let result = InputLineResult.Value(inputLineBuffer)
+                    inputLineBuffer = Array()
+                    return result
                 }
                 else if c == Ch_Tab {
                     // Convert tabs to spaces
-                    lineBuffer.append(Ch_Space)
+                    inputLineBuffer.append(Ch_Space)
+                }
+                else if isGraphicChar(c) {
+                    inputLineBuffer.append(c)
                 }
 
-                if let nextChar = getChar() {
-                    c = nextChar
+            case .EndOfStream:
+                if inputLineBuffer.count > 0 {
+                    let result = InputLineResult.Value(inputLineBuffer)
+                    inputLineBuffer = Array()
+                    return result
                 }
-                else {
-                    // Hit EOF, so return what we've read up to now
-                    break loop
-                }
+                return .EndOfStream
+
+            case .Waiting:
+                return .Waiting
             }
         }
-        else {
-            // No characters to read
-            return nil
-        }
-
-        return lineBuffer
     }
 }
 
@@ -1225,9 +1257,21 @@ public enum InterpreterState {
 // MARK: - System I/O
 
 /// Possible results for the InterpreterIO.getInputChar method
+public enum InputLineResult {
+    /// Input line
+    case Value(InputLine)
+
+    /// Reached end of input stream
+    case EndOfStream
+
+    /// No characters available now
+    case Waiting
+}
+
+/// Possible results for the InterpreterIO.getInputChar method
 public enum InputCharResult {
     /// Char
-    case InputChar(Char)
+    case Value(Char)
 
     /// Reached end of input stream
     case EndOfStream
@@ -1261,11 +1305,17 @@ public protocol InterpreterIO {
 }
 
 /// Default implementation of InterpreterIO that reads from stdin,
-/// writes to stdout, and sends error messages to stderr.
+/// writes to stdout, and sends error messages to stderr.  The
+/// BYE command will cause the process to exit with a succesful
+/// result code.
+///
+/// This implementation's `getInputChar()` will block until a
+/// character is read from standard input or end-of-stream is reached.
+/// It will never return `.Waiting`.
 public final class StandardIO: InterpreterIO {
     public func getInputChar(interpreter: Interpreter) -> InputCharResult {
         let c = getchar()
-        return c == EOF ? .EndOfStream : .InputChar(Char(c))
+        return c == EOF ? .EndOfStream : .Value(Char(c))
     }
 
     public func putOutputChar(interpreter: Interpreter, _ c: Char) {
@@ -1387,7 +1437,7 @@ struct InputPosition {
 // This allows us to write pattern-matching parsing code like this:
 //
 //     if let ((LET, v, EQ, expr), nextPos) =
-//         parse(pos, lit("LET"), variable, lit("EQ"), expression)
+//         parse(pos, lit("LET"), variable, lit("="), expression)
 //     {
 //         // do something with v, expr, and nextPos
 //         // ...

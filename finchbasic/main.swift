@@ -25,7 +25,7 @@ import Foundation
 
 func runInterpreter() {
     let interpreter = Interpreter()
-    interpreter.run()
+    interpreter.runUntilEndOfInput()
 }
 
 // Put -DUSE_INTERPRETER_THREAD=1 in Build Settings
