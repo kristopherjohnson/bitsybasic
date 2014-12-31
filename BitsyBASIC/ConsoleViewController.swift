@@ -221,9 +221,17 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     /// Queue a call to stepInterpreter()
     func scheduleInterpreter() {
         interpreterScheduled = true
-        dispatch_async(dispatch_get_main_queue()) {
-            self.stepInterpreter()
-        }
+        #if false
+            dispatch_async(dispatch_get_main_queue()) {
+                self.stepInterpreter()
+            }
+        #else
+            let timer = NSTimer.scheduledTimerWithTimeInterval(0,
+                target: self,
+                selector: "stepInterpreter",
+                userInfo: nil,
+                repeats: false)
+        #endif
     }
 
     func showCommandPrompt() {
