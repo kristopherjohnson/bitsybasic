@@ -341,8 +341,16 @@ So, if you want to implement your own control-flow statements, you probably just
 
 These fixes/changes/enhancements are planned:
 
-- Statements to read/write characters
+- Statements:
+   - `FILES`: List files that can be LOADed
+   - `CLIPSAVE`: Copy program to clipboard
+   - `CLIPLOAD`: Load program from clipboard
+   - `CLS`: clear screen (iOS only)
+- More extensive help. For example, "HELP PRINT" will display detailed information about the PRINT statement.
 - Command-line options to load files, send output to a log, suppress prompts, etc.
-- iOS app
+- iOS app:
+   - break execution
+   - iCloud Drive
+   - font size/color settings
 
 Contributions are welcome, but the goal is to keep this simple, so if you propose something really ambitious, you may be asked to create your own fork.

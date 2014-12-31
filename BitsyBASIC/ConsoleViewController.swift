@@ -31,9 +31,15 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     /// Console view
     @IBOutlet weak var textView: UITextView!
 
-    // This constraint will be updated when the keyboard appears, disappears,
-    // or changes size.
+    /// This constraint will be updated when the keyboard appears, disappears,
+    /// or changes size.
     @IBOutlet weak var bottomLayoutConstraint: NSLayoutConstraint!
+
+    /// NSAttributedString attributes used for output from the interpreter
+    var outputAttributes: NSDictionary = [:]
+
+    /// NSAttributedString attributes used for input from the user
+    var inputAttributes: NSDictionary = [:]
 
     /// FinchBasic interpreter
     var interpreter: Interpreter!
@@ -44,15 +50,14 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     /// Set true if we have queued a call to `stepInterpreter()`
     var interpreterScheduled = false
 
-
     /// Text displayed in the console
     ///
     /// Setting this property automatically updates the console display
     /// and scrolls to the bottom.
-    var consoleText: NSString = "" {
+    var consoleText: NSMutableAttributedString = NSMutableAttributedString(string: "") {
         didSet {
             if textView != nil {
-                textView.text = consoleText
+                textView.attributedText = consoleText
             }
         }
     }
@@ -60,10 +65,26 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        outputAttributes = [
+            NSForegroundColorAttributeName: textView.textColor,
+            NSFontAttributeName: textView.font
+        ]
+
+        inputAttributes = [
+            NSForegroundColorAttributeName: inputTextField.textColor,
+            NSFontAttributeName: textView.font
+        ]
+
         inputTextField.text = ""
+        inputTextField.tintColor = UIColor.whiteColor() // sets cursor color
+        inputTextField.attributedPlaceholder = NSAttributedString(
+            string: inputTextField.placeholder ?? "",
+            attributes: outputAttributes)
         inputTextField.delegate = self
 
-        consoleText = "BitsyBASIC v1.0\n© 2014 Kristopher Johnson\n\nREADY\n"
+        consoleText = NSMutableAttributedString(
+            string: "BitsyBASIC v1.0\n\nType HELP if you don't know what to do.\n\nREADY\n",
+            attributes: outputAttributes)
 
         interpreterIO = ConsoleInterpreterIO(viewController: self)
         interpreter = Interpreter(interpreterIO: interpreterIO)
@@ -117,14 +138,7 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
         let viewHeight = textView.bounds.height
         let contentHeight = textView.contentSize.height
 
-        if contentHeight > viewHeight {
-            textView.contentOffset = CGPointZero
-            let text: NSString = textView.text
-            textView.scrollRangeToVisible(NSRange(location: text.length, length: 0))
-        }
-        else {
-            textView.contentOffset = CGPointMake(0, contentHeight - viewHeight)
-        }
+        textView.contentOffset = CGPointMake(0, contentHeight - viewHeight)
     }
 
     /// Handle appearance or disappearance of keyboard
@@ -150,9 +164,19 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     }
 
     /// Append given text to the console display
-    func appendToConsoleText(s: NSString) {
-        let newConsoleText = consoleText.stringByAppendingString(s)
+    func appendToConsoleText(s: NSString, attributes: NSDictionary) {
+        let attributedString = NSMutableAttributedString(string: s, attributes: attributes)
+        let newConsoleText = NSMutableAttributedString(attributedString: consoleText)
+        newConsoleText.appendAttributedString(attributedString)
         consoleText = newConsoleText
+    }
+
+    func appendOutputToConsoleText(s: NSString) {
+        appendToConsoleText(s, attributes: outputAttributes)
+    }
+
+    func appendInputToConsoleText(s: NSString) {
+        appendToConsoleText(s, attributes: inputAttributes)
     }
 
     /// Handle Return key
@@ -161,7 +185,7 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
         textField.text = ""
         if !text.isEmpty {
             let line = text.stringByAppendingString("\n")
-            appendToConsoleText(line)
+            appendInputToConsoleText(line)
             var chars = charsFromString(line)
             interpreterIO.sendInputChars(chars)
             if !interpreterScheduled {
@@ -203,11 +227,11 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     }
 
     func showCommandPrompt() {
-        appendToConsoleText("> ")
+        appendOutputToConsoleText("> ")
     }
 
     func showInputPrompt() {
-        appendToConsoleText("? ")
+        appendOutputToConsoleText("? ")
     }
 }
 
@@ -259,7 +283,7 @@ final class ConsoleInterpreterIO: InterpreterIO {
                 length: self.outputBuffer.count,
                 encoding: NSUTF8StringEncoding)
             {
-                viewController!.appendToConsoleText(s)
+                viewController!.appendOutputToConsoleText(s)
             }
             else {
                 println("to convert chars to string")
@@ -284,18 +308,18 @@ final class ConsoleInterpreterIO: InterpreterIO {
     func showError(interpreter: Interpreter, message: String) {
         flushOutput()
         let messageWithNewline = "\(message)\n"
-        viewController!.appendToConsoleText(messageWithNewline)
+        viewController!.appendOutputToConsoleText(messageWithNewline)
     }
 
     /// Display a debug trace message
     func showDebugTrace(interpreter: Interpreter, message: String) {
         flushOutput()
-        viewController!.appendToConsoleText(message)
+        viewController!.appendOutputToConsoleText(message)
     }
 
     /// Called when BYE is executed
     func bye(interpreter: Interpreter) {
         flushOutput()
-        viewController!.appendToConsoleText("error: BYE not available in iOS")
+        viewController!.appendOutputToConsoleText("error: BYE not available in iOS")
     }
 }

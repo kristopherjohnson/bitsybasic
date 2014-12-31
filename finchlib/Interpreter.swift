@@ -1147,14 +1147,16 @@ public enum InterpreterState {
     /// Execute HELP statement
     public func HELP() {
         let lines = [
-            "FinchBasic Statements:",
+            "Enter a line number and a BASIC statement to add that statement to the program.  Enter a statement without a line number to execute it immediately.",
+            "",
+            "Statements:",
             "  BYE",
             "  CLEAR",
             "  END",
             "  GOSUB expression",
             "  GOTO expression",
             "  HELP",
-            "  IF expression relop expression THEN statement",
+            "  IF condition THEN statement",
             "  INPUT var-list",
             "  LET var = expression",
             "  LIST [firstLine, [lastLine]]",
@@ -1164,7 +1166,13 @@ public enum InterpreterState {
             "  RETURN",
             "  RUN",
             "  SAVE \"filename\"",
-            "  TRON | TROFF"
+            "  TRON | TROFF",
+            "",
+            "Example:",
+            "  10 print \"Hello, world!\"",
+            "  20 end",
+            "  list",
+            "  run"
         ]
 
         for line in lines {

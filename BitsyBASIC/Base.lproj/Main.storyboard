@@ -17,20 +17,20 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="10 PRINT &quot;Hello, world!&quot;" borderStyle="roundedRect" placeholder="Statement/command" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="kMD-La-RiN">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="10 PRINT &quot;Hello, world!&quot;" borderStyle="roundedRect" placeholder="Enter statement" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="kMD-La-RiN">
                                 <rect key="frame" x="16" y="562" width="568" height="30"/>
-                                <color key="backgroundColor" red="0.078431372549019607" green="0.070588235294117646" blue="0.047058823529411764" alpha="1" colorSpace="calibratedRGB"/>
-                                <color key="textColor" red="0.37565261125564575" green="1" blue="0.27658891677856445" alpha="1" colorSpace="calibratedRGB"/>
-                                <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="15"/>
+                                <color key="backgroundColor" red="0.23341648280620575" green="0.20346829295158386" blue="0.11301452666521072" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="textColor" red="0.99880832433700562" green="0.94172322750091553" blue="0.75635451078414917" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="17"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" enablesReturnKeyAutomatically="YES"/>
                             </textField>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Qb-1d-h3H">
                                 <rect key="frame" x="0.0" y="64" width="600" height="490"/>
-                                <color key="backgroundColor" red="0.07736600935459137" green="0.06981157511472702" blue="0.046232186257839203" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" red="0.23341648280620575" green="0.20346829295158386" blue="0.11301452666521072" alpha="1" colorSpace="calibratedRGB"/>
                                 <string key="text">10 PRINT "Hello, world!"
 20 END</string>
-                                <color key="textColor" red="0.99697762727737427" green="0.85326880216598511" blue="0.42702367901802063" alpha="1" colorSpace="calibratedRGB"/>
-                                <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="16"/>
+                                <color key="textColor" red="0.99513959884643555" green="0.76360046863555908" blue="0.15681850910186768" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="17"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
                             </textView>
                         </subviews>
