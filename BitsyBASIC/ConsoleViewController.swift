@@ -105,7 +105,10 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
             forKeyPath: "contentSize",
             options: NSKeyValueObservingOptions.New,
             context: nil)
+    }
 
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
         inputTextField.becomeFirstResponder()
     }
 
@@ -153,11 +156,13 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
         let viewFrame = self.view.frame
         let newBottomOffset = viewFrame.maxY - keyboardFrame.minY + 8
 
+        self.view.layoutIfNeeded()
         UIView.animateWithDuration(animationDuration,
             delay: 0,
             options: UIViewAnimationOptions(UInt(animationCurve << 16)),
             animations: {
                 self.bottomLayoutConstraint.constant = newBottomOffset
+                self.view.layoutIfNeeded()
             },
             completion: nil
         )
