@@ -340,10 +340,11 @@ public enum InterpreterState {
             (T_RETURN, .Return),
             (T_RT,     .Return),
             (T_RUN,    .Run   ),
-            (T_RN,     .Run   ),
             (T_END,    .End   ),
             (T_CLEAR,  .Clear ),
             (T_BYE,    .Bye   ),
+            (T_FILES,  .Files ),
+            (T_FL,     .Files ),
             (T_TRON,   .Tron  ),
             (T_TROFF,  .Troff ),
             (T_HELP,   .Help  )
@@ -812,6 +813,7 @@ public enum InterpreterState {
         case let .List(range):               LIST(range)
         case let .Save(filename):            SAVE(filename)
         case let .Load(filename):            LOAD(filename)
+        case .Files:                         FILES()
         case .Run:                           RUN()
         case .End:                           END()
         case .Clear:                         CLEAR()
@@ -1085,6 +1087,47 @@ public enum InterpreterState {
         }
     }
 
+    func FILES() {
+        // Get current working directory
+        var wdbuf: [Int8] = Array(count: Int(MAXNAMLEN), repeatedValue: 0)
+        let workingDirectory = getcwd(&wdbuf, UInt(MAXNAMLEN))
+
+        // Open the directory
+        let dir = opendir(workingDirectory)
+        if dir != nil {
+            // Use readdir to get each element
+            var dirent = readdir(dir)
+            while dirent != nil {
+                if Int32(dirent.memory.d_type) != DT_DIR {
+                    var name: [CChar] = Array()
+
+                    // dirent.d_name is defined as a tuple with
+                    // MAXNAMLEN elements.  The only way to
+                    // iterate over those elements is via
+                    // reflection
+                    //
+                    // Credit: dankogi at http://stackoverflow.com/questions/24299045/any-way-to-iterate-a-tuple-in-swift
+
+                    let d_namlen = dirent.memory.d_namlen
+                    let d_name = dirent.memory.d_name
+                    let mirror = reflect(d_name)
+                    for i in 0..<d_namlen {
+                        let (s, m) = mirror[Int(i)]
+                        name.append(m.value as Int8)
+                    }
+
+                    // null-terminate it and convert to a String
+                    name.append(0)
+                    if let s = String.fromCString(name) {
+                        writeOutput("\(s)\n")
+                    }
+                }
+                dirent = readdir(dir)
+            }
+            closedir(dir)
+        }
+    }
+
     /// Execute RUN statement
     func RUN() {
         if program.count == 0 {
@@ -1154,12 +1197,13 @@ public enum InterpreterState {
     /// Execute HELP statement
     public func HELP() {
         let lines = [
-            "Enter a line number and a BASIC statement to add that statement to the program.  Enter a statement without a line number to execute it immediately.",
+            "Enter a line number and a BASIC statement to add it to the program.  Enter a statement without a line number to execute it immediately.",
             "",
             "Statements:",
             "  BYE",
             "  CLEAR",
             "  END",
+            "  FILES",
             "  GOSUB expression",
             "  GOTO expression",
             "  HELP",

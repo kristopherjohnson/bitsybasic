@@ -57,6 +57,8 @@ let T_BYE            = "BYE"
 let T_CLEAR          = "CLEAR"
 let T_DIM            = "DIM"
 let T_END            = "END"
+let T_FILES          = "FILES"
+let T_FL             = "FL"
 let T_GOSUB          = "GOSUB"
 let T_GOTO           = "GOTO"
 let T_GT             = "GT"
@@ -74,7 +76,6 @@ let T_PR             = "PR"
 let T_PRINT          = "PRINT"
 let T_REM            = "REM"
 let T_RETURN         = "RETURN"
-let T_RN             = "RN"
 let T_RND            = "RND"
 let T_RT             = "RT"
 let T_RUN            = "RUN"
@@ -158,6 +159,9 @@ enum Statement {
     /// "LOAD" filenamestring
     case Load(String)
 
+    /// "FILES"
+    case Files
+
     /// "TRON"
     case Tron
 
@@ -223,6 +227,9 @@ enum Statement {
         case let .Load(filename):
             return "\(T_LOAD) \"\(filename)\""
 
+        case let .Files:
+            return T_FILES
+            
         case .Tron:
             return T_TRON
 

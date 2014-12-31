@@ -34,15 +34,15 @@ To run the interpreter and enter commands, do this:
 
     finchbasic
 
-If you want to "load a program" into `finchbasic` and run it from the command line, you can do something like this:
+If you want to load a program into `finchbasic` and run it from the command line, you can do something like this:
 
     finchbasic < myprogram.basic
 
-If you want to "load a program" interactively, you can do this:
+If you want to load a program interactively, you can do this:
 
     finchbasic
-    : load "myprogram.basic"
-    : run
+    >load "myprogram.basic"
+    >run
 
 `finchbasic` expects input to be a list of BASIC statements. If a line starts with a line number, then the line is added to the program stored in memory, overwriting any existing line with that same line number. If a line does not start with a line number, then it is executed immediately.
 
@@ -91,6 +91,7 @@ FinchBasic supports this syntax:
                   LIST (ε|expr (ε|(, expr)))
                   SAVE string
                   LOAD string
+                  FILES
                   RUN
                   REM comment | ' comment
                   TRON
@@ -128,9 +129,9 @@ Abbreviations can be used when typing some of the keywords:
 - `GOSUB`: `GS`
 - `RETURN`: `RT`
 - `LIST`: `LS`
-- `RUN`: `RN`
 - `SAVE`: `SV`
 - `LOAD`: `LD`
+- `FILES`: `FL`
 
 Most of these statements and expressions have the traditional Tiny BASIC behaviors, which are described elsewhere.  What follows are some peculiarities of the FinchBasic implementation:
 
@@ -245,7 +246,18 @@ This is typically used to read a program from a file.  For example, if the file 
 
 However, the file need not contain only numbered program lines. It can contain commands to be executed immediately.
 
+By default, files will be loaded from the program's current working directory, but you can provide a path to files outside that directory.  For example:
+
+    load "/Users/kdj/basic/example.bas"
+
 You should use the `CLEAR` command before `LOAD` if you want to avoid the possibility of merging incompatible program lines into an existing program.
+
+
+**FILES**
+
+The **FILES** command displays the names of files in the current directory.
+
+These files can be loaded by using the `LOAD` command. Note, however, that the output of `FILES` may include files that are not valid BASIC programs.
 
 
 **TRON/TROFF**
@@ -342,7 +354,6 @@ So, if you want to implement your own control-flow statements, you probably just
 These fixes/changes/enhancements are planned:
 
 - Statements:
-   - `FILES`: List files that can be LOADed
    - `CLIPSAVE`: Copy program to clipboard
    - `CLIPLOAD`: Load program from clipboard
    - `CLS`: clear screen (iOS only)
@@ -350,7 +361,7 @@ These fixes/changes/enhancements are planned:
 - Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app:
    - break execution
-   - iCloud Drive
+   - LOAD/SAVE using iCloud Drive
    - font size/color settings
 
 Contributions are welcome, but the goal is to keep this simple, so if you propose something really ambitious, you may be asked to create your own fork.
