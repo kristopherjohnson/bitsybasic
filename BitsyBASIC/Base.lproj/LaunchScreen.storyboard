@@ -15,7 +15,7 @@
                     <view key="view" contentMode="scaleToFill" id="yqU-rX-mmz">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.23341648279999999" green="0.20346829299999999" blue="0.11301452670000001" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
                     <navigationItem key="navigationItem" title="Console" id="LnE-RZ-AHR"/>
                 </viewController>
@@ -42,4 +42,5 @@
             <point key="canvasLocation" x="220" y="143"/>
         </scene>
     </scenes>
+    <color key="tintColor" red="0.174165278673172" green="0.15197394788265228" blue="0.084881797432899475" alpha="1" colorSpace="calibratedRGB"/>
 </document>
