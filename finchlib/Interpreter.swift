@@ -253,7 +253,7 @@ public enum InterpreterState {
         // "LET" lvalue = expression
         // lvalue = expression
         if let (LET, v, EQ, expr, nextPos) =
-            parse(pos, optLit(T_LET), lvalue, lit(T_Equal), expression)
+            pos.parse(optLit(T_LET), lvalue, lit(T_Equal), expression)
         {
             return (.Let(v, expr), nextPos)
         }
@@ -261,14 +261,14 @@ public enum InterpreterState {
         // "INPUT" lvalueList
         // "IN" lvalueList
         if let (INPUT, lvalues, nextPos) =
-            parse(pos, oneOfLit(T_INPUT, T_IN), lvalueList)
+            pos.parse(oneOfLit(T_INPUT, T_IN), lvalueList)
         {
             return (.Input(lvalues), nextPos)
         }
 
         // "DIM @(" expr ")"
         if let (DIM, AT, LPAREN, expr, RPAREN, nextPos) =
-            parse(pos, lit(T_DIM), lit(T_At), lit(T_LParen), expression, lit(T_RParen))
+            pos.parse(lit(T_DIM), lit(T_At), lit(T_LParen), expression, lit(T_RParen))
         {
             return (.DimArray(expr), nextPos)
         }
@@ -276,21 +276,21 @@ public enum InterpreterState {
         // "IF" lhs relop rhs "THEN" statement
         // "IF" lhs relop rhs statement
         if let (IF, lhs, op, rhs, THEN, stmt, nextPos) =
-            parse(pos, lit(T_IF), expression, relop, expression, optLit(T_THEN), statement)
+            pos.parse(lit(T_IF), expression, relop, expression, optLit(T_THEN), statement)
         {
             return (.If(lhs, op, rhs, Box(stmt)), nextPos)
         }
 
         // "GOTO" expression
         if let (GOTO, expr, nextPos) =
-            parse(pos, oneOfLit(T_GOTO, T_GT), expression)
+            pos.parse(oneOfLit(T_GOTO, T_GT), expression)
         {
             return (.Goto(expr), nextPos)
         }
 
         // "GOSUB" expression
         if let (GOSUB, expr, nextPos) =
-            parse(pos, oneOfLit(T_GOSUB, T_GS), expression)
+            pos.parse(oneOfLit(T_GOSUB, T_GS), expression)
         {
             return (.Gosub(expr), nextPos)
         }
@@ -298,7 +298,7 @@ public enum InterpreterState {
         // "REM" commentstring
         // "'" commentstring
         if let (REM, comment, nextPos) =
-            parse(pos, oneOfLit(T_REM, T_Tick), remainderOfLine)
+            pos.parse(oneOfLit(T_REM, T_Tick), remainderOfLine)
         {
             return (.Rem(comment), nextPos)
         }
@@ -307,12 +307,12 @@ public enum InterpreterState {
         // "LIST" expression
         // "LIST" expression "," expression
         if let (LIST, from, COMMA, to, nextPos) =
-            parse(pos, oneOfLit(T_LIST, T_LS), expression, lit(T_Comma), expression)
+            pos.parse(oneOfLit(T_LIST, T_LS), expression, lit(T_Comma), expression)
         {
             return (.List(.Range(from, to)), nextPos)
         }
         else if let (LIST, lineNumber, nextPos) =
-            parse(pos, oneOfLit(T_LIST, T_LS), expression)
+            pos.parse(oneOfLit(T_LIST, T_LS), expression)
         {
             return (.List(.SingleLine(lineNumber)), nextPos)
         }
@@ -323,14 +323,14 @@ public enum InterpreterState {
 
         // "SAVE" filenamestring
         if let (SAVE, filename, nextPos) =
-            parse(pos, oneOfLit(T_SAVE, T_SV), stringLiteral)
+            pos.parse(oneOfLit(T_SAVE, T_SV), stringLiteral)
         {
             return (.Save(stringFromChars(filename)), nextPos)
         }
 
         // "LOAD" filenamestring
         if let (LOAD, filename, nextPos) =
-            parse(pos, oneOfLit(T_LOAD, T_LD), stringLiteral)
+            pos.parse(oneOfLit(T_LOAD, T_LD), stringLiteral)
         {
             return (.Load(stringFromChars(filename)), nextPos)
         }
@@ -434,13 +434,13 @@ public enum InterpreterState {
     /// Returns Expression and position of next character if successful.  Returns nil if not.
     func expression(pos: InputPosition) -> (Expression, InputPosition)? {
         if let (PLUS, uexpr, nextPos) =
-            parse(pos, lit(T_Plus), unsignedExpression)
+            pos.parse(lit(T_Plus), unsignedExpression)
         {
             return (.Plus(uexpr), nextPos)
         }
 
         if let (MINUS, uexpr, nextPos) =
-            parse(pos, lit(T_Minus), unsignedExpression)
+            pos.parse(lit(T_Minus), unsignedExpression)
         {
             return (.Minus(uexpr), nextPos)
         }
@@ -460,14 +460,14 @@ public enum InterpreterState {
 
             // If followed by "+", then it's addition
             if let (PLUS, uexpr, afterExpr) =
-                parse(afterTerm, lit(T_Plus), unsignedExpression)
+                afterTerm.parse(lit(T_Plus), unsignedExpression)
             {
                 return (.Compound(t, ArithOp.Add, Box(uexpr)), afterExpr)
             }
 
             // If followed by "-", then it's subtraction
             if let (MINUS, uexpr, afterExpr) =
-                parse(afterTerm, lit(T_Minus), unsignedExpression)
+                afterTerm.parse(lit(T_Minus), unsignedExpression)
             {
                 return (.Compound(t, ArithOp.Subtract, Box(uexpr)), afterExpr)
             }
@@ -487,14 +487,14 @@ public enum InterpreterState {
 
             // If followed by "*", then it's a product
             if let (MULT, t, afterTerm) =
-                parse(afterFact, lit(T_Asterisk), term)
+                afterFact.parse(lit(T_Asterisk), term)
             {
                 return (.Compound(fact, ArithOp.Multiply, Box(t)), afterTerm)
             }
 
             // If followed by "/", then it's a quotient
             if let (DIV, t, afterTerm) =
-                parse(afterFact, lit(T_Slash), term)
+                afterFact.parse(lit(T_Slash), term)
             {
                 return (.Compound(fact, ArithOp.Divide, Box(t)), afterTerm)
             }
@@ -515,21 +515,21 @@ public enum InterpreterState {
 
         // "RND(" expression ")"
         if let (RND, LPAREN, expr, RPAREN, nextPos) =
-            parse(pos, lit(T_RND), lit(T_LParen), expression, lit(T_RParen))
+            pos.parse(lit(T_RND), lit(T_LParen), expression, lit(T_RParen))
         {
             return (.Rnd(Box(expr)), nextPos)
         }
 
         // "(" expression ")"
         if let (LPAREN, expr, RPAREN, nextPos) =
-            parse(pos, lit(T_LParen), expression, lit(T_RParen))
+            pos.parse(lit(T_LParen), expression, lit(T_RParen))
         {
             return (.ParenExpr(Box(expr)), nextPos)
         }
 
         // "@(" expression ")"
         if let (AT, LPAREN, expr, RPAREN, nextPos) =
-            parse(pos, lit(T_At), lit(T_LParen), expression, lit(T_RParen))
+            pos.parse(lit(T_At), lit(T_LParen), expression, lit(T_RParen))
         {
             return (.ArrayElement(Box(expr)), nextPos)
         }
@@ -690,7 +690,7 @@ public enum InterpreterState {
         }
 
         if let (AT, LPAREN, expr, RPAREN, nextPos) =
-            parse(pos, lit(T_At), lit(T_LParen), expression, lit(T_RParen))
+            pos.parse(lit(T_At), lit(T_LParen), expression, lit(T_RParen))
         {
             return (.ArrayElement(expr), nextPos)
         }
@@ -904,7 +904,7 @@ public enum InterpreterState {
                         }
                     }
                     else if let (COMMA, num, after) =
-                        parse(pos, lit(T_Comma), inputExpression)
+                        pos.parse(lit(T_Comma), inputExpression)
                     {
                         assignToLvalue(lvalue, number: num)
                         pos = after
@@ -948,12 +948,12 @@ public enum InterpreterState {
         }
 
         // "+" number
-        if let (PLUS, num, nextPos) = parse(pos, lit(T_Plus), numberLiteral) {
+        if let (PLUS, num, nextPos) = pos.parse(lit(T_Plus), numberLiteral) {
             return (num, nextPos)
         }
 
         // "-" number
-        if let (MINUS, num, nextPos) = parse(pos, lit(T_Minus), numberLiteral) {
+        if let (MINUS, num, nextPos) = pos.parse(lit(T_Minus), numberLiteral) {
             return (-num, nextPos)
         }
 
@@ -1506,155 +1506,161 @@ struct InputPosition {
         }
         return InputPosition(input, i)
     }
-}
+
+    // MARK: - Parsing
+
+    // The parse() methods take a starting position and a sequence
+    // of "parsing functions" to apply in order.
+    //
+    // Each parsing function takes an `InputPosition` and returns a
+    // `(T, InputPosition)?` pair, where `T` is the type of data
+    // parsed.  The parsing function returns `nil` if it cannot parse
+    // the element it is looking for at that position.
+    //
+    // `parse()` returns a tuple containing all the parsed elements
+    // and the following `InputPosition`.
+    //
+    // This allows us to write pattern-matching parsing code like this:
+    //
+    //     if let ((LET, v, EQ, expr), nextPos) =
+    //         pos.parse(lit("LET"), variable, lit("="), expression)
+    //     {
+    //         // do something with v, expr, and nextPos
+    //         // ...
+    //     }
+    //
+    // which is equivalent to this:
+    //
+    //     if let (_, afterLet) = lit("LET")(pos) {
+    //         if let (v, afterVar) = variable(afterLet) {
+    //             if (_, afterEq) = lit("EQ")(afterVar) {
+    //                 if (expr, nextPos) = expression(afterEq) {
+    //                     // do something with v, expr, and nextPos
+    //                     // ...
+    //                 }
+    //             }
+    //         }
+    //     }
+    //
+    // where `lit(String)`, `variable`, and `expression` are
+    // functions that take an `InputPosition` and return an Optional
+    // pair `(T, InputPosition)?`
+    //
+    // Note: These functions were originally defined in a separate source
+    // file, but the Swift optimizer generated invalid code.  The workaround
+    // was to move the definitions into this file.  For more information,
+    // see http://www.openradar.me/19349390
+    // and https://twitter.com/jckarter/status/548582743240900609
 
 
-// MARK: - Parsing helpers
-
-// The parse() functions take a starting position and a sequence
-// of "parsing functions" to apply in order.
-//
-// Each parsing function takes an `InputPosition` and returns a
-// `(T, InputPosition)?` pair, where `T` is the type of data
-// parsed.  The parsing function returns `nil` if it cannot parse
-// the element it is looking for at that position.
-//
-// `parse()` returns a tuple containing all the parsed elements
-// and the following `InputPosition`.
-//
-// This allows us to write pattern-matching parsing code like this:
-//
-//     if let ((LET, v, EQ, expr), nextPos) =
-//         parse(pos, lit("LET"), variable, lit("="), expression)
-//     {
-//         // do something with v, expr, and nextPos
-//         // ...
-//     }
-//
-// which is equivalent to this:
-//
-//     if let (_, afterLet) = lit("LET")(pos) {
-//         if let (v, afterVar) = variable(afterLet) {
-//             if (_, afterEq) = lit("EQ")(afterVar) {
-//                 if (expr, nextPos) = expression(afterEq) {
-//                     // do something with v, expr, and nextPos
-//                     // ...
-//                 }
-//             }
-//         }
-//     }
-//
-// where `lit(String)`, `variable`, and `expression` are
-// functions that take an `InputPosition` and return an Optional
-// pair `(T, InputPosition)?`
-//
-// Note: These functions were originally defined in a separate source
-// file, but the Swift optimizer generated invalid code.  The workaround
-// was to move the definitions into this file.  For more information,
-// see http://www.openradar.me/19349390
-// and https://twitter.com/jckarter/status/548582743240900609
-
-/// Parse two elements using parsing functions, returning the elements and next input position
-func parse<A, B> (
-    position: InputPosition,
-    a: (InputPosition) -> (A, InputPosition)?,
-    b: (InputPosition) -> (B, InputPosition)?) -> (A, B, InputPosition)?
-{
-    if let (a, afterA) = a(position) {
-        if let (b, afterB) = b(afterA) {
-            return (a, b, afterB)
+    /// Parse an element using parsing functions, returning the elements and next input position
+    func parse<A> (
+        a: (InputPosition) -> (A, InputPosition)?) -> (A, InputPosition)?
+    {
+        if let (a, afterA) = a(self) {
+            return (a, afterA)
         }
+        return nil
     }
-    return nil
-}
 
-/// Parse three elements using parsing functions, returning the elements and next input position
-func parse<A, B, C> (
-    position: InputPosition,
-    a: (InputPosition) -> (A, InputPosition)?,
-    b: (InputPosition) -> (B, InputPosition)?,
-    c: (InputPosition) -> (C, InputPosition)?) -> (A, B, C, InputPosition)?
-{
-    if let (a, afterA) = a(position) {
-        if let (b, afterB) = b(afterA) {
-            if let (c, afterC) = c(afterB) {
-                return (a, b, c, afterC)
+    /// Parse two elements using parsing functions, returning the elements and next input position
+    func parse<A, B> (
+        a: (InputPosition) -> (A, InputPosition)?,
+        b: (InputPosition) -> (B, InputPosition)?) -> (A, B, InputPosition)?
+    {
+        if let (a, afterA) = a(self) {
+            if let (b, afterB) = b(afterA) {
+                return (a, b, afterB)
             }
         }
+        return nil
     }
 
-    return nil
-}
-
-/// Parse four elements using parsing functions, returning the elements and next input position
-func parse<A, B, C, D> (
-    position: InputPosition,
-    a: (InputPosition) -> (A, InputPosition)?,
-    b: (InputPosition) -> (B, InputPosition)?,
-    c: (InputPosition) -> (C, InputPosition)?,
-    d: (InputPosition) -> (D, InputPosition)?) -> (A, B, C, D, InputPosition)?
-{
-    if let (a, afterA) = a(position) {
-        if let (b, afterB) = b(afterA) {
-            if let (c, afterC) = c(afterB) {
-                if let (d, afterD) = d(afterC) {
-                    return (a, b, c, d, afterD)
+    /// Parse three elements using parsing functions, returning the elements and next input position
+    func parse<A, B, C> (
+        a: (InputPosition) -> (A, InputPosition)?,
+        b: (InputPosition) -> (B, InputPosition)?,
+        c: (InputPosition) -> (C, InputPosition)?) -> (A, B, C, InputPosition)?
+    {
+        if let (a, afterA) = a(self) {
+            if let (b, afterB) = b(afterA) {
+                if let (c, afterC) = c(afterB) {
+                    return (a, b, c, afterC)
                 }
             }
         }
+
+        return nil
     }
 
-    return nil
-}
-
-/// Parse five elements using parsing functions, returning the elements and next input position
-func parse<A, B, C, D, E> (
-    position: InputPosition,
-    a: (InputPosition) -> (A, InputPosition)?,
-    b: (InputPosition) -> (B, InputPosition)?,
-    c: (InputPosition) -> (C, InputPosition)?,
-    d: (InputPosition) -> (D, InputPosition)?,
-    e: (InputPosition) -> (E, InputPosition)?) -> (A, B, C, D, E, InputPosition)?
-{
-    if let (a, afterA) = a(position) {
-        if let (b, afterB) = b(afterA) {
-            if let (c, afterC) = c(afterB) {
-                if let (d, afterD) = d(afterC) {
-                    if let (e, afterE) = e(afterD) {
-                        return (a, b, c, d, e, afterE)
+    /// Parse four elements using parsing functions, returning the elements and next input position
+    func parse<A, B, C, D> (
+        a: (InputPosition) -> (A, InputPosition)?,
+        b: (InputPosition) -> (B, InputPosition)?,
+        c: (InputPosition) -> (C, InputPosition)?,
+        d: (InputPosition) -> (D, InputPosition)?) -> (A, B, C, D, InputPosition)?
+    {
+        if let (a, afterA) = a(self) {
+            if let (b, afterB) = b(afterA) {
+                if let (c, afterC) = c(afterB) {
+                    if let (d, afterD) = d(afterC) {
+                        return (a, b, c, d, afterD)
                     }
                 }
             }
         }
+
+        return nil
     }
 
-    return nil
-}
-
-/// Parse six elements using parsing functions, returning the elements and next input position
-func parse<A, B, C, D, E, F> (
-    position: InputPosition,
-    a: (InputPosition) -> (A, InputPosition)?,
-    b: (InputPosition) -> (B, InputPosition)?,
-    c: (InputPosition) -> (C, InputPosition)?,
-    d: (InputPosition) -> (D, InputPosition)?,
-    e: (InputPosition) -> (E, InputPosition)?,
-    f: (InputPosition) -> (F, InputPosition)?) -> (A, B, C, D, E, F, InputPosition)?
-{
-    if let (a, afterA) = a(position) {
-        if let (b, afterB) = b(afterA) {
-            if let (c, afterC) = c(afterB) {
-                if let (d, afterD) = d(afterC) {
-                    if let (e, afterE) = e(afterD) {
-                        if let (f, afterF) = f(afterE) {
-                            return (a, b, c, d, e, f, afterF)
+    /// Parse five elements using parsing functions, returning the elements and next input position
+    func parse<A, B, C, D, E> (
+        a: (InputPosition) -> (A, InputPosition)?,
+        b: (InputPosition) -> (B, InputPosition)?,
+        c: (InputPosition) -> (C, InputPosition)?,
+        d: (InputPosition) -> (D, InputPosition)?,
+        e: (InputPosition) -> (E, InputPosition)?) -> (A, B, C, D, E, InputPosition)?
+    {
+        if let (a, afterA) = a(self) {
+            if let (b, afterB) = b(afterA) {
+                if let (c, afterC) = c(afterB) {
+                    if let (d, afterD) = d(afterC) {
+                        if let (e, afterE) = e(afterD) {
+                            return (a, b, c, d, e, afterE)
                         }
                     }
                 }
             }
         }
+
+        return nil
     }
 
-    return nil
+    /// Parse six elements using parsing functions, returning the elements and next input position
+    func parse<A, B, C, D, E, F> (
+        a: (InputPosition) -> (A, InputPosition)?,
+        b: (InputPosition) -> (B, InputPosition)?,
+        c: (InputPosition) -> (C, InputPosition)?,
+        d: (InputPosition) -> (D, InputPosition)?,
+        e: (InputPosition) -> (E, InputPosition)?,
+        f: (InputPosition) -> (F, InputPosition)?) -> (A, B, C, D, E, F, InputPosition)?
+    {
+        if let (a, afterA) = a(self) {
+            if let (b, afterB) = b(afterA) {
+                if let (c, afterC) = c(afterB) {
+                    if let (d, afterD) = d(afterC) {
+                        if let (e, afterE) = e(afterD) {
+                            if let (f, afterF) = f(afterE) {
+                                return (a, b, c, d, e, f, afterF)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return nil
+    }
 }
+
 
