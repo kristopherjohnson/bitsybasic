@@ -817,7 +817,7 @@ class finchlibTests: XCTestCase {
             "50  g s 200"                             ,
             "60  r t"                                 ,
             "70  l s"                                 ,
-            "80  r n"                                 ,
+            "80  f l "                                ,
             "90  s v \"foo.bas\""                     ,
             "100  l d \"foo.bas\""                    ,
             "list",
@@ -834,7 +834,7 @@ class finchlibTests: XCTestCase {
             "50 GOSUB 200"                      ,
             "60 RETURN"                         ,
             "70 LIST"                           ,
-            "80 RUN"                            ,
+            "80 FILES"                          ,
             "90 SAVE \"foo.bas\""               ,
             "100 LOAD \"foo.bas\""              ,
             ""
