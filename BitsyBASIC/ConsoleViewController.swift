@@ -65,18 +65,25 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        if let consoleBackgroundPattern = UIImage(named: "ConsoleBackgroundPattern") {
+            let patternColor = UIColor(patternImage: consoleBackgroundPattern)
+            textView.backgroundColor = patternColor
+        }
+
         outputAttributes = [
             NSForegroundColorAttributeName: textView.textColor,
-            NSFontAttributeName: textView.font
+            NSFontAttributeName: textView.font,
+            NSBackgroundColorAttributeName: UIColor.clearColor()
         ]
 
         inputAttributes = [
             NSForegroundColorAttributeName: inputTextField.textColor,
-            NSFontAttributeName: textView.font
+            NSFontAttributeName: textView.font,
+            NSBackgroundColorAttributeName: UIColor.clearColor()
         ]
 
         inputTextField.text = ""
-        inputTextField.tintColor = UIColor.whiteColor() // sets cursor color
+        inputTextField.tintColor = UIColor.whiteColor()
         inputTextField.attributedPlaceholder = NSAttributedString(
             string: inputTextField.placeholder ?? "",
             attributes: outputAttributes)
