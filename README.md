@@ -305,6 +305,7 @@ Running `xcodebuild` with no arguments builds the `finchbasic` scheme, which is 
 - `finchlib` builds an OS X Cocoa framework containing all of the FinchBasic code and a unit test bundle. This is the scheme used most often for development.  See the `finchlibTests.swift` file for the unit tests.
 - `finchlib_Release` is like `finchlib`, but uses the Release configuration instead of Debug for unit tests and other tasks.  Use this profile to verify that code correctly when built with Swift compiler optimization enabled.
 - `BitsyBASIC` is an iOS app that presents a console-like display and runs the FinchBasic interpreter. This app currently runs fine in the iOS Simulator, but crashes when run on an actual device.
+- `finchlib_cpp` is a translation of the Swift code in `finchlib` to Objective-C and C++. This is used by `BitsyBASIC` to work around bugs in the Swift compiler and/or run-time library.
 
 
 ### Parsing and Evaluation
@@ -362,6 +363,5 @@ These fixes/changes/enhancements are planned:
 - iOS app:
    - break execution
    - LOAD/SAVE using iCloud Drive
-   - font size/color settings
 
 Contributions are welcome, but the goal is to keep this simple, so if you propose something really ambitious, you may be asked to create your own fork.

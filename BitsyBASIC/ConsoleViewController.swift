@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2014 Kristopher Johnson
+Copyright (c) 2014, 2015 Kristopher Johnson
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -21,6 +21,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+import Foundation
 import UIKit
 
 final class ConsoleViewController: UIViewController, UITextFieldDelegate {
@@ -196,9 +197,9 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
         let text = textField.text
         textField.text = ""
         if !text.isEmpty {
-            let line = text.stringByAppendingString("\n")
+            let line: NSString = text.stringByAppendingString("\n")
             appendInputToConsoleText(line)
-            var chars = charsFromString(line)
+            let chars = charsFromString(line)
             interpreterIO.sendInputChars(chars)
             if !interpreterScheduled {
                 scheduleInterpreter()
@@ -220,13 +221,18 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
         interpreterScheduled = false
         interpreter.next()
 
-        switch interpreter.state {
+        let state = interpreter.state()
+        switch state {
         case .Idle, .Running:
             scheduleInterpreter()
+
         case .ReadingStatement, .ReadingInput:
             if interpreterIO.inputBuffer.count > 0 {
                 scheduleInterpreter()
             }
+
+        default:
+            assert(false, "unhandled interpreter state value \(state)")
         }
     }
 
@@ -256,7 +262,7 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
 }
 
 /// Interface between the BASIC interpreter and ConsoleViewController
-final class ConsoleInterpreterIO: InterpreterIO {
+@objc final class ConsoleInterpreterIO: NSObject, InterpreterIO {
     weak var viewController: ConsoleViewController?
 
     var inputBuffer: [Char] = Array()
@@ -270,9 +276,9 @@ final class ConsoleInterpreterIO: InterpreterIO {
 
     /// Return next input character for the interpreter,
     /// or nil if at end-of-file or an error occurs.
-    func getInputChar(interpreter: Interpreter) -> InputCharResult {
+    func getInputCharForInterpreter(interpreter: Interpreter!) -> InputCharResult {
         if inputIndex < inputBuffer.count {
-            let result: InputCharResult = .Value(inputBuffer[inputIndex])
+            let result: InputCharResult = InputCharResult_Value(inputBuffer[inputIndex])
             ++inputIndex
             if inputIndex == inputBuffer.count {
                 inputBuffer = Array()
@@ -281,7 +287,7 @@ final class ConsoleInterpreterIO: InterpreterIO {
             return result
         }
 
-        return .Waiting
+        return InputCharResult_Waiting()
     }
 
     /// Send characters from the console to the interpreter
@@ -290,9 +296,9 @@ final class ConsoleInterpreterIO: InterpreterIO {
     }
 
     /// Write specified output character
-    func putOutputChar(interpreter: Interpreter, _ c: Char) {
+    func putOutputChar(c: Char, forInterpreter interpreter: Interpreter!) {
         outputBuffer.append(c)
-        if c == Ch_Linefeed || outputBuffer.count >= 40 {
+        if c == 10 || outputBuffer.count >= 40 {
             flushOutput()
         }
     }
@@ -313,33 +319,38 @@ final class ConsoleInterpreterIO: InterpreterIO {
     }
 
     /// Display a prompt to the user for entering an immediate command or line of code
-    func showCommandPrompt(interpreter: Interpreter) {
+    func showCommandPromptForInterpreter(interpreter: Interpreter!) {
         flushOutput()
         viewController!.showCommandPrompt()
     }
 
     /// Display a prompt to the user for entering data for an INPUT statement
-    func showInputPrompt(interpreter: Interpreter) {
+    func showInputPromptForInterpreter(interpreter: Interpreter!) {
         flushOutput()
         viewController!.showInputPrompt()
     }
 
     /// Display error message to user
-    func showError(interpreter: Interpreter, message: String) {
+    func showErrorMessage(message: String!, forInterpreter interpreter: Interpreter!) {
         flushOutput()
         let messageWithNewline = "\(message)\n"
         viewController!.appendOutputToConsoleText(messageWithNewline)
     }
 
     /// Display a debug trace message
-    func showDebugTrace(interpreter: Interpreter, message: String) {
+    func showDebugTraceMessage(message: String!, forInterpreter interpreter: Interpreter!) {
         flushOutput()
         viewController!.appendOutputToConsoleText(message)
     }
 
     /// Called when BYE is executed
-    func bye(interpreter: Interpreter) {
+    func byeForInterpreter(interpreter: Interpreter!) {
         flushOutput()
         viewController!.appendOutputToConsoleText("error: BYE not available in iOS")
     }
+}
+
+/// Given a string, return array of Chars
+public func charsFromString(s: String) -> [UInt8] {
+    return Array(s.utf8)
 }

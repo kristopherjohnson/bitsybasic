@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2014 Kristopher Johnson
+Copyright (c) 2014, 2015 Kristopher Johnson
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -77,12 +77,10 @@ func toUpper(c: Char) -> Char {
     }
 }
 
-/// Given array of Char, return a null-terminated array of CChar
+/// Given array of Char (UInt8), return a null-terminated array of CChar (Int8)
 public func cStringFromChars(chars: [Char]) -> [CChar] {
-    var cchars: [CChar] = Array(count: chars.count + 1, repeatedValue: 0)
-    for i in 0..<chars.count {
-        cchars[i] = CChar(chars[i])
-    }
+    var cchars: [CChar] = chars.map { CChar(bitPattern: $0) }
+    cchars.append(0)
     return cchars
 }
 

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2014 Kristopher Johnson
+Copyright (c) 2014, 2015 Kristopher Johnson
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -24,16 +24,73 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import Foundation
 import XCTest
 
-#if os(iOS)
+// This source file is used by finchlibTests, BitsyBASICTests, and finchlib_cppTests.
+// We use preprocessor directives when necessary to treat the cases differently.
+#if FINCHLIB_CPP
+    import finchlib_cpp
+#elseif os(iOS)
     import BitsyBASIC
 #else
     import finchlib
 #endif
 
 
+/// Given array of Char, return a null-terminated array of CChar
+func cStringFromChars(chars: [Char]) -> [CChar] {
+    var cchars: [CChar] = Array(count: chars.count + 1, repeatedValue: 0)
+    for i in 0..<chars.count {
+        cchars[i] = CChar(chars[i])
+    }
+    return cchars
+}
+
+/// Given array of Char, return a String
+func stringFromChars(chars: [Char]) -> String {
+    let cString = cStringFromChars(chars)
+    if let result = String.fromCString(cString) {
+        return result
+    }
+
+    // This will only happen if String.fromCString() fails, which
+    // should never happen unless the input string contains invalid
+    // UTF8
+    assert(false, "unable to convert 8-bit characters to String")
+    return ""
+}
+
+
+/// Given list of strings, produce single string with newlines between those strings
+public func lines(strings: String...) -> String {
+    return "\n".join(strings)
+}
+
+/// Given list of strings, produce single string with newlines between those strings
+public func lines(strings: [String]) -> String {
+    return "\n".join(strings)
+}
+
+/// Find difference between two strings.  Returns empty string if no difference.
+func describeDifference(s1: String, s2: String) -> String {
+    let c1 = Array<UInt8>(s1.utf8)
+    let c2 = Array<UInt8>(s2.utf8)
+
+    if c1.count != c2.count {
+        return "Element count differs: s1.count = \(c1.count), s2.count = \(c2.count)"
+    }
+
+    for (i, c) in enumerate(c1) {
+        if c != c2[i] {
+            return "Strings differ at index \(i)"
+        }
+    }
+
+    return ""
+}
+
+
 /// Implementation of InterpreterIO that uses strings for
 /// input and output.  Useful for unit tests.
-class StringIO: InterpreterIO {
+class StringIO: NSObject, InterpreterIO {
     /// Characters to be returned by getInputChar()
     var inputChars: [Char] = []
 
@@ -76,35 +133,44 @@ class StringIO: InterpreterIO {
         return ""
     }
 
-    func getInputChar(interpreter: Interpreter) -> InputCharResult {
+    func getInputCharForInterpreter(interpreter: Interpreter) -> InputCharResult {
         if inputIndex < inputChars.count {
-            return .Value(inputChars[inputIndex++])
+            let value = inputChars[inputIndex++]
+            #if FINCHLIB_CPP || os(iOS)
+                return InputCharResult_Value(value)
+            #else
+                return .Value(value)
+            #endif
         }
 
+    #if FINCHLIB_CPP || os(iOS)
+        return InputCharResult_EndOfStream()
+    #else
         return .EndOfStream
+    #endif
     }
 
-    func putOutputChar(interpreter: Interpreter, _ c: Char) {
+    func putOutputChar(c: Char, forInterpreter interpreter: Interpreter) {
         outputChars.append(c)
     }
 
-    func showCommandPrompt(interpreter: Interpreter) {
+    func showCommandPromptForInterpreter(interpreter: Interpreter) {
         // does nothing
     }
 
-    func showInputPrompt(interpreter: Interpreter) {
+    func showInputPromptForInterpreter(interpreter: Interpreter) {
         ++inputPromptCount
     }
 
-    func showError(interpreter: Interpreter, message: String) {
+    func showErrorMessage(message: String, forInterpreter interpreter: Interpreter) {
         errors.append(message)
     }
 
-    func showDebugTrace(interpreter: Interpreter, message: String) {
+    func showDebugTraceMessage(message: String, forInterpreter interpreter: Interpreter) {
         // does nothing
     }
 
-    func bye(interpreter: Interpreter) {
+    func byeForInterpreter(interpreter: Interpreter) {
         ++byeCount
     }
 }
@@ -366,7 +432,7 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected lines")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testRun() {
@@ -443,7 +509,7 @@ class finchlibTests: XCTestCase {
         interpreter.runUntilEndOfInput()
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected lines")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testRemTick() {
@@ -463,7 +529,7 @@ class finchlibTests: XCTestCase {
         interpreter.runUntilEndOfInput()
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected lines")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
     
     func testClear() {
@@ -497,7 +563,7 @@ class finchlibTests: XCTestCase {
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(1, io.inputPromptCount, "showInputPrompt() should have been called")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testInputWithBadEntry() {
@@ -532,7 +598,7 @@ class finchlibTests: XCTestCase {
 
         XCTAssertEqual(4, io.errors.count, "\(lines(io.errors))")
         XCTAssertEqual(6, io.inputPromptCount, "should call showInputPrompt for each attempt to read")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testPrintWithSemicolons() {
@@ -543,7 +609,7 @@ class finchlibTests: XCTestCase {
         var expectedOutput = "12\t3hello\n"
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testPrintWithTrailingSemicolon() {
@@ -559,7 +625,7 @@ class finchlibTests: XCTestCase {
         var expectedOutput = "Hello, world!\n"
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testPrintWithTrailingComma() {
@@ -575,7 +641,7 @@ class finchlibTests: XCTestCase {
         var expectedOutput = "Hello, \tworld!\n"
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testAsciiArt() {
@@ -603,7 +669,7 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testRnd() {
@@ -642,7 +708,7 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testIfWithoutThen() {
@@ -662,7 +728,7 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testLineNumberOnly() {
@@ -682,7 +748,7 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testPrintWithNoArguments() {
@@ -707,7 +773,7 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testBye() {
@@ -729,7 +795,7 @@ class finchlibTests: XCTestCase {
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(1, io.byeCount)
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testLeftAssociativeProductsAndQuotients() {
@@ -745,7 +811,7 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testLeftAssociativeSumsAndDifferences() {
@@ -761,7 +827,7 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testPrecedence() {
@@ -781,7 +847,7 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testArray() {
@@ -805,7 +871,7 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 
     func testAbbreviations() {
@@ -841,6 +907,38 @@ class finchlibTests: XCTestCase {
         )
 
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
-        XCTAssertEqual(expectedOutput, io.outputString, "should print expected output")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
+    }
+
+    func testList() {
+        io.inputString = lines(
+            "10 print 10"   ,
+            "20 print 20"   ,
+            "30 print 30"   ,
+            "40 print 40"   ,
+            "50 print 50"   ,
+            "list"          ,
+            "list 50"       ,
+            "list 20, 40"   ,
+            ""
+        )
+
+        interpreter.runUntilEndOfInput()
+
+        var expectedOutput = lines(
+            "10 PRINT 10"  ,
+            "20 PRINT 20"  ,
+            "30 PRINT 30"  ,
+            "40 PRINT 40"  ,
+            "50 PRINT 50"  ,
+            "50 PRINT 50"  ,
+            "20 PRINT 20"  ,
+            "30 PRINT 30"  ,
+            "40 PRINT 40"  ,
+            ""
+        )
+
+        XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
+        XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
 }

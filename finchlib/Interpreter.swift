@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2014 Kristopher Johnson
+Copyright (c) 2014, 2015 Kristopher Johnson
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -83,7 +83,7 @@ public enum InterpreterState {
     /// Index of currently executing line in program
     var programIndex: Int = 0
 
-    /// Return stack
+    /// Return stack used by GOSUB/RETURN
     var returnStack: [Int] = Array()
 
     /// If true, print line numbers while program runs
@@ -103,10 +103,6 @@ public enum InterpreterState {
         io = interpreterIO
         clearVariablesAndArray()
     }
-
-    deinit {
-        println("This should not happen")
-    }
     
     /// Set values of all variables and array elements to zero
     func clearVariablesAndArray() {
@@ -118,7 +114,7 @@ public enum InterpreterState {
         }
     }
 
-    /// Remove program from meory
+    /// Remove program from memory
     func clearProgram() {
         program = []
         programIndex = 0
@@ -152,7 +148,7 @@ public enum InterpreterState {
         switch state {
 
         case .Idle:
-            io.showCommandPrompt(self)
+            io.showCommandPromptForInterpreter(self)
             state = .ReadingStatement
 
         case .ReadingStatement:
@@ -234,8 +230,9 @@ public enum InterpreterState {
 
     /// Parse a statement
     ///
-    /// Returns a parsed statement or Statement.Error, and position
-    /// of character following the end of the parsed statement
+    /// Returns a parsed statement and position of character
+    /// following the end of the parsed statement, or nil
+    // if there is no valid statement.
     func statement(pos: InputPosition) -> (Statement, InputPosition)? {
 
         // "PRINT" [ printList ]
@@ -398,12 +395,12 @@ public enum InterpreterState {
     ///
     /// Returns PrintItem and position of next character if successful.  Returns nil otherwise.
     func printItem(pos: InputPosition) -> (PrintItem, InputPosition)? {
-        if let (chars, afterChars) = stringLiteral(pos) {
-            return (.Str(chars), afterChars)
+        if let (s, afterChars) = stringLiteral(pos) {
+            return (.Str(s), afterChars)
         }
 
-        if let (expression, afterExpr) = expression(pos) {
-            return (.Expr(expression), afterExpr)
+        if let (expr, afterExpr) = expression(pos) {
+            return (.Expr(expr), afterExpr)
         }
 
         return nil
@@ -770,12 +767,16 @@ public enum InterpreterState {
         }
     }
 
+    /// Delete the line with the specified number from the program.
+    ///
+    /// No effect if there is no such line.
     func deleteLineFromProgram(lineNumber: Number) {
         if let index = indexOfProgramLineWithNumber(lineNumber) {
             program.removeAtIndex(index)
         }
     }
 
+    /// Return the index into `program` of the line with the specified number
     func indexOfProgramLineWithNumber(lineNumber: Number) -> Int? {
         for (index, element) in enumerate(program) {
             let (n, statement) = element
@@ -786,6 +787,9 @@ public enum InterpreterState {
         return nil
     }
 
+    /// Return line number of the last line in the program.
+    ///
+    /// Returns 0 if there is no program.
     func getLastProgramLineNumber() -> Number {
         if program.count > 0 {
             let (lineNumber, _) = program.last!
@@ -878,7 +882,7 @@ public enum InterpreterState {
         /// Display a message to the user indicating what they are supposed to do
         func showHelpMessage() {
             if inputLvalues.count > 1 {
-                showError("You must enter a comma-separated list of \(inputLvalues.count) values")
+                showError("You must enter a comma-separated list of \(inputLvalues.count) values.")
             }
             else {
                 showError("You must enter a value.")
@@ -887,7 +891,7 @@ public enum InterpreterState {
 
         // Loop until successful or we hit end of input or a wait condition
         inputLoop: while true {
-            io.showInputPrompt(self)
+            io.showInputPromptForInterpreter(self)
             switch readInputLine() {
             case let .Value(input):
                 var pos = InputPosition(input, 0)
@@ -930,8 +934,8 @@ public enum InterpreterState {
                 break inputLoop
 
             case .EndOfStream:
-                // TODO: handle the .Waiting case
-                abortRunWithErrorMessage("error - INPUT: end of input stream")
+                abortRunWithErrorMessage("error: INPUT - end of input stream")
+                break inputLoop
             }
         }
     }
@@ -940,7 +944,7 @@ public enum InterpreterState {
     ///
     /// Return parsed number and following position if successful, or nil otherwise.
     ///
-    /// Accepts entry of a number, with optional sign (+|-), or a variable name.
+    /// Accepts entry of a number with optional leading sign (+|-), or a variable name.
     func inputExpression(pos: InputPosition) -> (Number, InputPosition)? {
         // number
         if let (num, nextPos) = numberLiteral(pos) {
@@ -1059,6 +1063,7 @@ public enum InterpreterState {
 
         let file = fopen(filenameCString, modeCString)
         if file != nil {
+            // Read lines until end-of-stream or error
             loop: while true {
                 let maybeInputLine = getInputLine {
                     let c = fgetc(file)
@@ -1076,6 +1081,7 @@ public enum InterpreterState {
                 }
             }
 
+            // If we got an error, report it
             if ferror(file) != 0 {
                 abortRunWithErrorMessage("error: LOAD - read error for file \"\(filename)\": \(errnoMessage())")
             }
@@ -1191,7 +1197,7 @@ public enum InterpreterState {
 
     /// Execute BYE statement
     public func BYE() {
-        io.bye(self)
+        io.byeForInterpreter(self)
     }
 
     /// Execute HELP statement
@@ -1243,7 +1249,7 @@ public enum InterpreterState {
 
         let (lineNumber, stmt) = program[programIndex]
         if isTraceOn {
-            io.showDebugTrace(self, message: "[\(lineNumber)]")
+            io.showDebugTraceMessage("[\(lineNumber)]", forInterpreter: self)
         }
         ++programIndex
         execute(stmt)
@@ -1268,13 +1274,13 @@ public enum InterpreterState {
 
     /// Send a single character to the output stream
     func writeOutput(c: Char) {
-        io.putOutputChar(self, c)
+        io.putOutputChar(c, forInterpreter: self)
     }
 
     /// Send characters to the output stream
     func writeOutput(chars: [Char]) {
         for c in chars {
-            io.putOutputChar(self, c)
+            io.putOutputChar(c, forInterpreter: self)
         }
     }
 
@@ -1290,7 +1296,7 @@ public enum InterpreterState {
 
     /// Display error message
     func showError(message: String) {
-        io.showError(self, message: message)
+        io.showErrorMessage(message, forInterpreter: self)
     }
 
     /// Read a line using the InterpreterIO interface.
@@ -1302,7 +1308,7 @@ public enum InterpreterState {
     ///
     /// Result may be an empty array, indicating an empty input line, not end of input.
     func readInputLine() -> InputLineResult {
-        return getInputLine { self.io.getInputChar(self) }
+        return getInputLine { self.io.getInputCharForInterpreter(self) }
     }
 
     /// Get a line of input, using specified function to retrieve characters.
@@ -1371,25 +1377,25 @@ public enum InputCharResult {
 /// Protocol implemented by object that provides I/O operations for an Interpreter
 public protocol InterpreterIO {
     /// Return next input character, or nil if at end-of-file or an error occurs
-    func getInputChar(interpreter: Interpreter) -> InputCharResult
+    func getInputCharForInterpreter(interpreter: Interpreter) -> InputCharResult
 
     /// Write specified output character
-    func putOutputChar(interpreter: Interpreter, _ c: Char)
+    func putOutputChar(c: Char, forInterpreter interpreter: Interpreter)
 
     /// Display a prompt to the user for entering an immediate command or line of code
-    func showCommandPrompt(interpreter: Interpreter)
+    func showCommandPromptForInterpreter(interpreter: Interpreter)
 
     /// Display a prompt to the user for entering data for an INPUT statement
-    func showInputPrompt(interpreter: Interpreter)
+    func showInputPromptForInterpreter(interpreter: Interpreter)
 
     /// Display error message to user
-    func showError(interpreter: Interpreter, message: String)
+    func showErrorMessage(message: String, forInterpreter interpreter: Interpreter)
 
     /// Display a debug trace message
-    func showDebugTrace(interpreter: Interpreter, message: String)
+    func showDebugTraceMessage(message: String, forInterpreter interpreter: Interpreter)
 
     /// Called when BYE is executed
-    func bye(interpreter: Interpreter)
+    func byeForInterpreter(interpreter: Interpreter)
 }
 
 /// Default implementation of InterpreterIO that reads from stdin,
@@ -1401,41 +1407,41 @@ public protocol InterpreterIO {
 /// character is read from standard input or end-of-stream is reached.
 /// It will never return `.Waiting`.
 public final class StandardIO: InterpreterIO {
-    public func getInputChar(interpreter: Interpreter) -> InputCharResult {
+    public func getInputCharForInterpreter(interpreter: Interpreter) -> InputCharResult {
         let c = getchar()
         return c == EOF ? .EndOfStream : .Value(Char(c))
     }
 
-    public func putOutputChar(interpreter: Interpreter, _ c: Char) {
+    public func putOutputChar(c: Char, forInterpreter interpreter: Interpreter) {
         putchar(Int32(c))
         fflush(stdout)
     }
 
-    public func showCommandPrompt(interpreter: Interpreter) {
+    public func showCommandPromptForInterpreter(interpreter: Interpreter) {
         putchar(Int32(Ch_RAngle))
         fflush(stdout)
     }
 
-    public func showInputPrompt(interpreter: Interpreter) {
+    public func showInputPromptForInterpreter(interpreter: Interpreter) {
         putchar(Int32(Ch_QuestionMark))
         putchar(Int32(Ch_Space))
         fflush(stdout)
     }
 
-    public func showError(interpreter: Interpreter, message: String) {
+    public func showErrorMessage(message: String, forInterpreter interpreter: Interpreter) {
         var chars = charsFromString(message)
         chars.append(Ch_Linefeed)
         fwrite(chars, 1, UInt(chars.count), stderr)
         fflush(stderr)
     }
 
-    public func showDebugTrace(interpreter: Interpreter, message: String) {
+    public func showDebugTraceMessage(message: String, forInterpreter interpreter: Interpreter) {
         var chars = charsFromString(message)
         fwrite(chars, 1, UInt(chars.count), stdout)
         fflush(stdout)
     }
 
-    public func bye(interpreter: Interpreter) {
+    public func byeForInterpreter(interpreter: Interpreter) {
         exit(EXIT_SUCCESS)
     }
 }

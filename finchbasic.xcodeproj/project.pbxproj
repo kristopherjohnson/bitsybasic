@@ -8,12 +8,26 @@
 
 /* Begin PBXBuildFile section */
 		4E063C1A1A4E86340007E4DF /* ConsoleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E063C191A4E86340007E4DF /* ConsoleViewController.swift */; };
+		4E079DF01A56DFD900186E12 /* finchlibTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B54D1A428D400060EEDE /* finchlibTests.swift */; };
+		4E079DF31A56E6EA00186E12 /* InterpreterEngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E079DF11A56E6EA00186E12 /* InterpreterEngine.mm */; };
+		4E079DF41A56E6EA00186E12 /* InterpreterEngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E079DF11A56E6EA00186E12 /* InterpreterEngine.mm */; };
+		4E079DF51A56E6EA00186E12 /* InterpreterEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E079DF21A56E6EA00186E12 /* InterpreterEngine.h */; };
+		4E0CAE8C1A55E79800A0938B /* finchlib_cpp.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E0CAE8B1A55E79800A0938B /* finchlib_cpp.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4E0CAE921A55E79900A0938B /* finchlib_cpp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E0CAE871A55E79800A0938B /* finchlib_cpp.framework */; };
+		4E0CAEA21A55E8A200A0938B /* Interpreter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E0CAEA11A55E8A200A0938B /* Interpreter.mm */; };
+		4E0CAEA31A55E8A200A0938B /* Interpreter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E0CAEA11A55E8A200A0938B /* Interpreter.mm */; };
+		4E199E371A5F08CD00C2EEE8 /* parse.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E199E351A5F08CD00C2EEE8 /* parse.mm */; };
+		4E199E381A5F08CD00C2EEE8 /* parse.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E199E351A5F08CD00C2EEE8 /* parse.mm */; };
+		4E199E391A5F08CD00C2EEE8 /* parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E199E361A5F08CD00C2EEE8 /* parse.h */; };
 		4E2047361A43C5810016822F /* syntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047351A43C5810016822F /* syntax.swift */; };
 		4E2047381A43C6310016822F /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047371A43C6310016822F /* util.swift */; };
 		4E20473A1A43C69C0016822F /* char.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047391A43C69C0016822F /* char.swift */; };
 		4E20473B1A43C8AD0016822F /* char.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047391A43C69C0016822F /* char.swift */; };
 		4E20473C1A43C8B30016822F /* syntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047351A43C5810016822F /* syntax.swift */; };
 		4E20473D1A43C8B80016822F /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047371A43C6310016822F /* util.swift */; };
+		4E49838B1A5819A6007FC727 /* syntax.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E4983891A5819A6007FC727 /* syntax.mm */; };
+		4E49838C1A5819A6007FC727 /* syntax.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E4983891A5819A6007FC727 /* syntax.mm */; };
+		4E49838D1A5819A6007FC727 /* syntax.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E49838A1A5819A6007FC727 /* syntax.h */; };
 		4EC1B5311A428CFF0060EEDE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5301A428CFF0060EEDE /* main.swift */; };
 		4EC1B5411A428D400060EEDE /* finchlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EC1B5401A428D400060EEDE /* finchlib.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4EC1B5471A428D400060EEDE /* finchlib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4EC1B53C1A428D400060EEDE /* finchlib.framework */; };
@@ -24,16 +38,19 @@
 		4EC42A191A4E33B0004581C6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EC42A171A4E33B0004581C6 /* Main.storyboard */; };
 		4EC42A1B1A4E33B0004581C6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EC42A1A1A4E33B0004581C6 /* Images.xcassets */; };
 		4EC42A2A1A4E33B1004581C6 /* BitsyBASICTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC42A291A4E33B1004581C6 /* BitsyBASICTests.swift */; };
-		4EC42A311A4E33C4004581C6 /* char.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047391A43C69C0016822F /* char.swift */; };
-		4EC42A321A4E33C4004581C6 /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5551A428D5E0060EEDE /* Interpreter.swift */; };
-		4EC42A341A4E33C4004581C6 /* syntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047351A43C5810016822F /* syntax.swift */; };
-		4EC42A351A4E33C4004581C6 /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047371A43C6310016822F /* util.swift */; };
 		4EC42A3B1A4E33D7004581C6 /* finchlibTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B54D1A428D400060EEDE /* finchlibTests.swift */; };
 		4EC42A3E1A4E3A6B004581C6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EC42A3C1A4E3A6B004581C6 /* LaunchScreen.storyboard */; };
 		4EC42A401A4E3EF5004581C6 /* KeyboardNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC42A3F1A4E3EF5004581C6 /* KeyboardNotification.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4E0CAE931A55E79900A0938B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4EC1B5251A428CFE0060EEDE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4E0CAE861A55E79800A0938B;
+			remoteInfo = finchlib_cpp;
+		};
 		4EC1B5481A428D400060EEDE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4EC1B5251A428CFE0060EEDE /* Project object */;
@@ -64,9 +81,23 @@
 
 /* Begin PBXFileReference section */
 		4E063C191A4E86340007E4DF /* ConsoleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConsoleViewController.swift; sourceTree = "<group>"; };
+		4E079DF11A56E6EA00186E12 /* InterpreterEngine.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = InterpreterEngine.mm; sourceTree = "<group>"; };
+		4E079DF21A56E6EA00186E12 /* InterpreterEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InterpreterEngine.h; sourceTree = "<group>"; };
+		4E0CAE871A55E79800A0938B /* finchlib_cpp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = finchlib_cpp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E0CAE8A1A55E79800A0938B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4E0CAE8B1A55E79800A0938B /* finchlib_cpp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = finchlib_cpp.h; sourceTree = "<group>"; };
+		4E0CAE911A55E79900A0938B /* finchlib_cppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = finchlib_cppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E0CAE971A55E79900A0938B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4E0CAEA01A55E8A200A0938B /* finchlib_cpp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "finchlib_cpp-Bridging-Header.h"; sourceTree = "<group>"; };
+		4E0CAEA11A55E8A200A0938B /* Interpreter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Interpreter.mm; sourceTree = "<group>"; };
+		4E0CAEA41A55E8E900A0938B /* Interpreter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Interpreter.h; sourceTree = "<group>"; };
+		4E199E351A5F08CD00C2EEE8 /* parse.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = parse.mm; sourceTree = "<group>"; };
+		4E199E361A5F08CD00C2EEE8 /* parse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parse.h; sourceTree = "<group>"; };
 		4E2047351A43C5810016822F /* syntax.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = syntax.swift; sourceTree = "<group>"; };
 		4E2047371A43C6310016822F /* util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = util.swift; sourceTree = "<group>"; };
 		4E2047391A43C69C0016822F /* char.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = char.swift; sourceTree = "<group>"; };
+		4E4983891A5819A6007FC727 /* syntax.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = syntax.mm; sourceTree = "<group>"; };
+		4E49838A1A5819A6007FC727 /* syntax.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = syntax.h; sourceTree = "<group>"; };
 		4EC1B52D1A428CFF0060EEDE /* finchbasic */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = finchbasic; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EC1B5301A428CFF0060EEDE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		4EC1B53C1A428D400060EEDE /* finchlib.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = finchlib.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,6 +120,21 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4E0CAE831A55E79800A0938B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4E0CAE8E1A55E79900A0938B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E0CAE921A55E79900A0938B /* finchlib_cpp.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4EC1B52A1A428CFF0060EEDE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,14 +174,58 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4E0CAE881A55E79800A0938B /* finchlib_cpp */ = {
+			isa = PBXGroup;
+			children = (
+				4E0CAEA01A55E8A200A0938B /* finchlib_cpp-Bridging-Header.h */,
+				4E0CAE8B1A55E79800A0938B /* finchlib_cpp.h */,
+				4E0CAEA41A55E8E900A0938B /* Interpreter.h */,
+				4E0CAEA11A55E8A200A0938B /* Interpreter.mm */,
+				4E079DF21A56E6EA00186E12 /* InterpreterEngine.h */,
+				4E079DF11A56E6EA00186E12 /* InterpreterEngine.mm */,
+				4E199E361A5F08CD00C2EEE8 /* parse.h */,
+				4E199E351A5F08CD00C2EEE8 /* parse.mm */,
+				4E0CAE891A55E79800A0938B /* Supporting Files */,
+				4E49838A1A5819A6007FC727 /* syntax.h */,
+				4E4983891A5819A6007FC727 /* syntax.mm */,
+			);
+			path = finchlib_cpp;
+			sourceTree = "<group>";
+		};
+		4E0CAE891A55E79800A0938B /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4E0CAE8A1A55E79800A0938B /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		4E0CAE951A55E79900A0938B /* finchlib_cppTests */ = {
+			isa = PBXGroup;
+			children = (
+				4E0CAE961A55E79900A0938B /* Supporting Files */,
+			);
+			path = finchlib_cppTests;
+			sourceTree = "<group>";
+		};
+		4E0CAE961A55E79900A0938B /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4E0CAE971A55E79900A0938B /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		4EC1B5241A428CFE0060EEDE = {
 			isa = PBXGroup;
 			children = (
-				4EC1B52F1A428CFF0060EEDE /* finchbasic */,
-				4EC1B53D1A428D400060EEDE /* finchlib */,
-				4EC1B54A1A428D400060EEDE /* finchlibTests */,
 				4EC42A101A4E33B0004581C6 /* BitsyBASIC */,
 				4EC42A261A4E33B1004581C6 /* BitsyBASICTests */,
+				4EC1B52F1A428CFF0060EEDE /* finchbasic */,
+				4EC1B53D1A428D400060EEDE /* finchlib */,
+				4E0CAE881A55E79800A0938B /* finchlib_cpp */,
+				4E0CAE951A55E79900A0938B /* finchlib_cppTests */,
+				4EC1B54A1A428D400060EEDE /* finchlibTests */,
 				4EC1B52E1A428CFF0060EEDE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -148,6 +238,8 @@
 				4EC1B5461A428D400060EEDE /* finchlibTests.xctest */,
 				4EC42A0F1A4E33B0004581C6 /* BitsyBASIC.app */,
 				4EC42A231A4E33B0004581C6 /* BitsyBASICTests.xctest */,
+				4E0CAE871A55E79800A0938B /* finchlib_cpp.framework */,
+				4E0CAE911A55E79900A0938B /* finchlib_cppTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -240,6 +332,17 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		4E0CAE841A55E79800A0938B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E199E391A5F08CD00C2EEE8 /* parse.h in Headers */,
+				4E0CAE8C1A55E79800A0938B /* finchlib_cpp.h in Headers */,
+				4E49838D1A5819A6007FC727 /* syntax.h in Headers */,
+				4E079DF51A56E6EA00186E12 /* InterpreterEngine.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4EC1B5391A428D400060EEDE /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -251,6 +354,42 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		4E0CAE861A55E79800A0938B /* finchlib_cpp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E0CAE9A1A55E79900A0938B /* Build configuration list for PBXNativeTarget "finchlib_cpp" */;
+			buildPhases = (
+				4E0CAE821A55E79800A0938B /* Sources */,
+				4E0CAE831A55E79800A0938B /* Frameworks */,
+				4E0CAE841A55E79800A0938B /* Headers */,
+				4E0CAE851A55E79800A0938B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = finchlib_cpp;
+			productName = finchlib_cpp;
+			productReference = 4E0CAE871A55E79800A0938B /* finchlib_cpp.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		4E0CAE901A55E79900A0938B /* finchlib_cppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E0CAE9D1A55E79900A0938B /* Build configuration list for PBXNativeTarget "finchlib_cppTests" */;
+			buildPhases = (
+				4E0CAE8D1A55E79900A0938B /* Sources */,
+				4E0CAE8E1A55E79900A0938B /* Frameworks */,
+				4E0CAE8F1A55E79900A0938B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4E0CAE941A55E79900A0938B /* PBXTargetDependency */,
+			);
+			name = finchlib_cppTests;
+			productName = finchlib_cppTests;
+			productReference = 4E0CAE911A55E79900A0938B /* finchlib_cppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		4EC1B52C1A428CFF0060EEDE /* finchbasic */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4EC1B5341A428CFF0060EEDE /* Build configuration list for PBXNativeTarget "finchbasic" */;
@@ -348,6 +487,12 @@
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = "Kristopher Johnson";
 				TargetAttributes = {
+					4E0CAE861A55E79800A0938B = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+					4E0CAE901A55E79900A0938B = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
 					4EC1B52C1A428CFF0060EEDE = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -380,15 +525,31 @@
 			projectRoot = "";
 			targets = (
 				4EC1B52C1A428CFF0060EEDE /* finchbasic */,
-				4EC1B53B1A428D400060EEDE /* finchlib */,
-				4EC1B5451A428D400060EEDE /* finchlibTests */,
 				4EC42A0E1A4E33B0004581C6 /* BitsyBASIC */,
 				4EC42A221A4E33B0004581C6 /* BitsyBASICTests */,
+				4EC1B53B1A428D400060EEDE /* finchlib */,
+				4EC1B5451A428D400060EEDE /* finchlibTests */,
+				4E0CAE861A55E79800A0938B /* finchlib_cpp */,
+				4E0CAE901A55E79900A0938B /* finchlib_cppTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4E0CAE851A55E79800A0938B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4E0CAE8F1A55E79900A0938B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4EC1B53A1A428D400060EEDE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -423,6 +584,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4E0CAE821A55E79800A0938B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E079DF41A56E6EA00186E12 /* InterpreterEngine.mm in Sources */,
+				4E49838C1A5819A6007FC727 /* syntax.mm in Sources */,
+				4E0CAEA31A55E8A200A0938B /* Interpreter.mm in Sources */,
+				4E199E381A5F08CD00C2EEE8 /* parse.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4E0CAE8D1A55E79900A0938B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E079DF01A56DFD900186E12 /* finchlibTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4EC1B5291A428CFF0060EEDE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -458,13 +638,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E0CAEA21A55E8A200A0938B /* Interpreter.mm in Sources */,
 				4E063C1A1A4E86340007E4DF /* ConsoleViewController.swift in Sources */,
-				4EC42A351A4E33C4004581C6 /* util.swift in Sources */,
-				4EC42A321A4E33C4004581C6 /* Interpreter.swift in Sources */,
-				4EC42A311A4E33C4004581C6 /* char.swift in Sources */,
+				4E079DF31A56E6EA00186E12 /* InterpreterEngine.mm in Sources */,
 				4EC42A401A4E3EF5004581C6 /* KeyboardNotification.swift in Sources */,
-				4EC42A341A4E33C4004581C6 /* syntax.swift in Sources */,
+				4E49838B1A5819A6007FC727 /* syntax.mm in Sources */,
 				4EC42A141A4E33B0004581C6 /* AppDelegate.swift in Sources */,
+				4E199E371A5F08CD00C2EEE8 /* parse.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -480,6 +660,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4E0CAE941A55E79900A0938B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4E0CAE861A55E79800A0938B /* finchlib_cpp */;
+			targetProxy = 4E0CAE931A55E79900A0938B /* PBXContainerItemProxy */;
+		};
 		4EC1B5491A428D400060EEDE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4EC1B53B1A428D400060EEDE /* finchlib */;
@@ -512,6 +697,86 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		4E0CAE9B1A55E79900A0938B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = finchlib_cpp/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		4E0CAE9C1A55E79900A0938B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = finchlib_cpp/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		4E0CAE9E1A55E79900A0938B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = finchlib_cppTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				OTHER_SWIFT_FLAGS = "-DFINCHLIB_CPP";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "finchlib_cpp/finchlib_cpp-Bridging-Header.h";
+			};
+			name = Debug;
+		};
+		4E0CAE9F1A55E79900A0938B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = finchlib_cppTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				OTHER_SWIFT_FLAGS = "-DFINCHLIB_CPP";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "finchlib_cpp/finchlib_cpp-Bridging-Header.h";
+			};
+			name = Release;
+		};
 		4EC1B5321A428CFF0060EEDE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -685,6 +950,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -695,6 +961,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "finchlib_cpp/finchlib_cpp-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -703,12 +971,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = BitsyBASIC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "finchlib_cpp/finchlib_cpp-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -730,6 +1001,7 @@
 				INFOPLIST_FILE = BitsyBASICTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BitsyBASIC.app/BitsyBASIC";
@@ -748,6 +1020,7 @@
 				INFOPLIST_FILE = BitsyBASICTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BitsyBASIC.app/BitsyBASIC";
@@ -758,6 +1031,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4E0CAE9A1A55E79900A0938B /* Build configuration list for PBXNativeTarget "finchlib_cpp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E0CAE9B1A55E79900A0938B /* Debug */,
+				4E0CAE9C1A55E79900A0938B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4E0CAE9D1A55E79900A0938B /* Build configuration list for PBXNativeTarget "finchlib_cppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E0CAE9E1A55E79900A0938B /* Debug */,
+				4E0CAE9F1A55E79900A0938B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4EC1B5281A428CFE0060EEDE /* Build configuration list for PBXProject "finchbasic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
