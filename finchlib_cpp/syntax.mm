@@ -57,18 +57,14 @@ void Lvalue::Var::setValue(Number n, InterpreterEngine &engine) const
     engine.setVariableValue(variableName, n);
 }
 
-Lvalue::ArrayElement::ArrayElement(const Expression &sub)
-: subscript{std::shared_ptr<Expression>{new Expression{sub}}}
-{}
-
 std::string Lvalue::ArrayElement::listText() const
 {
-    return "@(" + subscript->listText() + ")";
+    return "@(" + subscript.listText() + ")";
 }
 
 void Lvalue::ArrayElement::setValue(Number n, InterpreterEngine &engine) const
 {
-    engine.setArrayElementValue(*subscript, n);
+    engine.setArrayElementValue(subscript, n);
 }
 
 

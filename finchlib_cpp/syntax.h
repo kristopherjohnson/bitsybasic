@@ -43,61 +43,6 @@ namespace finchlib_cpp {
 
     class Expression;
 
-    /// A variable or array element reference
-    class Lvalue {
-    private:
-        struct Subtype {
-            virtual std::string listText() const = 0;
-            virtual void setValue(Number n, InterpreterEngine &engine) const = 0;
-        };
-
-        struct Var: public Subtype {
-            VariableName variableName;
-
-            Var(VariableName v): variableName{v} {}
-
-            virtual std::string listText() const;
-            virtual void setValue(Number n, InterpreterEngine &engine) const;
-        };
-
-        struct ArrayElement: public Subtype {
-            std::shared_ptr<Expression> subscript;
-
-            ArrayElement(const Expression &sub);
-
-            virtual std::string listText() const;
-            virtual void setValue(Number n, InterpreterEngine &engine) const;
-        };
-
-        std::shared_ptr<Subtype> subtype;
-
-        Lvalue(std::shared_ptr<Subtype> s): subtype{s} {}
-
-    public:
-        /// Return an Lvalue for a variable
-        static Lvalue var(VariableName v)
-        {
-            return {std::shared_ptr<Subtype>{new Var{v}}};
-        }
-
-        /// Return an Lvalue for an array element
-        static Lvalue arrayElement(const Expression &expr)
-        {
-            return {std::shared_ptr<Subtype>{new ArrayElement{expr}}};
-        }
-
-        /// Return pretty-printed text
-        std::string listText() const;
-
-        /// Set the value
-        void setValue(Number n, InterpreterEngine &engine) const;
-
-        /// Evaluate expression and set value
-        void setValue(const Expression &expr, InterpreterEngine &engine) const;
-    };
-
-    typedef std::vector<Lvalue> Lvalues;
-
     /// Binary operator for Numbers
     class ArithOp {
     private:
@@ -544,6 +489,62 @@ namespace finchlib_cpp {
         /// Return pretty-printed statement text
         std::string listText() const;
     };
+
+    /// A variable or array element reference
+    class Lvalue {
+    private:
+        struct Subtype {
+            virtual std::string listText() const = 0;
+            virtual void setValue(Number n, InterpreterEngine &engine) const = 0;
+        };
+
+        struct Var: public Subtype {
+            VariableName variableName;
+
+            Var(VariableName v): variableName{v} {}
+
+            virtual std::string listText() const;
+            virtual void setValue(Number n, InterpreterEngine &engine) const;
+        };
+
+        struct ArrayElement: public Subtype {
+            Expression subscript;
+
+            ArrayElement(const Expression &sub): subscript{sub} { }
+
+            virtual std::string listText() const;
+            virtual void setValue(Number n, InterpreterEngine &engine) const;
+        };
+
+        std::shared_ptr<Subtype> subtype;
+
+        Lvalue(std::shared_ptr<Subtype> s): subtype{s} {}
+
+    public:
+        /// Return an Lvalue for a variable
+        static Lvalue var(VariableName v)
+        {
+            return {std::shared_ptr<Subtype>{new Var{v}}};
+        }
+
+        /// Return an Lvalue for an array element
+        static Lvalue arrayElement(const Expression &expr)
+        {
+            return {std::shared_ptr<Subtype>{new ArrayElement{expr}}};
+        }
+
+        /// Return pretty-printed text
+        std::string listText() const;
+
+        /// Set the value
+        void setValue(Number n, InterpreterEngine &engine) const;
+
+        /// Evaluate expression and set value
+        void setValue(const Expression &expr, InterpreterEngine &engine) const;
+    };
+    
+    typedef std::vector<Lvalue> Lvalues;
+    
 
     /// BASIC statement that can be parsed and executed
     class Statement {
