@@ -67,10 +67,7 @@ struct Line
         return {LineKindUnnumberedStatement, 0, s};
     }
 
-    static Line empty()
-    {
-        return {LineKindEmpty, 0, Statement::invalid()};
-    }
+    static Line empty() { return {LineKindEmpty, 0, Statement::invalid()}; }
 
     static Line emptyNumberedLine(Number n)
     {
@@ -83,22 +80,17 @@ struct Line
     }
 };
 
-
 #pragma mark - InterpreterEngine
 
-InterpreterEngine::InterpreterEngine(Interpreter *interpreter, id<InterpreterIO> interpreterIO)
-    : interpreter{interpreter}
-    , io{interpreterIO}
-    , a(1024)
+InterpreterEngine::InterpreterEngine(Interpreter *interpreter,
+                                     id<InterpreterIO> interpreterIO)
+    : interpreter{interpreter}, io{interpreterIO}, a(1024)
 {
     clearVariablesAndArray();
 }
 
 /// Return interpreter state
-InterpreterState InterpreterEngine::state()
-{
-    return st;
-}
+InterpreterState InterpreterEngine::state() { return st; }
 
 /// Set values of all variables and array elements to zero
 void InterpreterEngine::clearVariablesAndArray()
@@ -122,11 +114,7 @@ void InterpreterEngine::clearProgram()
 }
 
 /// Remove all items from the return stack
-void InterpreterEngine::clearReturnStack()
-{
-    returnStack.resize(0);
-}
-
+void InterpreterEngine::clearReturnStack() { returnStack.resize(0); }
 
 #pragma mark - Top-level loop
 
@@ -195,7 +183,6 @@ void InterpreterEngine::next()
     }
 }
 
-
 /// Parse an input line and execute it or add it to the program
 void InterpreterEngine::processInput(const InputLine &input)
 {
@@ -232,7 +219,6 @@ void InterpreterEngine::processInput(const InputLine &input)
     }
 }
 
-
 #pragma mark - Parsing
 
 Line InterpreterEngine::parseInputLine(const InputLine &input)
@@ -260,19 +246,22 @@ Line InterpreterEngine::parseInputLine(const InputLine &input)
         {
             if (parsedStatement.nextPos().isRemainingLineEmpty())
             {
-                return Line::numberedStatement(parsedNumber.value(), parsedStatement.value());
+                return Line::numberedStatement(parsedNumber.value(),
+                                               parsedStatement.value());
             }
             else
             {
                 std::ostringstream msg;
-                msg << "line " << parsedNumber.value() << ": error: unexpected characters following complete statement";
+                msg << "line " << parsedNumber.value()
+                    << ": error: unexpected characters following complete statement";
                 return Line::error(msg.str());
             }
         }
         else
         {
             std::ostringstream msg;
-            msg << "line " << parsedNumber.value() << ": error: not a valid statement";
+            msg << "line " << parsedNumber.value()
+                << ": error: not a valid statement";
             return Line::error(msg.str());
         }
     }
@@ -287,7 +276,8 @@ Line InterpreterEngine::parseInputLine(const InputLine &input)
         }
         else
         {
-            return Line::error("error: unexpected characters following complete statement");
+            return Line::error(
+                "error: unexpected characters following complete statement");
         }
     }
     else
@@ -296,10 +286,10 @@ Line InterpreterEngine::parseInputLine(const InputLine &input)
     }
 }
 
-
 #pragma mark - Program editing
 
-void InterpreterEngine::insertLineIntoProgram(Number lineNumber, Statement statement)
+void InterpreterEngine::insertLineIntoProgram(Number lineNumber,
+                                              Statement statement)
 {
     NumberedStatement line{lineNumber, statement};
 
@@ -320,10 +310,9 @@ void InterpreterEngine::insertLineIntoProgram(Number lineNumber, Statement state
 
         program.push_back(line);
         std::sort(program.begin(), program.end(),
-                  [](const NumberedStatement &lhs, const NumberedStatement &rhs) -> bool
-                  {
-            return lhs.lineNumber < rhs.lineNumber;
-        });
+                  [](const NumberedStatement &lhs, const NumberedStatement &rhs)
+                      -> bool
+                  { return lhs.lineNumber < rhs.lineNumber; });
     }
 }
 
@@ -345,10 +334,9 @@ void InterpreterEngine::deleteLineFromProgram(Number lineNumber)
 Program::iterator InterpreterEngine::programLineWithNumber(Number lineNumber)
 {
     return std::find_if(program.begin(), program.end(),
-                        [=](const NumberedStatement &s) -> bool
-                        {
-        return s.lineNumber == lineNumber;
-    });
+                        [=](const NumberedStatement &s)
+                            -> bool
+                        { return s.lineNumber == lineNumber; });
 }
 
 /// Return line number of the last line in the program.
@@ -363,7 +351,6 @@ Number InterpreterEngine::getLastProgramLineNumber()
 
     return 0;
 }
-
 
 #pragma mark - Execution
 
@@ -397,7 +384,8 @@ void InterpreterEngine::executeNextProgramStatement()
 
 /// Display error message and stop running
 ///
-/// Call this method if an unrecoverable error happens while executing a statement
+/// Call this method if an unrecoverable error happens while executing a
+/// statement
 void InterpreterEngine::abortRunWithErrorMessage(string message)
 {
     showError(message);
@@ -407,7 +395,6 @@ void InterpreterEngine::abortRunWithErrorMessage(string message)
     }
     st = InterpreterStateIdle;
 }
-
 
 #pragma mark - I/O
 
@@ -452,25 +439,29 @@ void InterpreterEngine::showError(string message)
 ///
 /// Return array of characters, or nil if at end of input stream.
 ///
-/// Result does not include any non-graphic characters that were in the input stream.
+/// Result does not include any non-graphic characters that were in the input
+/// stream.
 /// Any horizontal tab ('\t') in the input will be converted to a single space.
 ///
-/// Result may be an empty array, indicating an empty input line, not end of input.
+/// Result may be an empty array, indicating an empty input line, not end of
+/// input.
 InputLineResult InterpreterEngine::readInputLine()
 {
     const auto io = this->io;
     const auto interpreter = this->interpreter;
     return getInputLine([=]() -> InputCharResult
                         {
-        return [io getInputCharForInterpreter:interpreter];
+    return [io getInputCharForInterpreter:interpreter];
     });
 }
 
 /// Get a line of input, using specified function to retrieve characters.
 ///
-/// Result does not include any non-graphic characters that were in the input stream.
+/// Result does not include any non-graphic characters that were in the input
+/// stream.
 /// Any horizontal tab ('\t') in the input will be converted to a single space.
-InputLineResult InterpreterEngine::getInputLine(function<InputCharResult()> getChar)
+InputLineResult
+InterpreterEngine::getInputLine(function<InputCharResult()> getChar)
 {
     for (;;)
     {
@@ -526,7 +517,8 @@ Number InterpreterEngine::getVariableValue(VariableName variableName) const
     return (it == v.end()) ? 0 : it->second;
 }
 
-void InterpreterEngine::setVariableValue(VariableName variableName, Number value)
+void InterpreterEngine::setVariableValue(VariableName variableName,
+                                         Number value)
 {
     assert('A' <= variableName && variableName <= 'Z');
     v[variableName] = value;
@@ -558,12 +550,12 @@ void InterpreterEngine::setArrayElementValue(Number index, Number value)
     }
 }
 
-void InterpreterEngine::setArrayElementValue(const Expression &indexExpression, Number value)
+void InterpreterEngine::setArrayElementValue(const Expression &indexExpression,
+                                             Number value)
 {
     const auto index = evaluate(indexExpression);
     setArrayElementValue(index, value);
 }
-
 
 #pragma mark - Statements
 
@@ -575,13 +567,11 @@ void InterpreterEngine::PRINT(const PrintList &printList)
 }
 
 /// Execute PRINT statement with no arguments
-void InterpreterEngine::PRINT()
-{
-    writeOutput('\n');
-}
+void InterpreterEngine::PRINT() { writeOutput('\n'); }
 
 /// Execute LIST statement
-void InterpreterEngine::LIST(const Expression &lowExpr, const Expression &highExpr)
+void InterpreterEngine::LIST(const Expression &lowExpr,
+                             const Expression &highExpr)
 {
     const auto lowNumber = evaluate(lowExpr);
     const auto highNumber = evaluate(highExpr);
@@ -600,7 +590,8 @@ void InterpreterEngine::LIST(const Expression &lowExpr, const Expression &highEx
 }
 
 /// Execute IF statement
-void InterpreterEngine::IF(const Expression &lhs, const RelOp &op, const Expression &rhs, const Statement &consequent)
+void InterpreterEngine::IF(const Expression &lhs, const RelOp &op,
+                           const Expression &rhs, const Statement &consequent)
 {
     const auto lhsValue = evaluate(lhs);
     const auto rhsValue = evaluate(rhs);
@@ -626,10 +617,7 @@ void InterpreterEngine::RUN()
 }
 
 /// Execute END statement
-void InterpreterEngine::END()
-{
-    st = InterpreterStateIdle;
-}
+void InterpreterEngine::END() { st = InterpreterStateIdle; }
 
 /// Execute GOTO statement
 void InterpreterEngine::GOTO(const Expression &expr)
@@ -689,42 +677,21 @@ void InterpreterEngine::CLEAR()
 }
 
 /// Execute BYE statement
-void InterpreterEngine::BYE()
-{
-    [io byeForInterpreter:interpreter];
-}
+void InterpreterEngine::BYE() { [io byeForInterpreter:interpreter]; }
 
 /// Execute HELP statement
 void InterpreterEngine::HELP()
 {
     static const vector<string> lines = {
-        "Enter a line number and a BASIC statement to add it to the program.  Enter a statement without a line number to execute it immediately.",
-        "",
-        "Statements:",
-        "  BYE",
-        "  CLEAR",
-        "  END",
-        "  FILES",
-        "  GOSUB expression",
-        "  GOTO expression",
-        "  HELP",
-        "  IF condition THEN statement",
-        "  INPUT var-list",
-        "  LET var = expression",
-        "  LIST [firstLine, [lastLine]]",
-        "  LOAD \"filename\"",
-        "  PRINT expr-list",
-        "  REM comment",
-        "  RETURN",
-        "  RUN",
-        "  SAVE \"filename\"",
-        "  TRON | TROFF",
-        "",
-        "Example:",
-        "  10 print \"Hello, world!\"",
-        "  20 end",
-        "  list",
-        "  run"};
+        "Enter a line number and a BASIC statement to add it to the program.  "
+        "Enter a statement without a line number to execute it immediately.",
+        "", "Statements:", "  BYE", "  CLEAR", "  END", "  FILES",
+        "  GOSUB expression", "  GOTO expression", "  HELP",
+        "  IF condition THEN statement", "  INPUT var-list",
+        "  LET var = expression", "  LIST [firstLine, [lastLine]]",
+        "  LOAD \"filename\"", "  PRINT expr-list", "  REM comment", "  RETURN",
+        "  RUN", "  SAVE \"filename\"", "  TRON | TROFF", "", "Example:",
+        "  10 print \"Hello, world!\"", "  20 end", "  list", "  run"};
 
     for (auto line : lines)
     {
@@ -747,8 +714,8 @@ void InterpreterEngine::showInputHelpMessage()
     if (inputLvalues.size() > 1)
     {
         std::ostringstream s;
-        s << "You must enter a comma-separated list of "
-          << inputLvalues.size() << " values.";
+        s << "You must enter a comma-separated list of " << inputLvalues.size()
+          << " values.";
         showError(s.str());
     }
     else
@@ -876,8 +843,8 @@ void InterpreterEngine::SAVE(std::string filename)
     else
     {
         std::ostringstream s;
-        s << "error: SAVE - unable to open file \"" << filename
-          << ": " << std::strerror(errno);
+        s << "error: SAVE - unable to open file \"" << filename << ": "
+          << std::strerror(errno);
         abortRunWithErrorMessage(s.str());
     }
 }
@@ -894,8 +861,9 @@ void InterpreterEngine::LOAD(std::string filename)
         {
             const auto inputLineResult = getInputLine([=]() -> InputCharResult
                                                       {
-                const auto c = std::fgetc(file);
-                return c == EOF ? InputCharResult_EndOfStream() : InputCharResult_Value(c);
+        const auto c = std::fgetc(file);
+        return c == EOF ? InputCharResult_EndOfStream()
+                        : InputCharResult_Value(c);
             });
 
             switch (inputLineResult.kind)
@@ -920,8 +888,8 @@ void InterpreterEngine::LOAD(std::string filename)
         if (std::ferror(file) != 0)
         {
             std::ostringstream s;
-            s << "error: LOAD - read error for file \"" << filename
-              << ": " << std::strerror(errno);
+            s << "error: LOAD - read error for file \"" << filename << ": "
+              << std::strerror(errno);
             abortRunWithErrorMessage(s.str());
         }
 
@@ -930,8 +898,8 @@ void InterpreterEngine::LOAD(std::string filename)
     else
     {
         std::ostringstream s;
-        s << "error: LOAD - unable to open file \"" << filename
-          << ": " << std::strerror(errno);
+        s << "error: LOAD - unable to open file \"" << filename << ": "
+          << std::strerror(errno);
         abortRunWithErrorMessage(s.str());
     }
 }
@@ -964,14 +932,8 @@ void InterpreterEngine::FILES()
 }
 
 /// Execute a TRON statement
-void InterpreterEngine::TRON()
-{
-    isTraceOn = true;
-}
+void InterpreterEngine::TRON() { isTraceOn = true; }
 
 /// Execute a TROFF statement
-void InterpreterEngine::TROFF()
-{
-    isTraceOn = false;
-}
+void InterpreterEngine::TROFF() { isTraceOn = false; }
 }

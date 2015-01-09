@@ -41,7 +41,7 @@ typedef NS_ENUM(NSInteger, InputResultKind)
 typedef struct
 {
     InputResultKind kind;
-    Char value; // only used when kind == InputResultKindValue
+    Char value;  // only used when kind == InputResultKindValue
 } InputCharResult;
 
 // Functions for creating an InputCharResult with the appropriate kind
@@ -51,7 +51,8 @@ InputCharResult InputCharResult_EndOfStream();
 InputCharResult InputCharResult_Waiting();
 __END_DECLS
 
-/// Protocol implemented by object that provides I/O operations for an Interpreter
+/// Protocol implemented by object that provides I/O operations for an
+/// Interpreter
 @protocol InterpreterIO <NSObject>
 
 /// Return next input character, or nil if at end-of-file or an error occurs
@@ -60,23 +61,25 @@ __END_DECLS
 /// Write specified output character
 - (void)putOutputChar:(Char)c forInterpreter:(Interpreter *)interpreter;
 
-/// Display a prompt to the user for entering an immediate command or line of code
+/// Display a prompt to the user for entering an immediate command or line of
+/// code
 - (void)showCommandPromptForInterpreter:(Interpreter *)interpreter;
 
 /// Display a prompt to the user for entering data for an INPUT statement
 - (void)showInputPromptForInterpreter:(Interpreter *)interpreter;
 
 /// Display error message to user
-- (void)showErrorMessage:(NSString *)message forInterpreter:(Interpreter *)interpreter;
+- (void)showErrorMessage:(NSString *)message
+          forInterpreter:(Interpreter *)interpreter;
 
 /// Display a debug trace message
-- (void)showDebugTraceMessage:(NSString *)message forInterpreter:(Interpreter *)interpreter;
+- (void)showDebugTraceMessage:(NSString *)message
+               forInterpreter:(Interpreter *)interpreter;
 
 /// Called when BYE is executed
 - (void)byeForInterpreter:(Interpreter *)interpreter;
 
 @end
-
 
 /// State of the interpreter
 ///
@@ -111,7 +114,6 @@ typedef NS_ENUM(NSInteger, InterpreterState)
     /// Interpreter is processing an `INPUT` statement
     InterpreterStateReadingInput
 };
-
 
 @interface Interpreter : NSObject
 

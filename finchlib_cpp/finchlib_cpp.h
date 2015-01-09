@@ -14,4 +14,5 @@ FOUNDATION_EXPORT double finchlib_cppVersionNumber;
 //! Project version string for finchlib_cpp.
 FOUNDATION_EXPORT const unsigned char finchlib_cppVersionString[];
 
-// In this header, you should import all the public headers of your framework using statements like #import <finchlib_cpp/PublicHeader.h>
+// In this header, you should import all the public headers of your framework
+// using statements like #import <finchlib_cpp/PublicHeader.h>

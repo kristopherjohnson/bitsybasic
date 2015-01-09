@@ -30,15 +30,16 @@ using std::tuple;
 using std::string;
 using std::vector;
 
-
 namespace finchlib_cpp
 {
 
 static Parse<Expression> expression(const InputPos &pos);
 
-/// Determine whether the remainder of the line starts with a specified sequence of characters.
+/// Determine whether the remainder of the line starts with a specified sequence
+/// of characters.
 ///
-/// If true, returns position of the character following the matched string. If false, returns nil.
+/// If true, returns position of the character following the matched string. If
+/// false, returns nil.
 ///
 /// Matching is case-insensitive. Spaces in the input are ignored.
 Parse<std::string> literal(std::string s, const InputPos &pos)
@@ -81,15 +82,9 @@ private:
     string s;
 
 public:
-    lit(string literalString)
-        : s{literalString}
-    {
-    }
+    lit(string literalString) : s{literalString} {}
 
-    Parse<string> operator()(const InputPos &pos)
-    {
-        return literal(s, pos);
-    }
+    Parse<string> operator()(const InputPos &pos) { return literal(s, pos); }
 };
 
 /// Try to parse one of a set of literals
@@ -116,10 +111,7 @@ private:
     vector<string> strings;
 
 public:
-    oneOfLit(std::initializer_list<string> initList)
-        : strings(initList)
-    {
-    }
+    oneOfLit(std::initializer_list<string> initList) : strings(initList) {}
 
     Parse<string> operator()(const InputPos &pos)
     {
@@ -131,7 +123,8 @@ public:
 ///
 /// If the literal is present, then return it and the following position.
 ///
-/// If the literal is not present, then just return it and the original position.
+/// If the literal is not present, then just return it and the original
+/// position.
 ///
 /// This is used in situations where a statement allows an optional keyword,
 /// such as LET or THEN, that can be ignored if present.
@@ -153,17 +146,10 @@ private:
     string s;
 
 public:
-    optLit(string literal)
-        : s(literal)
-    {
-    }
+    optLit(string literal) : s(literal) {}
 
-    Parse<string> operator()(const InputPos &pos)
-    {
-        return optLiteral(s, pos);
-    }
+    Parse<string> operator()(const InputPos &pos) { return optLiteral(s, pos); }
 };
-
 
 /// Attempt to read an unsigned number from input.  If successful, returns
 /// parsed number and position of next input character.  If not, returns nil.
@@ -204,7 +190,7 @@ Parse<Number> numberLiteral(const InputPos &pos)
 ///
 /// Returns characters and position of next character if successful.
 /// Returns nil otherwise.
-Parse<vector<Char> > stringLiteral(const InputPos &pos)
+Parse<vector<Char>> stringLiteral(const InputPos &pos)
 {
     auto i = pos.afterSpaces();
     if (!i.isAtEndOfLine())
@@ -236,12 +222,13 @@ Parse<vector<Char> > stringLiteral(const InputPos &pos)
             }
         }
     }
-    return failedParse<vector<Char> >();
+    return failedParse<vector<Char>>();
 }
 
 /// Attempt to read a variable name.
 ///
-/// Returns variable name and position of next input character on success, or nil otherwise.
+/// Returns variable name and position of next input character on success, or
+/// nil otherwise.
 static Parse<VariableName> variableName(const InputPos &pos)
 {
     const auto i = pos.afterSpaces();
@@ -260,7 +247,8 @@ static Parse<VariableName> variableName(const InputPos &pos)
 
 /// Attempt to parse an Lvalue (variable name or array element reference)
 ///
-/// Returns Lvalue and position of next input character on success, or nil otherwise.
+/// Returns Lvalue and position of next input character on success, or nil
+/// otherwise.
 static Parse<Lvalue> lvalue(const InputPos &pos)
 {
     const auto v = variableName(pos);
@@ -270,8 +258,7 @@ static Parse<Lvalue> lvalue(const InputPos &pos)
         return successfulParse(result, v.nextPos());
     }
 
-    const auto aelem = pos.parse<string, Expression, string>(
-        lit("@("), expression, lit(")"));
+    const auto aelem = pos.parse<string, Expression, string>(lit("@("), expression, lit(")"));
     if (aelem != nullptr)
     {
         const auto expr = std::get<1>(*aelem);
@@ -283,7 +270,8 @@ static Parse<Lvalue> lvalue(const InputPos &pos)
     return failedParse<Lvalue>();
 }
 
-/// Attempt to parse a Factor.  Returns Factor and position of next character if successful.  Returns nil if not.
+/// Attempt to parse a Factor.  Returns Factor and position of next character if
+/// successful.  Returns nil if not.
 static Parse<Factor> factor(const InputPos &pos)
 {
     // number
@@ -295,8 +283,7 @@ static Parse<Factor> factor(const InputPos &pos)
     }
 
     // "RND(" expression ")"
-    const auto rnd = pos.parse<string, Expression, string>(
-        lit("RND("), expression, lit(")"));
+    const auto rnd = pos.parse<string, Expression, string>(lit("RND("), expression, lit(")"));
     if (rnd != nullptr)
     {
         const auto expr = std::get<1>(*rnd);
@@ -306,8 +293,7 @@ static Parse<Factor> factor(const InputPos &pos)
     }
 
     // "(" expression ")"
-    const auto parenExpr = pos.parse<string, Expression, string>(
-        lit("("), expression, lit(")"));
+    const auto parenExpr = pos.parse<string, Expression, string>(lit("("), expression, lit(")"));
     if (parenExpr != nullptr)
     {
         const auto expr = std::get<1>(*parenExpr);
@@ -317,8 +303,7 @@ static Parse<Factor> factor(const InputPos &pos)
     }
 
     // "@(" expression ")"
-    const auto aelem = pos.parse<string, Expression, string>(
-        lit("@("), expression, lit(")"));
+    const auto aelem = pos.parse<string, Expression, string>(lit("@("), expression, lit(")"));
     if (aelem != nullptr)
     {
         const auto expr = std::get<1>(*aelem);
@@ -340,15 +325,15 @@ static Parse<Factor> factor(const InputPos &pos)
 
 /// Attempt to parse a Term.
 ///
-/// Returns Term and position of next character if successful.  Returns nil if not.
+/// Returns Term and position of next character if successful.  Returns nil if
+/// not.
 static Parse<Term> term(const InputPos &pos)
 {
     const auto fact = factor(pos);
     if (fact.wasParsed())
     {
         // If followed by "*", then it's a product
-        const auto mult = fact.nextPos().parse<string, Term>(
-            lit("*"), term);
+        const auto mult = fact.nextPos().parse<string, Term>(lit("*"), term);
         if (mult != nullptr)
         {
             const Term t = std::get<1>(*mult);
@@ -358,8 +343,7 @@ static Parse<Term> term(const InputPos &pos)
         }
 
         // If followed by "/", then it's a quotient
-        const auto div = fact.nextPos().parse<string, Term>(
-            lit("/"), term);
+        const auto div = fact.nextPos().parse<string, Term>(lit("/"), term);
         if (div != nullptr)
         {
             const Term t = std::get<1>(*div);
@@ -377,7 +361,8 @@ static Parse<Term> term(const InputPos &pos)
 
 /// Attempt to parse an UnsignedExpression.
 ///
-/// Returns UnsignedExpression and position of next character if successful.  Returns nil if not.
+/// Returns UnsignedExpression and position of next character if successful.
+/// Returns nil if not.
 static Parse<UnsignedExpression> unsignedExpression(const InputPos &pos)
 {
     const auto t = term(pos);
@@ -415,11 +400,11 @@ static Parse<UnsignedExpression> unsignedExpression(const InputPos &pos)
 
 /// Attempt to parse an Expression.
 ///
-/// Returns Expression and position of next character if successful.  Returns nil if not.
+/// Returns Expression and position of next character if successful.  Returns
+/// nil if not.
 static Parse<Expression> expression(const InputPos &pos)
 {
-    const auto leadingPlus = pos.parse<string, UnsignedExpression>(
-        lit("+"), unsignedExpression);
+    const auto leadingPlus = pos.parse<string, UnsignedExpression>(lit("+"), unsignedExpression);
     if (leadingPlus != nullptr)
     {
         const auto uexpr = std::get<1>(*leadingPlus);
@@ -428,8 +413,7 @@ static Parse<Expression> expression(const InputPos &pos)
         return successfulParse(result, nextPos);
     }
 
-    const auto leadingMinus = pos.parse<string, UnsignedExpression>(
-        lit("-"), unsignedExpression);
+    const auto leadingMinus = pos.parse<string, UnsignedExpression>(lit("-"), unsignedExpression);
     if (leadingMinus != nullptr)
     {
         const auto uexpr = std::get<1>(*leadingMinus);
@@ -450,7 +434,8 @@ static Parse<Expression> expression(const InputPos &pos)
 
 /// Attempt to parse a PrintItem.
 ///
-/// Returns PrintItem and position of next character if successful.  Returns nil otherwise.
+/// Returns PrintItem and position of next character if successful.  Returns nil
+/// otherwise.
 static Parse<PrintItem> printItem(const InputPos &pos)
 {
     const auto s = stringLiteral(pos);
@@ -472,7 +457,8 @@ static Parse<PrintItem> printItem(const InputPos &pos)
 
 /// Attempt to parse a PrintList.
 ///
-/// Returns PrintList and position of next character if successful.  Returns nil otherwise.
+/// Returns PrintList and position of next character if successful.  Returns nil
+/// otherwise.
 static Parse<PrintList> printList(const InputPos &pos)
 {
     const auto item = printItem(pos);
@@ -531,7 +517,7 @@ static Parse<PrintList> printList(const InputPos &pos)
 static Parse<RelOp> relOp(const InputPos &pos)
 {
     // Note: We need to test the longer sequences before the shorter
-    static const vector<tuple<string, RelOp> > opTable = {
+    static const vector<tuple<string, RelOp>> opTable = {
         {"<=", RelOp::LessOrEqual},
         {">=", RelOp::GreaterOrEqual},
         {"<>", RelOp::NotEqual},
@@ -554,7 +540,8 @@ static Parse<RelOp> relOp(const InputPos &pos)
 
 /// Attempt to parse a PRINT statement.
 ///
-/// Returns statement and position of next character if successful.  Returns nil otherwise.
+/// Returns statement and position of next character if successful.  Returns nil
+/// otherwise.
 static Parse<Statement> printStatement(const InputPos &pos)
 {
     // "PRINT" printList
@@ -581,7 +568,8 @@ static Parse<Statement> printStatement(const InputPos &pos)
 
 /// Attempt to parse a LIST statement.
 ///
-/// Returns statement and position of next character if successful.  Returns nil otherwise.
+/// Returns statement and position of next character if successful.  Returns nil
+/// otherwise.
 static Parse<Statement> listStatement(const InputPos &pos)
 {
     // "LIST" [expression ["," expression]]
@@ -592,8 +580,7 @@ static Parse<Statement> listStatement(const InputPos &pos)
         const auto lowExpr = expression(keyword.nextPos());
         if (lowExpr.wasParsed())
         {
-            const auto commaExpr = lowExpr.nextPos().parse<string, Expression>(
-                lit(","), expression);
+            const auto commaExpr = lowExpr.nextPos().parse<string, Expression>(lit(","), expression);
             if (commaExpr != nullptr)
             {
                 const auto highExpr = std::get<1>(*commaExpr);
@@ -658,8 +645,7 @@ static Parse<Lvalues> lvalueList(const InputPos &pos)
 /// Returns statement and position of next character if successful.
 static Parse<Statement> inputStatement(const InputPos &pos)
 {
-    const auto parsed = pos.parse<string, Lvalues>(
-        oneOfLit{"INPUT", "IN"}, lvalueList);
+    const auto parsed = pos.parse<string, Lvalues>(oneOfLit{"INPUT", "IN"}, lvalueList);
     if (parsed != nullptr)
     {
         const auto lvalues = std::get<1>(*parsed);
@@ -697,8 +683,7 @@ static Parse<Statement> ifStatement(const InputPos &pos)
 /// Returns statement and position of next character if successful.
 static Parse<Statement> gotoStatement(const InputPos &pos)
 {
-    const auto s = pos.parse<string, Expression>(
-        oneOfLit{"GOTO", "GT"}, expression);
+    const auto s = pos.parse<string, Expression>(oneOfLit{"GOTO", "GT"}, expression);
     if (s != nullptr)
     {
         const auto expr = std::get<1>(*s);
@@ -715,8 +700,7 @@ static Parse<Statement> gotoStatement(const InputPos &pos)
 /// Returns statement and position of next character if successful.
 static Parse<Statement> gosubStatement(const InputPos &pos)
 {
-    const auto s = pos.parse<string, Expression>(
-        oneOfLit{"GOSUB", "GS"}, expression);
+    const auto s = pos.parse<string, Expression>(oneOfLit{"GOSUB", "GS"}, expression);
     if (s != nullptr)
     {
         const auto expr = std::get<1>(*s);
@@ -754,8 +738,7 @@ static Parse<Statement> remStatement(const InputPos &pos)
 /// Returns statement and position of next character if successful.
 static Parse<Statement> dimStatement(const InputPos &pos)
 {
-    const auto parsed = pos.parse<string, Expression, string>(
-        lit("DIM@("), expression, lit(")"));
+    const auto parsed = pos.parse<string, Expression, string>(lit("DIM@("), expression, lit(")"));
     if (parsed != nullptr)
     {
         const auto result = Statement::dim(std::get<1>(*parsed));
@@ -771,8 +754,7 @@ static Parse<Statement> dimStatement(const InputPos &pos)
 /// Return statement and position of next character if successful.
 static Parse<Statement> saveStatement(const InputPos &pos)
 {
-    const auto parsed = pos.parse<string, vector<Char> >(
-        oneOfLit{"SAVE", "SV"}, stringLiteral);
+    const auto parsed = pos.parse<string, vector<Char>>(oneOfLit{"SAVE", "SV"}, stringLiteral);
     if (parsed != nullptr)
     {
         const auto chars = std::get<1>(*parsed);
@@ -790,8 +772,7 @@ static Parse<Statement> saveStatement(const InputPos &pos)
 /// Return statement and position of next character if successful.
 static Parse<Statement> loadStatement(const InputPos &pos)
 {
-    const auto parsed = pos.parse<string, vector<Char> >(
-        oneOfLit{"LOAD", "LD"}, stringLiteral);
+    const auto parsed = pos.parse<string, vector<Char>>(oneOfLit{"LOAD", "LD"}, stringLiteral);
     if (parsed != nullptr)
     {
         const auto chars = std::get<1>(*parsed);
@@ -812,18 +793,10 @@ static Parse<Statement> loadStatement(const InputPos &pos)
 Parse<Statement> statement(const InputPos &pos)
 {
     // List of parsing functions to try
-    static const vector<function<Parse<Statement>(const InputPos &pos)> > functions{
-        printStatement,
-        letStatement,
-        inputStatement,
-        dimStatement,
-        ifStatement,
-        gotoStatement,
-        gosubStatement,
-        remStatement,
-        listStatement,
-        saveStatement,
-        loadStatement};
+    static const vector<function<Parse<Statement>(const InputPos &pos)>>
+    functions{printStatement, letStatement, inputStatement, dimStatement,
+              ifStatement, gotoStatement, gosubStatement, remStatement,
+              listStatement, saveStatement, loadStatement};
     for (auto f : functions)
     {
         const auto stmt = f(pos);
@@ -834,7 +807,7 @@ Parse<Statement> statement(const InputPos &pos)
     }
 
     // For simple single-word statements, we use this table
-    static const vector<pair<string, function<Statement()> > > statements{
+    static const vector<pair<string, function<Statement()>>> statements{
         {"RETURN", Statement::returnStatement},
         {"RT", Statement::returnStatement},
         {"RUN", Statement::run},
@@ -862,7 +835,8 @@ Parse<Statement> statement(const InputPos &pos)
 ///
 /// Return parsed number and following position if successful.
 ///
-/// Accepts entry of a number with optional leading sign (+|-), or a variable name.
+/// Accepts entry of a number with optional leading sign (+|-), or a variable
+/// name.
 Parse<Number> inputExpression(const InputPos &pos, InterpreterEngine &engine)
 {
     // number
@@ -897,4 +871,4 @@ Parse<Number> inputExpression(const InputPos &pos, InterpreterEngine &engine)
     return failedParse<Number>();
 }
 
-} // namespace finchlib_cpp
+}  // namespace finchlib_cpp

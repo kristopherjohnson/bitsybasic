@@ -28,7 +28,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using namespace finchlib_cpp;
 
-
 #pragma mark - Lvalue
 
 std::string Lvalue::listText() const
@@ -67,7 +66,6 @@ void Lvalue::ArrayElement::setValue(Number n, InterpreterEngine &engine) const
     engine.setArrayElementValue(subscript, n);
 }
 
-
 #pragma mark - ArithOp
 
 // Our division operator returns 0 on an attempt
@@ -99,7 +97,6 @@ const ArithOp ArithOp::Subtract{std::minus<Number>{}, "-"};
 const ArithOp ArithOp::Multiply{std::multiplies<Number>{}, "*"};
 const ArithOp ArithOp::Divide{SafeDivides{}, "/"};
 
-
 #pragma mark - RelOp
 
 const RelOp RelOp::Less{std::less<Number>{}, "<"};
@@ -109,7 +106,6 @@ const RelOp RelOp::LessOrEqual{std::less_equal<Number>{}, "<="};
 const RelOp RelOp::GreaterOrEqual{std::greater_equal<Number>{}, ">="};
 const RelOp RelOp::NotEqual{std::not_equal_to<Number>{}, "<>"};
 
-
 #pragma mark - Factor
 
 /// Return the value of the factor
@@ -118,12 +114,10 @@ Number Factor::evaluate(const VariableBindings &v, const Numbers &a) const
     return subtype->evaluate(v, a);
 }
 
-std::string Factor::listText() const
-{
-    return subtype->listText();
-}
+std::string Factor::listText() const { return subtype->listText(); }
 
-Number Factor::Num::evaluate(const VariableBindings &v, const Numbers &a) const
+Number Factor::Num::evaluate(const VariableBindings &v,
+                             const Numbers &a) const
 {
     return number;
 }
@@ -136,11 +130,10 @@ std::string Factor::Num::listText() const
 }
 
 Factor::ParenExpr::ParenExpr(const Expression &expr)
-    : expression{std::shared_ptr<Expression>{new Expression{expr}}}
-{
-}
+    : expression{std::shared_ptr<Expression>{new Expression{expr}}} {}
 
-Number Factor::ParenExpr::evaluate(const VariableBindings &v, const Numbers &a) const
+Number Factor::ParenExpr::evaluate(const VariableBindings &v,
+                                   const Numbers &a) const
 {
     return expression->evaluate(v, a);
 }
@@ -150,7 +143,8 @@ std::string Factor::ParenExpr::listText() const
     return "(" + expression->listText() + ")";
 }
 
-Number Factor::Var::evaluate(const VariableBindings &v, const Numbers &a) const
+Number Factor::Var::evaluate(const VariableBindings &v,
+                             const Numbers &a) const
 {
     const auto it = v.find(variableName);
     return it == v.end() ? 0 : it->second;
@@ -162,11 +156,10 @@ std::string Factor::Var::listText() const
 }
 
 Factor::ArrayElement::ArrayElement(const Expression &e)
-    : expression{std::shared_ptr<Expression>{new Expression{e}}}
-{
-}
+    : expression{std::shared_ptr<Expression>{new Expression{e}}} {}
 
-Number Factor::ArrayElement::evaluate(const VariableBindings &v, const Numbers &a) const
+Number Factor::ArrayElement::evaluate(const VariableBindings &v,
+                                      const Numbers &a) const
 {
     const auto index = expression->evaluate(v, a);
     if (index >= 0)
@@ -185,13 +178,11 @@ std::string Factor::ArrayElement::listText() const
     return "@(" + expression->listText() + ")";
 }
 
-
 Factor::Rnd::Rnd(const Expression &e)
-    : expression{std::shared_ptr<Expression>{new Expression{e}}}
-{
-}
+    : expression{std::shared_ptr<Expression>{new Expression{e}}} {}
 
-Number Factor::Rnd::evaluate(const VariableBindings &v, const Numbers &a) const
+Number Factor::Rnd::evaluate(const VariableBindings &v,
+                             const Numbers &a) const
 {
     const auto n = expression->evaluate(v, a);
     if (n < 1)
@@ -207,7 +198,6 @@ std::string Factor::Rnd::listText() const
     return "RND(" + expression->listText() + ")";
 }
 
-
 #pragma mark - Term
 
 /// Return the value of the term
@@ -217,34 +207,23 @@ Number Term::evaluate(const VariableBindings &v, const Numbers &a) const
 }
 
 /// Return pretty-printed text
-std::string Term::listText() const
-{
-    return subtype->listText();
-}
+std::string Term::listText() const { return subtype->listText(); }
 
-bool Term::isCompound() const
-{
-    return subtype->isCompound();
-}
+bool Term::isCompound() const { return subtype->isCompound(); }
 
-Number Term::Value::evaluate(const VariableBindings &v, const Numbers &a) const
+Number Term::Value::evaluate(const VariableBindings &v,
+                             const Numbers &a) const
 {
     return factor.evaluate(v, a);
 }
 
-std::string Term::Value::listText() const
-{
-    return factor.listText();
-}
+std::string Term::Value::listText() const { return factor.listText(); }
 
 Term::Compound::Compound(Factor f, ArithOp op, const Term &t)
-    : factor{f}
-    , arithOp{op}
-    , term{std::shared_ptr<Term>{new Term{t}}}
-{
-}
+    : factor{f}, arithOp{op}, term{std::shared_ptr<Term>{new Term{t}}} {}
 
-Number Term::Compound::evaluate(const VariableBindings &v, const Numbers &a) const
+Number Term::Compound::evaluate(const VariableBindings &v,
+                                const Numbers &a) const
 {
     auto accumulator = factor.evaluate(v, a);
     auto lastOp = arithOp;
@@ -274,16 +253,18 @@ std::string Term::Compound::listText() const
     return factor.listText() + " " + arithOp.listText() + " " + term->listText();
 }
 
-
 #pragma mark - UnsignedExpression
 
 /// Return the value of the expression
-Number UnsignedExpression::evaluate(const VariableBindings &v, const Numbers &a) const
+Number UnsignedExpression::evaluate(const VariableBindings &v,
+                                    const Numbers &a) const
 {
     return subtype->evaluate(v, a);
 }
 
-Number UnsignedExpression::evaluateWithNegatedFirstTerm(const VariableBindings &v, const Numbers &a) const
+Number
+UnsignedExpression::evaluateWithNegatedFirstTerm(const VariableBindings &v,
+                                                 const Numbers &a) const
 {
     if (isCompound())
     {
@@ -294,7 +275,8 @@ Number UnsignedExpression::evaluateWithNegatedFirstTerm(const VariableBindings &
         const auto termValue = compound->term.evaluate(v, a);
         const auto negatedFactor = Factor::number(-termValue);
         const auto negatedTerm = Term::factor(negatedFactor);
-        const auto newUExpr = UnsignedExpression::compound(negatedTerm, compound->arithOp, *compound->tail);
+        const auto newUExpr = UnsignedExpression::compound(
+            negatedTerm, compound->arithOp, *compound->tail);
         const auto newExpr = Expression::unsignedExpr(newUExpr);
         return newExpr.evaluate(v, a);
     }
@@ -304,17 +286,12 @@ Number UnsignedExpression::evaluateWithNegatedFirstTerm(const VariableBindings &
     }
 }
 
-std::string UnsignedExpression::listText() const
-{
-    return subtype->listText();
-}
+std::string UnsignedExpression::listText() const { return subtype->listText(); }
 
-bool UnsignedExpression::isCompound() const
-{
-    return subtype->isCompound();
-}
+bool UnsignedExpression::isCompound() const { return subtype->isCompound(); }
 
-Number UnsignedExpression::Value::evaluate(const VariableBindings &v, const Numbers &a) const
+Number UnsignedExpression::Value::evaluate(const VariableBindings &v,
+                                           const Numbers &a) const
 {
     return term.evaluate(v, a);
 }
@@ -324,14 +301,12 @@ std::string UnsignedExpression::Value::listText() const
     return term.listText();
 }
 
-UnsignedExpression::Compound::Compound(Term t, ArithOp op, const UnsignedExpression &u)
-    : term{t}
-    , arithOp{op}
-    , tail{std::shared_ptr<UnsignedExpression>{new UnsignedExpression{u}}}
-{
-}
+UnsignedExpression::Compound::Compound(Term t, ArithOp op,
+                                       const UnsignedExpression &u)
+    : term{t}, arithOp{op}, tail{std::shared_ptr<UnsignedExpression>{new UnsignedExpression{u}}} {}
 
-Number UnsignedExpression::Compound::evaluate(const VariableBindings &v, const Numbers &a) const
+Number UnsignedExpression::Compound::evaluate(const VariableBindings &v,
+                                              const Numbers &a) const
 {
     auto accumulator = term.evaluate(v, a);
     auto lastOp = arithOp;
@@ -343,7 +318,8 @@ Number UnsignedExpression::Compound::evaluate(const VariableBindings &v, const N
             // Pull out the components of the compound term, apply
             // the previous operator to the accumulator and new factor,
             // then go on to next term.
-            auto compound = static_cast<const UnsignedExpression::Compound *>(next->subtype.get());
+            auto compound = static_cast<const UnsignedExpression::Compound *>(
+                next->subtype.get());
             accumulator = lastOp.apply(accumulator, compound->term.evaluate(v, a));
             lastOp = compound->arithOp;
             next = compound->tail;
@@ -360,7 +336,6 @@ std::string UnsignedExpression::Compound::listText() const
 {
     return term.listText() + " " + arithOp.listText() + " " + tail->listText();
 }
-
 
 #pragma mark - Expression
 
@@ -379,12 +354,10 @@ Number Expression::evaluate(const VariableBindings &v, const Numbers &a) const
     return subtype->evaluate(v, a);
 }
 
-std::string Expression::listText() const
-{
-    return subtype->listText();
-}
+std::string Expression::listText() const { return subtype->listText(); }
 
-Number Expression::UnsignedExpr::evaluate(const VariableBindings &v, const Numbers &a) const
+Number Expression::UnsignedExpr::evaluate(const VariableBindings &v,
+                                          const Numbers &a) const
 {
     return unsignedExpression.evaluate(v, a);
 }
@@ -394,7 +367,8 @@ std::string Expression::UnsignedExpr::listText() const
     return unsignedExpression.listText();
 }
 
-Number Expression::Plus::evaluate(const VariableBindings &v, const Numbers &a) const
+Number Expression::Plus::evaluate(const VariableBindings &v,
+                                  const Numbers &a) const
 {
     return unsignedExpression.evaluate(v, a);
 }
@@ -404,7 +378,8 @@ std::string Expression::Plus::listText() const
     return std::string("+") + unsignedExpression.listText();
 }
 
-Number Expression::Minus::evaluate(const VariableBindings &v, const Numbers &a) const
+Number Expression::Minus::evaluate(const VariableBindings &v,
+                                   const Numbers &a) const
 {
     return unsignedExpression.evaluateWithNegatedFirstTerm(v, a);
 }
@@ -414,20 +389,18 @@ std::string Expression::Minus::listText() const
     return std::string("-") + unsignedExpression.listText();
 }
 
-
 #pragma mark - PrintItem
 
-std::vector<Char> PrintItem::printText(const VariableBindings &v, const Numbers &a) const
+std::vector<Char> PrintItem::printText(const VariableBindings &v,
+                                       const Numbers &a) const
 {
     return subtype->printText(v, a);
 }
 
-std::string PrintItem::listText() const
-{
-    return subtype->listText();
-}
+std::string PrintItem::listText() const { return subtype->listText(); }
 
-std::vector<Char> PrintItem::Expr::printText(const VariableBindings &v, const Numbers &a) const
+std::vector<Char> PrintItem::Expr::printText(const VariableBindings &v,
+                                             const Numbers &a) const
 {
     Number n = expression.evaluate(v, a);
 
@@ -440,12 +413,10 @@ std::vector<Char> PrintItem::Expr::printText(const VariableBindings &v, const Nu
     return result;
 }
 
-std::string PrintItem::Expr::listText() const
-{
-    return expression.listText();
-}
+std::string PrintItem::Expr::listText() const { return expression.listText(); }
 
-std::vector<Char> PrintItem::StringLiteral::printText(const VariableBindings &v, const Numbers &a) const
+std::vector<Char> PrintItem::StringLiteral::printText(const VariableBindings &v,
+                                                      const Numbers &a) const
 {
     return chars;
 }
@@ -462,10 +433,10 @@ std::string PrintItem::StringLiteral::listText() const
     return str;
 }
 
-
 #pragma mark - PrintList
 
-std::vector<Char> PrintList::printText(const VariableBindings &v, const Numbers &a) const
+std::vector<Char> PrintList::printText(const VariableBindings &v,
+                                       const Numbers &a) const
 {
     auto chars = item.printText(v, a);
 
@@ -525,20 +496,14 @@ std::string PrintList::listText() const
     return s.str();
 }
 
-
 #pragma mark - Statement
-
 
 void Statement::execute(InterpreterEngine &engine) const
 {
     subtype->execute(engine);
 }
 
-std::string Statement::listText() const
-{
-    return subtype->listText();
-}
-
+std::string Statement::listText() const { return subtype->listText(); }
 
 void Statement::Print::execute(InterpreterEngine &engine) const
 {
@@ -555,22 +520,14 @@ void Statement::PrintNewline::execute(InterpreterEngine &engine) const
     engine.PRINT();
 }
 
-std::string Statement::PrintNewline::listText() const
-{
-    return "PRINT";
-}
-
+std::string Statement::PrintNewline::listText() const { return "PRINT"; }
 
 void Statement::List::execute(InterpreterEngine &engine) const
 {
     engine.LIST(lowLineNumber, highLineNumber);
 }
 
-std::string Statement::List::listText() const
-{
-    return "LIST";
-}
-
+std::string Statement::List::listText() const { return "LIST"; }
 
 void Statement::Let::execute(InterpreterEngine &engine) const
 {
@@ -581,7 +538,6 @@ std::string Statement::Let::listText() const
 {
     return "LET " + lvalue.listText() + " = " + expression.listText();
 }
-
 
 void Statement::Input::execute(InterpreterEngine &engine) const
 {
@@ -609,14 +565,10 @@ std::string Statement::Input::listText() const
     return "INPUT " + listTextFor(lvalues);
 }
 
-
-Statement::IfThen::IfThen(const Expression &left, const RelOp &relop, const Expression &right, const Statement &thenStatement)
-    : lhs{left}
-    , op{relop}
-    , rhs{right}
-    , consequent{std::shared_ptr<Statement>{new Statement{thenStatement}}}
-{
-}
+Statement::IfThen::IfThen(const Expression &left, const RelOp &relop,
+                          const Expression &right,
+                          const Statement &thenStatement)
+    : lhs{left}, op{relop}, rhs{right}, consequent{std::shared_ptr<Statement>{new Statement{thenStatement}}} {}
 
 void Statement::IfThen::execute(InterpreterEngine &engine) const
 {
@@ -625,34 +577,16 @@ void Statement::IfThen::execute(InterpreterEngine &engine) const
 
 std::string Statement::IfThen::listText() const
 {
-    return "IF " + lhs.listText()
-           + " " + op.listText()
-           + " " + rhs.listText()
-           + " THEN " + consequent->listText();
+    return "IF " + lhs.listText() + " " + op.listText() + " " + rhs.listText() + " THEN " + consequent->listText();
 }
 
+void Statement::Run::execute(InterpreterEngine &engine) const { engine.RUN(); }
 
-void Statement::Run::execute(InterpreterEngine &engine) const
-{
-    engine.RUN();
-}
+std::string Statement::Run::listText() const { return "RUN"; }
 
-std::string Statement::Run::listText() const
-{
-    return "RUN";
-}
+void Statement::End::execute(InterpreterEngine &engine) const { engine.END(); }
 
-
-void Statement::End::execute(InterpreterEngine &engine) const
-{
-    engine.END();
-}
-
-std::string Statement::End::listText() const
-{
-    return "END";
-}
-
+std::string Statement::End::listText() const { return "END"; }
 
 void Statement::Goto::execute(InterpreterEngine &engine) const
 {
@@ -664,7 +598,6 @@ std::string Statement::Goto::listText() const
     return "GOTO " + lineNumber.listText();
 }
 
-
 void Statement::Gosub::execute(InterpreterEngine &engine) const
 {
     engine.GOSUB(lineNumber);
@@ -675,61 +608,37 @@ std::string Statement::Gosub::listText() const
     return "GOSUB " + lineNumber.listText();
 }
 
-
 void Statement::Return::execute(InterpreterEngine &engine) const
 {
     engine.RETURN();
 }
 
-std::string Statement::Return::listText() const
-{
-    return "RETURN";
-}
-
+std::string Statement::Return::listText() const { return "RETURN"; }
 
 void Statement::Rem::execute(InterpreterEngine &engine) const
 {
     // does nothing
 }
 
-std::string Statement::Rem::listText() const
-{
-    return "REM" + text;
-}
-
+std::string Statement::Rem::listText() const { return "REM" + text; }
 
 void Statement::Clear::execute(InterpreterEngine &engine) const
 {
     engine.CLEAR();
 }
 
-std::string Statement::Clear::listText() const
-{
-    return "CLEAR";
-}
+std::string Statement::Clear::listText() const { return "CLEAR"; }
 
+void Statement::Bye::execute(InterpreterEngine &engine) const { engine.BYE(); }
 
-void Statement::Bye::execute(InterpreterEngine &engine) const
-{
-    engine.BYE();
-}
-
-std::string Statement::Bye::listText() const
-{
-    return "BYE";
-}
-
+std::string Statement::Bye::listText() const { return "BYE"; }
 
 void Statement::Help::execute(InterpreterEngine &engine) const
 {
     engine.HELP();
 }
 
-std::string Statement::Help::listText() const
-{
-    return "HELP";
-}
-
+std::string Statement::Help::listText() const { return "HELP"; }
 
 void Statement::Dim::execute(InterpreterEngine &engine) const
 {
@@ -741,7 +650,6 @@ std::string Statement::Dim::listText() const
     return "DIM @(" + expression.listText() + ")";
 }
 
-
 void Statement::Save::execute(InterpreterEngine &engine) const
 {
     engine.SAVE(filename);
@@ -751,7 +659,6 @@ std::string Statement::Save::listText() const
 {
     return "SAVE \"" + filename + "\"";
 }
-
 
 void Statement::Load::execute(InterpreterEngine &engine) const
 {
@@ -763,35 +670,23 @@ std::string Statement::Load::listText() const
     return "LOAD \"" + filename + "\"";
 }
 
-
 void Statement::Files::execute(InterpreterEngine &engine) const
 {
     engine.FILES();
 }
 
-std::string Statement::Files::listText() const
-{
-    return "FILES";
-}
-
+std::string Statement::Files::listText() const { return "FILES"; }
 
 void Statement::Tron::execute(InterpreterEngine &engine) const
 {
     engine.TRON();
 }
 
-std::string Statement::Tron::listText() const
-{
-    return "TRON";
-}
-
+std::string Statement::Tron::listText() const { return "TRON"; }
 
 void Statement::Troff::execute(InterpreterEngine &engine) const
 {
     engine.TROFF();
 }
 
-std::string Statement::Troff::listText() const
-{
-    return "TROFF";
-}
+std::string Statement::Troff::listText() const { return "TROFF"; }

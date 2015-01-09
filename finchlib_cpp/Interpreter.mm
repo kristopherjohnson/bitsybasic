@@ -46,11 +46,9 @@ InputCharResult InputCharResult_Waiting()
     return result;
 }
 
-
 @interface Interpreter ()
 @property id<InterpreterIO> interpreterIO;
 @end
-
 
 @implementation Interpreter
 {

@@ -53,20 +53,11 @@ private:
 
 public:
     ArithOp(std::function<Number(Number, Number)> f, std::string listText)
-        : fn{f}
-        , text{listText}
-    {
-    }
+        : fn{f}, text{listText} {}
 
-    Number apply(Number lhs, Number rhs) const
-    {
-        return fn(lhs, rhs);
-    }
+    Number apply(Number lhs, Number rhs) const { return fn(lhs, rhs); }
 
-    std::string listText() const
-    {
-        return text;
-    }
+    std::string listText() const { return text; }
 
     static const ArithOp Add;
     static const ArithOp Subtract;
@@ -83,20 +74,11 @@ private:
 
 public:
     RelOp(std::function<bool(Number, Number)> f, std::string listText)
-        : fn{f}
-        , text{listText}
-    {
-    }
+        : fn{f}, text{listText} {}
 
-    bool isTrueForNumbers(Number lhs, Number rhs) const
-    {
-        return fn(lhs, rhs);
-    }
+    bool isTrueForNumbers(Number lhs, Number rhs) const { return fn(lhs, rhs); }
 
-    std::string listText() const
-    {
-        return text;
-    }
+    std::string listText() const { return text; }
 
     static const RelOp Less;
     static const RelOp Greater;
@@ -112,7 +94,8 @@ class Factor
 private:
     struct Subtype
     {
-        virtual Number evaluate(const VariableBindings &v, const Numbers &a) const = 0;
+        virtual Number evaluate(const VariableBindings &v,
+                                const Numbers &a) const = 0;
         virtual std::string listText() const = 0;
     };
 
@@ -121,10 +104,7 @@ private:
     {
         Number number;
 
-        Num(Number n)
-            : number(n)
-        {
-        }
+        Num(Number n) : number(n) {}
 
         virtual Number evaluate(const VariableBindings &v, const Numbers &a) const;
         virtual std::string listText() const;
@@ -146,10 +126,7 @@ private:
     {
         VariableName variableName;
 
-        Var(VariableName v)
-            : variableName{v}
-        {
-        }
+        Var(VariableName v) : variableName{v} {}
 
         virtual Number evaluate(const VariableBindings &v, const Numbers &a) const;
         virtual std::string listText() const;
@@ -179,10 +156,7 @@ private:
 
     std::shared_ptr<Subtype> subtype;
 
-    Factor(std::shared_ptr<Subtype> s)
-        : subtype(s)
-    {
-    }
+    Factor(std::shared_ptr<Subtype> s) : subtype(s) {}
 
 public:
     /// Construct a Factor from a Number
@@ -215,7 +189,6 @@ public:
         return {std::shared_ptr<Subtype>{new Rnd{expr}}};
     }
 
-
     /// Return the value of the factor
     Number evaluate(const VariableBindings &v, const Numbers &a) const;
 
@@ -229,7 +202,8 @@ class Term
 private:
     struct Subtype
     {
-        virtual Number evaluate(const VariableBindings &v, const Numbers &a) const = 0;
+        virtual Number evaluate(const VariableBindings &v,
+                                const Numbers &a) const = 0;
         virtual std::string listText() const = 0;
         virtual bool isCompound() const = 0;
     };
@@ -239,10 +213,7 @@ private:
     {
         Factor factor;
 
-        Value(Factor f)
-            : factor{f}
-        {
-        }
+        Value(Factor f) : factor{f} {}
 
         virtual bool isCompound() const { return false; }
 
@@ -268,10 +239,7 @@ private:
 
     std::shared_ptr<Subtype> subtype;
 
-    Term(std::shared_ptr<Subtype> s)
-        : subtype{s}
-    {
-    }
+    Term(std::shared_ptr<Subtype> s) : subtype{s} {}
 
 public:
     /// Construct a Term from a Factor
@@ -302,7 +270,8 @@ class UnsignedExpression
 private:
     struct Subtype
     {
-        virtual Number evaluate(const VariableBindings &v, const Numbers &a) const = 0;
+        virtual Number evaluate(const VariableBindings &v,
+                                const Numbers &a) const = 0;
         virtual std::string listText() const = 0;
         virtual bool isCompound() const = 0;
     };
@@ -312,10 +281,7 @@ private:
     {
         Term term;
 
-        Value(Term t)
-            : term(t)
-        {
-        }
+        Value(Term t) : term(t) {}
 
         virtual bool isCompound() const { return false; }
 
@@ -341,10 +307,7 @@ private:
 
     std::shared_ptr<Subtype> subtype;
 
-    UnsignedExpression(std::shared_ptr<Subtype> s)
-        : subtype(s)
-    {
-    }
+    UnsignedExpression(std::shared_ptr<Subtype> s) : subtype(s) {}
 
 public:
     /// Construct an UnsignedExpression from a Term
@@ -353,8 +316,10 @@ public:
         return {std::shared_ptr<Subtype>{new Value{t}}};
     }
 
-    /// Construct an UnsignedExpression from a term, an operation, and successive expression
-    static UnsignedExpression compound(Term t, ArithOp op, const UnsignedExpression &u)
+    /// Construct an UnsignedExpression from a term, an operation, and successive
+    /// expression
+    static UnsignedExpression compound(Term t, ArithOp op,
+                                       const UnsignedExpression &u)
     {
         return {std::shared_ptr<Subtype>{new Compound{t, op, u}}};
     }
@@ -363,7 +328,8 @@ public:
     Number evaluate(const VariableBindings &v, const Numbers &a) const;
 
     /// Return the value of the expression, negating the value of the first term
-    Number evaluateWithNegatedFirstTerm(const VariableBindings &v, const Numbers &a) const;
+    Number evaluateWithNegatedFirstTerm(const VariableBindings &v,
+                                        const Numbers &a) const;
 
     /// Return true if this is a Compound
     bool isCompound() const;
@@ -380,22 +346,17 @@ private:
     {
         UnsignedExpression unsignedExpression;
 
-        Subtype(UnsignedExpression uexpr)
-            : unsignedExpression{uexpr}
-        {
-        }
+        Subtype(UnsignedExpression uexpr) : unsignedExpression{uexpr} {}
 
-        virtual Number evaluate(const VariableBindings &v, const Numbers &a) const = 0;
+        virtual Number evaluate(const VariableBindings &v,
+                                const Numbers &a) const = 0;
         virtual std::string listText() const = 0;
     };
 
     /// expression with no leading sign
     struct UnsignedExpr : public Subtype
     {
-        UnsignedExpr(UnsignedExpression uexpr)
-            : Subtype{uexpr}
-        {
-        }
+        UnsignedExpr(UnsignedExpression uexpr) : Subtype{uexpr} {}
 
         virtual Number evaluate(const VariableBindings &v, const Numbers &a) const;
         virtual std::string listText() const;
@@ -404,10 +365,7 @@ private:
     /// expression with explicit "+" prefix
     struct Plus : public Subtype
     {
-        Plus(UnsignedExpression uexpr)
-            : Subtype{uexpr}
-        {
-        }
+        Plus(UnsignedExpression uexpr) : Subtype{uexpr} {}
 
         virtual Number evaluate(const VariableBindings &v, const Numbers &a) const;
         virtual std::string listText() const;
@@ -416,10 +374,7 @@ private:
     /// expression with explicit "-" prefix
     struct Minus : public Subtype
     {
-        Minus(UnsignedExpression uexpr)
-            : Subtype{uexpr}
-        {
-        }
+        Minus(UnsignedExpression uexpr) : Subtype{uexpr} {}
 
         virtual Number evaluate(const VariableBindings &v, const Numbers &a) const;
         virtual std::string listText() const;
@@ -427,10 +382,7 @@ private:
 
     std::shared_ptr<Subtype> subtype;
 
-    Expression(std::shared_ptr<Subtype> s)
-        : subtype{s}
-    {
-    }
+    Expression(std::shared_ptr<Subtype> s) : subtype{s} {}
 
 public:
     /// Construct an expression from an UnsignedExpression
@@ -466,7 +418,8 @@ class PrintTextProvider
 {
 public:
     /// Return characters to be output by PRINT statement for this element
-    virtual std::vector<Char> printText(const VariableBindings &v, const Numbers &a) const = 0;
+    virtual std::vector<Char> printText(const VariableBindings &v,
+                                        const Numbers &a) const = 0;
 };
 
 /// Result of parsing an item in a printList
@@ -475,7 +428,8 @@ class PrintItem : public PrintTextProvider
 private:
     struct Subtype
     {
-        virtual std::vector<Char> printText(const VariableBindings &v, const Numbers &a) const = 0;
+        virtual std::vector<Char> printText(const VariableBindings &v,
+                                            const Numbers &a) const = 0;
 
         /// Return pretty-printed statement text
         virtual std::string listText() const = 0;
@@ -486,12 +440,10 @@ private:
     {
         Expression expression;
 
-        Expr(Expression e)
-            : expression(e)
-        {
-        }
+        Expr(Expression e) : expression(e) {}
 
-        virtual std::vector<Char> printText(const VariableBindings &v, const Numbers &a) const;
+        virtual std::vector<Char> printText(const VariableBindings &v,
+                                            const Numbers &a) const;
         virtual std::string listText() const;
     };
 
@@ -500,21 +452,16 @@ private:
     {
         std::vector<Char> chars;
 
-        StringLiteral(const std::vector<Char> characters)
-            : chars(characters)
-        {
-        }
+        StringLiteral(const std::vector<Char> characters) : chars(characters) {}
 
-        virtual std::vector<Char> printText(const VariableBindings &v, const Numbers &a) const;
+        virtual std::vector<Char> printText(const VariableBindings &v,
+                                            const Numbers &a) const;
         virtual std::string listText() const;
     };
 
     std::shared_ptr<Subtype> subtype;
 
-    PrintItem(std::shared_ptr<Subtype> sub)
-        : subtype{sub}
-    {
-    }
+    PrintItem(std::shared_ptr<Subtype> sub) : subtype{sub} {}
 
 public:
     /// Construct a PrintItem from an expression
@@ -529,7 +476,8 @@ public:
         return {std::shared_ptr<Subtype>{new StringLiteral{value}}};
     }
 
-    virtual std::vector<Char> printText(const VariableBindings &v, const Numbers &a) const;
+    virtual std::vector<Char> printText(const VariableBindings &v,
+                                        const Numbers &a) const;
 
     /// Return pretty-printed statement text
     std::string listText() const;
@@ -557,15 +505,13 @@ private:
     std::shared_ptr<PrintList> tail;
 
 public:
-    PrintList(const PrintItem &firstItem, PrintSeparator sep, std::shared_ptr<PrintList> otherItems)
-        : item(firstItem)
-        , separator(sep)
-        , tail(otherItems)
-    {
-    }
+    PrintList(const PrintItem &firstItem, PrintSeparator sep,
+              std::shared_ptr<PrintList> otherItems)
+        : item(firstItem), separator(sep), tail(otherItems) {}
 
     /// Return characters to be output by PRINT statement for this element
-    std::vector<Char> printText(const VariableBindings &v, const Numbers &a) const;
+    std::vector<Char> printText(const VariableBindings &v,
+                                const Numbers &a) const;
 
     /// Return pretty-printed statement text
     std::string listText() const;
@@ -585,10 +531,7 @@ private:
     {
         VariableName variableName;
 
-        Var(VariableName v)
-            : variableName{v}
-        {
-        }
+        Var(VariableName v) : variableName{v} {}
 
         virtual std::string listText() const;
         virtual void setValue(Number n, InterpreterEngine &engine) const;
@@ -598,10 +541,7 @@ private:
     {
         Expression subscript;
 
-        ArrayElement(const Expression &sub)
-            : subscript{sub}
-        {
-        }
+        ArrayElement(const Expression &sub) : subscript{sub} {}
 
         virtual std::string listText() const;
         virtual void setValue(Number n, InterpreterEngine &engine) const;
@@ -609,10 +549,7 @@ private:
 
     std::shared_ptr<Subtype> subtype;
 
-    Lvalue(std::shared_ptr<Subtype> s)
-        : subtype{s}
-    {
-    }
+    Lvalue(std::shared_ptr<Subtype> s) : subtype{s} {}
 
 public:
     /// Return an Lvalue for a variable
@@ -639,7 +576,6 @@ public:
 
 typedef std::vector<Lvalue> Lvalues;
 
-
 /// BASIC statement that can be parsed and executed
 class Statement
 {
@@ -655,10 +591,7 @@ private:
     {
         PrintList printList;
 
-        Print(const PrintList &plist)
-            : printList(plist)
-        {
-        }
+        Print(const PrintList &plist) : printList(plist) {}
 
         virtual void execute(InterpreterEngine &engine) const;
         virtual std::string listText() const;
@@ -676,10 +609,7 @@ private:
         Expression highLineNumber;
 
         List(const Expression &low, const Expression &high)
-            : lowLineNumber{low}
-            , highLineNumber{high}
-        {
-        }
+            : lowLineNumber{low}, highLineNumber{high} {}
 
         virtual void execute(InterpreterEngine &engine) const;
         virtual std::string listText() const;
@@ -691,10 +621,7 @@ private:
         Expression expression;
 
         Let(const Lvalue &lv, const Expression &expr)
-            : lvalue(lv)
-            , expression(expr)
-        {
-        }
+            : lvalue(lv), expression(expr) {}
 
         virtual void execute(InterpreterEngine &engine) const;
         virtual std::string listText() const;
@@ -704,10 +631,7 @@ private:
     {
         Lvalues lvalues;
 
-        Input(const Lvalues &lv)
-            : lvalues(lv)
-        {
-        }
+        Input(const Lvalues &lv) : lvalues(lv) {}
 
         virtual void execute(InterpreterEngine &engine) const;
         virtual std::string listText() const;
@@ -720,7 +644,8 @@ private:
         Expression rhs;
         std::shared_ptr<Statement> consequent;
 
-        IfThen(const Expression &left, const RelOp &relop, const Expression &right, const Statement &thenStatement);
+        IfThen(const Expression &left, const RelOp &relop, const Expression &right,
+               const Statement &thenStatement);
 
         virtual void execute(InterpreterEngine &engine) const;
         virtual std::string listText() const;
@@ -742,10 +667,7 @@ private:
     {
         Expression lineNumber;
 
-        Goto(const Expression &expr)
-            : lineNumber{expr}
-        {
-        }
+        Goto(const Expression &expr) : lineNumber{expr} {}
 
         virtual void execute(InterpreterEngine &engine) const;
         virtual std::string listText() const;
@@ -755,10 +677,7 @@ private:
     {
         Expression lineNumber;
 
-        Gosub(const Expression &expr)
-            : lineNumber{expr}
-        {
-        }
+        Gosub(const Expression &expr) : lineNumber{expr} {}
 
         virtual void execute(InterpreterEngine &engine) const;
         virtual std::string listText() const;
@@ -774,10 +693,7 @@ private:
     {
         std::string text;
 
-        Rem(const std::string &s)
-            : text{s}
-        {
-        }
+        Rem(const std::string &s) : text{s} {}
 
         virtual void execute(InterpreterEngine &engine) const;
         virtual std::string listText() const;
@@ -805,10 +721,7 @@ private:
     {
         Expression expression;
 
-        Dim(const Expression &expr)
-            : expression{expr}
-        {
-        }
+        Dim(const Expression &expr) : expression{expr} {}
 
         virtual void execute(InterpreterEngine &engine) const;
         virtual std::string listText() const;
@@ -818,10 +731,7 @@ private:
     {
         std::string filename;
 
-        Save(std::string s)
-            : filename{s}
-        {
-        }
+        Save(std::string s) : filename{s} {}
 
         virtual void execute(InterpreterEngine &engine) const;
         virtual std::string listText() const;
@@ -831,10 +741,7 @@ private:
     {
         std::string filename;
 
-        Load(std::string s)
-            : filename{s}
-        {
-        }
+        Load(std::string s) : filename{s} {}
 
         virtual void execute(InterpreterEngine &engine) const;
         virtual std::string listText() const;
@@ -860,15 +767,9 @@ private:
 
     std::shared_ptr<Subtype> subtype;
 
-    Statement(std::shared_ptr<Subtype> sub)
-        : subtype(sub)
-    {
-    }
+    Statement(std::shared_ptr<Subtype> sub) : subtype(sub) {}
 
-    Statement()
-        : subtype(nullptr)
-    {
-    }
+    Statement() : subtype(nullptr) {}
 
 public:
     /// Execute the statement
@@ -890,9 +791,9 @@ public:
     }
 
     /// Return a LIST statement
-    static Statement list(
-        const Expression &lowLineNumber = Expression::number(0),
-        const Expression &highLineNumber = Expression::number(std::numeric_limits<Number>::max()))
+    static Statement list(const Expression &lowLineNumber = Expression::number(0),
+                          const Expression &highLineNumber = Expression::number(
+                              std::numeric_limits<Number>::max()))
     {
         return {std::shared_ptr<Subtype>{new List{lowLineNumber, highLineNumber}}};
     }
@@ -910,22 +811,19 @@ public:
     }
 
     /// Return an IF statement
-    static Statement ifThen(const Expression &left, const RelOp &relop, const Expression &right, const Statement &thenStatement)
+    static Statement ifThen(const Expression &left, const RelOp &relop,
+                            const Expression &right,
+                            const Statement &thenStatement)
     {
-        return {std::shared_ptr<Subtype>{new IfThen{left, relop, right, thenStatement}}};
+        return {std::shared_ptr<Subtype>{
+            new IfThen{left, relop, right, thenStatement}}};
     }
 
     /// Return a RUN statement
-    static Statement run()
-    {
-        return {std::shared_ptr<Subtype>{new Run{}}};
-    }
+    static Statement run() { return {std::shared_ptr<Subtype>{new Run{}}}; }
 
     /// Return a END statement
-    static Statement end()
-    {
-        return {std::shared_ptr<Subtype>{new End{}}};
-    }
+    static Statement end() { return {std::shared_ptr<Subtype>{new End{}}}; }
 
     /// Return a GOTO statement
     static Statement gotoStatement(const Expression &expr)
@@ -952,22 +850,13 @@ public:
     }
 
     /// Return a CLEAR statement
-    static Statement clear()
-    {
-        return {std::shared_ptr<Subtype>{new Clear{}}};
-    }
+    static Statement clear() { return {std::shared_ptr<Subtype>{new Clear{}}}; }
 
     /// Return a BYE statement
-    static Statement bye()
-    {
-        return {std::shared_ptr<Subtype>{new Bye{}}};
-    }
+    static Statement bye() { return {std::shared_ptr<Subtype>{new Bye{}}}; }
 
     /// Return a HELP statement
-    static Statement help()
-    {
-        return {std::shared_ptr<Subtype>{new Help{}}};
-    }
+    static Statement help() { return {std::shared_ptr<Subtype>{new Help{}}}; }
 
     /// Return a DIM statement
     static Statement dim(const Expression &expr)
@@ -988,31 +877,19 @@ public:
     }
 
     /// Return a FILES stateent
-    static Statement files()
-    {
-        return {std::shared_ptr<Subtype>{new Files{}}};
-    }
+    static Statement files() { return {std::shared_ptr<Subtype>{new Files{}}}; }
 
     /// Return a TRON stateent
-    static Statement tron()
-    {
-        return {std::shared_ptr<Subtype>{new Tron{}}};
-    }
+    static Statement tron() { return {std::shared_ptr<Subtype>{new Tron{}}}; }
 
     /// Return a TROFF stateent
-    static Statement troff()
-    {
-        return {std::shared_ptr<Subtype>{new Troff{}}};
-    }
+    static Statement troff() { return {std::shared_ptr<Subtype>{new Troff{}}}; }
 
     /// Return an invalid Statement
     ///
     /// This is used only for cases where a default constructor is needed.
     /// Any attempt to use this Statement will result in an access violation.
-    static Statement invalid()
-    {
-        return {};
-    }
+    static Statement invalid() { return {}; }
 };
 
 struct NumberedStatement
@@ -1022,17 +899,9 @@ struct NumberedStatement
 
     // No-arg constructor, provided so that NumberedStatement can be
     // used in std::vector.
-    NumberedStatement()
-        : lineNumber(0)
-        , statement(Statement::invalid())
-    {
-    }
+    NumberedStatement() : lineNumber(0), statement(Statement::invalid()) {}
 
-    NumberedStatement(Number n, Statement s)
-        : lineNumber(n)
-        , statement(s)
-    {
-    }
+    NumberedStatement(Number n, Statement s) : lineNumber(n), statement(s) {}
 
     NumberedStatement(const NumberedStatement &copy) = default;
 

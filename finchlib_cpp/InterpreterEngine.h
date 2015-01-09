@@ -27,7 +27,6 @@
 #import "Interpreter.h"
 #import "syntax.h"
 
-
 namespace finchlib_cpp
 {
 
@@ -47,24 +46,17 @@ typedef NS_ENUM(NSInteger, LineKind)
 struct InputLineResult
 {
     InputResultKind kind;
-    InputLine value; // only used when kind == InputResultKindValue
+    InputLine value;  // only used when kind == InputResultKindValue
 
     static InputLineResult inputLine(const InputLine &input)
     {
         return {InputResultKindValue, input};
     }
 
-    static InputLineResult endOfStream()
-    {
-        return {InputResultKindEndOfStream};
-    }
+    static InputLineResult endOfStream() { return {InputResultKindEndOfStream}; }
 
-    static InputLineResult waiting()
-    {
-        return {InputResultKindWaiting};
-    }
+    static InputLineResult waiting() { return {InputResultKindWaiting}; }
 };
-
 
 #pragma mark - InterpreterEngine
 
@@ -103,7 +95,8 @@ public:
     void LIST(const Expression &lowExpr, const Expression &highExpr);
 
     /// Execute an IF statement
-    void IF(const Expression &lhs, const RelOp &op, const Expression &rhs, const Statement &consequent);
+    void IF(const Expression &lhs, const RelOp &op, const Expression &rhs,
+            const Statement &consequent);
 
     /// Execute a RUN statement
     void RUN();
@@ -175,7 +168,8 @@ private:
     /// Array of numbers, addressable using the syntax "@(i)"
     Numbers a;
 
-    /// Characters that have been read from input but not yet been returned by readInputLine()
+    /// Characters that have been read from input but not yet been returned by
+    /// readInputLine()
     InputLine inputLineBuffer;
 
     /// Array of program lines
@@ -235,7 +229,8 @@ private:
 
     /// Display error message and stop running
     ///
-    /// Call this method if an unrecoverable error happens while executing a statement
+    /// Call this method if an unrecoverable error happens while executing a
+    /// statement
     void abortRunWithErrorMessage(std::string message);
 
     /// Send a single character to the output stream
@@ -257,16 +252,21 @@ private:
     ///
     /// Return array of characters, or nil if at end of input stream.
     ///
-    /// Result does not include any non-graphic characters that were in the input stream.
-    /// Any horizontal tab ('\t') in the input will be converted to a single space.
+    /// Result does not include any non-graphic characters that were in the input
+    /// stream.
+    /// Any horizontal tab ('\t') in the input will be converted to a single
+    /// space.
     ///
-    /// Result may be an empty array, indicating an empty input line, not end of input.
+    /// Result may be an empty array, indicating an empty input line, not end of
+    /// input.
     InputLineResult readInputLine();
 
     /// Get a line of input, using specified function to retrieve characters.
     ///
-    /// Result does not include any non-graphic characters that were in the input stream.
-    /// Any horizontal tab ('\t') in the input will be converted to a single space.
+    /// Result does not include any non-graphic characters that were in the input
+    /// stream.
+    /// Any horizontal tab ('\t') in the input will be converted to a single
+    /// space.
     InputLineResult getInputLine(std::function<InputCharResult()> getChar);
 
     /// Perform an INPUT operation
@@ -279,6 +279,6 @@ private:
     void showInputHelpMessage();
 };
 
-} // namespace finchlib_cpp
+}  // namespace finchlib_cpp
 
 #endif /* defined(__finchbasic__InterpreterEngine__) */
