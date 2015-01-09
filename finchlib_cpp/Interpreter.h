@@ -31,15 +31,17 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 typedef unsigned char Char;
 typedef int Number;
 
-typedef NS_ENUM(NSInteger, InputResultKind) {
+typedef NS_ENUM(NSInteger, InputResultKind)
+{
     InputResultKindValue,
     InputResultKindEndOfStream,
     InputResultKindWaiting
 };
 
-typedef struct {
+typedef struct
+{
     InputResultKind kind;
-    Char            value; // only used when kind == InputResultKindValue
+    Char value; // only used when kind == InputResultKindValue
 } InputCharResult;
 
 // Functions for creating an InputCharResult with the appropriate kind
@@ -91,7 +93,8 @@ __END_DECLS
 ///
 /// The state returns to `.ReadingStatement` on an `END`
 /// statement or if `RUN` has to abort due to an error.
-typedef NS_ENUM(NSInteger, InterpreterState) {
+typedef NS_ENUM(NSInteger, InterpreterState)
+{
     /// Interpreter is not "doing anything".
     ///
     /// When in this state, interpreter will display

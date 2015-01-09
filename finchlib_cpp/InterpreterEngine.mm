@@ -41,7 +41,8 @@ using std::make_tuple;
 using std::pair;
 using std::function;
 
-namespace finchlib_cpp {
+namespace finchlib_cpp
+{
 
 /// An input line is parsed to be a statement preceded by a line number,
 /// which will be inserted into the program, or a statement without a preceding
@@ -49,39 +50,46 @@ namespace finchlib_cpp {
 ///
 /// Also possible are empty input lines, which are ignored, or unparseable
 /// input lines, which generate an error message.
-struct Line {
-    LineKind    kind;
-    Number      lineNumber;
-    Statement   statement;
+struct Line
+{
+    LineKind kind;
+    Number lineNumber;
+    Statement statement;
     std::string errorMessage;
 
-    static Line numberedStatement(Number n, Statement s) {
-        return {LineKindNumberedStatement, n, s};
+    static Line numberedStatement(Number n, Statement s)
+    {
+        return { LineKindNumberedStatement, n, s };
     }
 
-    static Line unnumberedStatement(Statement s) {
-        return {LineKindUnnumberedStatement, 0, s};
+    static Line unnumberedStatement(Statement s)
+    {
+        return { LineKindUnnumberedStatement, 0, s };
     }
 
-    static Line empty() {
-        return {LineKindEmpty, 0, Statement::invalid()};
+    static Line empty()
+    {
+        return { LineKindEmpty, 0, Statement::invalid() };
     }
 
-    static Line emptyNumberedLine(Number n) {
-        return {LineKindEmptyNumberedLine, n, Statement::invalid()};
+    static Line emptyNumberedLine(Number n)
+    {
+        return { LineKindEmptyNumberedLine, n, Statement::invalid() };
     }
 
-    static Line error(std::string message) {
-        return {LineKindError, 0, Statement::invalid(), message};
+    static Line error(std::string message)
+    {
+        return { LineKindError, 0, Statement::invalid(), message };
     }
 };
-
 
 
 #pragma mark - InterpreterEngine
 
 InterpreterEngine::InterpreterEngine(Interpreter *interpreter, id<InterpreterIO> interpreterIO)
-: interpreter{interpreter}, io{interpreterIO}, a(1024)
+    : interpreter{ interpreter }
+    , io{ interpreterIO }
+    , a(1024)
 {
     clearVariablesAndArray();
 }
@@ -95,10 +103,12 @@ InterpreterState InterpreterEngine::state()
 /// Set values of all variables and array elements to zero
 void InterpreterEngine::clearVariablesAndArray()
 {
-    for (auto varname = 'A'; varname <= 'Z'; ++varname) {
+    for (auto varname = 'A'; varname <= 'Z'; ++varname)
+    {
         v[varname] = 0;
     }
-    for (auto i = 0; i < a.size(); ++i) {
+    for (auto i = 0; i < a.size(); ++i)
+    {
         a[i] = 0;
     }
 }
@@ -127,7 +137,8 @@ void InterpreterEngine::clearReturnStack()
 /// Otherwise, host should call `next()` in a loop.
 void InterpreterEngine::runUntilEndOfInput()
 {
-    while (!hasReachedEndOfInput) {
+    while (!hasReachedEndOfInput)
+    {
         next();
     }
 }
@@ -138,15 +149,18 @@ void InterpreterEngine::runUntilEndOfInput()
 /// in a loop.
 void InterpreterEngine::next()
 {
-    switch (st) {
+    switch (st)
+    {
         case InterpreterStateIdle:
             [io showCommandPromptForInterpreter:interpreter];
             st = InterpreterStateReadingStatement;
             break;
 
-        case InterpreterStateReadingStatement: {
+        case InterpreterStateReadingStatement:
+        {
             const auto result = readInputLine();
-            switch (result.kind) {
+            switch (result.kind)
+            {
 
                 case InputResultKindValue:
                     processInput(result.value);
@@ -164,7 +178,8 @@ void InterpreterEngine::next()
                     // should be no other cases
                     assert(false);
             }
-        } break;
+        }
+        break;
 
         case InterpreterStateRunning:
             executeNextProgramStatement();
@@ -188,31 +203,32 @@ void InterpreterEngine::processInput(const InputLine &input)
 
     auto line = parseInputLine(input);
 
-    switch (line.kind) {
+    switch (line.kind)
+    {
 
-    case LineKindUnnumberedStatement:
-        execute(line.statement);
-        break;
+        case LineKindUnnumberedStatement:
+            execute(line.statement);
+            break;
 
-    case LineKindNumberedStatement:
-        insertLineIntoProgram(line.lineNumber, line.statement);
-        break;
+        case LineKindNumberedStatement:
+            insertLineIntoProgram(line.lineNumber, line.statement);
+            break;
 
-    case LineKindEmptyNumberedLine:
-        deleteLineFromProgram(line.lineNumber);
-        break;
+        case LineKindEmptyNumberedLine:
+            deleteLineFromProgram(line.lineNumber);
+            break;
 
-    case LineKindEmpty:
-        // Do nothing
-        break;
+        case LineKindEmpty:
+            // Do nothing
+            break;
 
-    case LineKindError:
-        showError(line.errorMessage);
-        break;
+        case LineKindError:
+            showError(line.errorMessage);
+            break;
 
-    default:
-        // Should be no other cases
-        assert(false);
+        default:
+            // Should be no other cases
+            assert(false);
     }
 }
 
@@ -221,33 +237,40 @@ void InterpreterEngine::processInput(const InputLine &input)
 
 Line InterpreterEngine::parseInputLine(const InputLine &input)
 {
-    const auto start = InputPos{input, 0};
+    const auto start = InputPos{ input, 0 };
     const auto afterSpaces = start.afterSpaces();
 
     // If there are no non-space characters, skip this line
-    if (afterSpaces.isAtEndOfLine()) {
+    if (afterSpaces.isAtEndOfLine())
+    {
         return Line::empty();
     }
 
     // If line starts with a number, add the statement to the program
     const auto parsedNumber = numberLiteral(afterSpaces);
-    if (parsedNumber.wasParsed()) {
-        if (parsedNumber.nextPos().isRemainingLineEmpty()) {
+    if (parsedNumber.wasParsed())
+    {
+        if (parsedNumber.nextPos().isRemainingLineEmpty())
+        {
             return Line::emptyNumberedLine(parsedNumber.value());
         }
 
         const auto parsedStatement = statement(parsedNumber.nextPos());
-        if (parsedStatement.wasParsed()) {
-            if (parsedStatement.nextPos().isRemainingLineEmpty()) {
+        if (parsedStatement.wasParsed())
+        {
+            if (parsedStatement.nextPos().isRemainingLineEmpty())
+            {
                 return Line::numberedStatement(parsedNumber.value(), parsedStatement.value());
             }
-            else {
+            else
+            {
                 std::ostringstream msg;
                 msg << "line " << parsedNumber.value() << ": error: unexpected characters following complete statement";
                 return Line::error(msg.str());
             }
         }
-        else {
+        else
+        {
             std::ostringstream msg;
             msg << "line " << parsedNumber.value() << ": error: not a valid statement";
             return Line::error(msg.str());
@@ -256,15 +279,19 @@ Line InterpreterEngine::parseInputLine(const InputLine &input)
 
     // Otherwise, try to execute statement immediately
     const auto parsedStatement = statement(afterSpaces);
-    if (parsedStatement.wasParsed()) {
-        if (parsedStatement.nextPos().isRemainingLineEmpty()) {
+    if (parsedStatement.wasParsed())
+    {
+        if (parsedStatement.nextPos().isRemainingLineEmpty())
+        {
             return Line::unnumberedStatement(parsedStatement.value());
         }
-        else {
+        else
+        {
             return Line::error("error: unexpected characters following complete statement");
         }
     }
-    else {
+    else
+    {
         return Line::error("error: not a valid statement");
     }
 }
@@ -274,23 +301,27 @@ Line InterpreterEngine::parseInputLine(const InputLine &input)
 
 void InterpreterEngine::insertLineIntoProgram(Number lineNumber, Statement statement)
 {
-    NumberedStatement line {lineNumber, statement};
+    NumberedStatement line{ lineNumber, statement };
 
     const auto existing = programLineWithNumber(lineNumber);
-    if (existing != program.end()) {
+    if (existing != program.end())
+    {
         *existing = line;
     }
-    else if (lineNumber > getLastProgramLineNumber()) {
+    else if (lineNumber > getLastProgramLineNumber())
+    {
         program.push_back(line);
     }
-    else {
+    else
+    {
         // TODO: Rather than appending element and re-sorting, it would
         // probably be more efficient to find the correct insertion location
         // and do an insert operation.
 
         program.push_back(line);
         std::sort(program.begin(), program.end(),
-                  [](const NumberedStatement &lhs, const NumberedStatement &rhs) -> bool {
+                  [](const NumberedStatement &lhs, const NumberedStatement &rhs) -> bool
+                  {
             return lhs.lineNumber < rhs.lineNumber;
         });
     }
@@ -302,7 +333,8 @@ void InterpreterEngine::insertLineIntoProgram(Number lineNumber, Statement state
 void InterpreterEngine::deleteLineFromProgram(Number lineNumber)
 {
     const auto it = programLineWithNumber(lineNumber);
-    if (it != program.end()) {
+    if (it != program.end())
+    {
         program.erase(it);
     }
 }
@@ -313,7 +345,8 @@ void InterpreterEngine::deleteLineFromProgram(Number lineNumber)
 Program::iterator InterpreterEngine::programLineWithNumber(Number lineNumber)
 {
     return std::find_if(program.begin(), program.end(),
-                        [=](const NumberedStatement &s) -> bool {
+                        [=](const NumberedStatement &s) -> bool
+                        {
         return s.lineNumber == lineNumber;
     });
 }
@@ -321,8 +354,10 @@ Program::iterator InterpreterEngine::programLineWithNumber(Number lineNumber)
 /// Return line number of the last line in the program.
 ///
 /// Returns 0 if there is no program.
-Number InterpreterEngine::getLastProgramLineNumber() {
-    if (program.size() > 0) {
+Number InterpreterEngine::getLastProgramLineNumber()
+{
+    if (program.size() > 0)
+    {
         return program.back().lineNumber;
     }
 
@@ -332,21 +367,25 @@ Number InterpreterEngine::getLastProgramLineNumber() {
 
 #pragma mark - Execution
 
-void InterpreterEngine::execute(Statement statement) {
+void InterpreterEngine::execute(Statement statement)
+{
     statement.execute(*this);
 }
 
-void InterpreterEngine::executeNextProgramStatement() {
+void InterpreterEngine::executeNextProgramStatement()
+{
     assert(st == InterpreterStateRunning);
 
-    if (programIndex >= program.size()) {
+    if (programIndex >= program.size())
+    {
         showError("error: RUN - program does not terminate with END");
         st = InterpreterStateIdle;
         return;
     }
 
     const auto numberedStatement = program.at(programIndex);
-    if (isTraceOn) {
+    if (isTraceOn)
+    {
         std::ostringstream msg;
         msg << "[" << numberedStatement.lineNumber << "]";
         NSString *message = [NSString stringWithUTF8String:msg.str().c_str()];
@@ -362,7 +401,8 @@ void InterpreterEngine::executeNextProgramStatement() {
 void InterpreterEngine::abortRunWithErrorMessage(string message)
 {
     showError(message);
-    if (st == InterpreterStateRunning || st == InterpreterStateReadingInput) {
+    if (st == InterpreterStateRunning || st == InterpreterStateReadingInput)
+    {
         showError("abort: program terminated");
     }
     st = InterpreterStateIdle;
@@ -380,7 +420,8 @@ void InterpreterEngine::writeOutput(Char c)
 /// Send characters to the output stream
 void InterpreterEngine::writeOutput(const vector<Char> &chars)
 {
-    for (const auto c: chars) {
+    for (const auto c : chars)
+    {
         [io putOutputChar:c forInterpreter:interpreter];
     }
 }
@@ -388,7 +429,8 @@ void InterpreterEngine::writeOutput(const vector<Char> &chars)
 /// Send string to the output stream
 void InterpreterEngine::writeOutput(string s)
 {
-    for (const auto c: s) {
+    for (const auto c : s)
+    {
         [io putOutputChar:c forInterpreter:interpreter];
     }
 }
@@ -418,7 +460,8 @@ InputLineResult InterpreterEngine::readInputLine()
 {
     const auto io = this->io;
     const auto interpreter = this->interpreter;
-    return getInputLine([=]() -> InputCharResult {
+    return getInputLine([=]() -> InputCharResult
+                        {
         return [io getInputCharForInterpreter:interpreter];
     });
 }
@@ -429,27 +472,35 @@ InputLineResult InterpreterEngine::readInputLine()
 /// Any horizontal tab ('\t') in the input will be converted to a single space.
 InputLineResult InterpreterEngine::getInputLine(function<InputCharResult()> getChar)
 {
-    for (;;) {
+    for (;;)
+    {
         const auto inputCharResult = getChar();
-        switch (inputCharResult.kind) {
-            case InputResultKindValue: {
+        switch (inputCharResult.kind)
+        {
+            case InputResultKindValue:
+            {
                 const auto c = inputCharResult.value;
-                if (c == '\n') {
+                if (c == '\n')
+                {
                     const auto result = InputLineResult::inputLine(inputLineBuffer);
                     inputLineBuffer.clear();
                     return result;
                 }
-                else if (c == '\t') {
+                else if (c == '\t')
+                {
                     // Convert tabs to spaces
                     inputLineBuffer.push_back(' ');
                 }
-                else if (' ' <= c && c <= '~') {
+                else if (' ' <= c && c <= '~')
+                {
                     inputLineBuffer.push_back(c);
                 }
-            } break;
+            }
+            break;
 
             case InputResultKindEndOfStream:
-                if (inputLineBuffer.size() > 0) {
+                if (inputLineBuffer.size() > 0)
+                {
                     const auto result = InputLineResult::inputLine(inputLineBuffer);
                     inputLineBuffer.clear();
                     return result;
@@ -483,10 +534,12 @@ void InterpreterEngine::setVariableValue(VariableName variableName, Number value
 
 Number InterpreterEngine::getArrayElementValue(Number index)
 {
-    if (index >= 0) {
+    if (index >= 0)
+    {
         return a[index % a.size()];
     }
-    else {
+    else
+    {
         auto fromEnd = -index % a.size();
         return a[a.size() - fromEnd];
     }
@@ -494,10 +547,12 @@ Number InterpreterEngine::getArrayElementValue(Number index)
 
 void InterpreterEngine::setArrayElementValue(Number index, Number value)
 {
-    if (index >= 0) {
+    if (index >= 0)
+    {
         a[index % a.size()] = value;
     }
-    else {
+    else
+    {
         auto fromEnd = -index % a.size();
         a[a.size() - fromEnd] = value;
     }
@@ -530,7 +585,8 @@ void InterpreterEngine::LIST(const Expression &lowExpr, const Expression &highEx
 {
     const auto lowNumber = evaluate(lowExpr);
     const auto highNumber = evaluate(highExpr);
-    for (const auto line: program) {
+    for (const auto line : program)
+    {
         if (line.lineNumber < lowNumber)
             continue;
 
@@ -548,7 +604,8 @@ void InterpreterEngine::IF(const Expression &lhs, const RelOp &op, const Express
 {
     const auto lhsValue = evaluate(lhs);
     const auto rhsValue = evaluate(rhs);
-    if (op.isTrueForNumbers(lhsValue, rhsValue)) {
+    if (op.isTrueForNumbers(lhsValue, rhsValue))
+    {
         consequent.execute(*this);
     }
 }
@@ -556,7 +613,8 @@ void InterpreterEngine::IF(const Expression &lhs, const RelOp &op, const Express
 /// Execute RUN statement
 void InterpreterEngine::RUN()
 {
-    if (program.size() == 0) {
+    if (program.size() == 0)
+    {
         showError("error: RUN - no program in memory");
         return;
     }
@@ -578,7 +636,8 @@ void InterpreterEngine::GOTO(const Expression &expr)
 {
     const auto lineNumber = evaluate(expr);
     const auto it = programLineWithNumber(lineNumber);
-    if (it == program.end()) {
+    if (it == program.end())
+    {
         std::ostringstream s;
         s << "error: GOTO " << lineNumber << " - no line with that number";
         abortRunWithErrorMessage(s.str());
@@ -594,7 +653,8 @@ void InterpreterEngine::GOSUB(const Expression &expr)
 {
     const auto lineNumber = evaluate(expr);
     const auto it = programLineWithNumber(lineNumber);
-    if (it == program.end()) {
+    if (it == program.end())
+    {
         std::ostringstream s;
         s << "error: GOSUB " << lineNumber << " - no line with that number";
         abortRunWithErrorMessage(s.str());
@@ -609,11 +669,13 @@ void InterpreterEngine::GOSUB(const Expression &expr)
 /// Execute RETURN statement
 void InterpreterEngine::RETURN()
 {
-    if (returnStack.size() > 0) {
+    if (returnStack.size() > 0)
+    {
         programIndex = returnStack.back();
         returnStack.pop_back();
     }
-    else {
+    else
+    {
         abortRunWithErrorMessage("error: RETURN - empty return stack");
     }
 }
@@ -665,7 +727,8 @@ void InterpreterEngine::HELP()
         "  run"
     };
 
-    for (auto line: lines) {
+    for (auto line : lines)
+    {
         writeOutput(line);
         writeOutput('\n');
     }
@@ -682,13 +745,15 @@ void InterpreterEngine::INPUT(const Lvalues &lvalues)
 /// Display error message to user during an INPUT operation
 void InterpreterEngine::showInputHelpMessage()
 {
-    if (inputLvalues.size() > 1) {
+    if (inputLvalues.size() > 1)
+    {
         std::ostringstream s;
         s << "You must enter a comma-separated list of "
-        << inputLvalues.size() << " values.";
+          << inputLvalues.size() << " values.";
         showError(s.str());
     }
-    else {
+    else
+    {
         showError("You must enter a value.");
     }
 }
@@ -700,44 +765,55 @@ void InterpreterEngine::showInputHelpMessage()
 void InterpreterEngine::continueInput()
 {
     // Loop until successful or we hit end-of-input or a wait condition
-    for (;;) {
+    for (;;)
+    {
     inputLoop:
         [io showInputPromptForInterpreter:interpreter];
         const auto inputLineResult = readInputLine();
-        switch (inputLineResult.kind) {
-            case InputResultKindValue: {
-                InputPos pos {inputLineResult.value, 0};
+        switch (inputLineResult.kind)
+        {
+            case InputResultKindValue:
+            {
+                InputPos pos{ inputLineResult.value, 0 };
 
-                bool first {true};
-                for (const auto lv: inputLvalues) {
+                bool first{ true };
+                for (const auto lv : inputLvalues)
+                {
                     // If this is not the first value, need to see a comma
-                    if (first) {
+                    if (first)
+                    {
                         first = false;
                     }
-                    else {
+                    else
+                    {
                         const auto comma = literal(",", pos);
-                        if (comma.wasParsed()) {
+                        if (comma.wasParsed())
+                        {
                             pos = comma.nextPos();
                         }
-                        else {
+                        else
+                        {
                             showInputHelpMessage();
                             goto inputLoop;
                         }
                     }
 
                     const auto num = inputExpression(pos, *this);
-                    if (num.wasParsed()) {
+                    if (num.wasParsed())
+                    {
                         lv.setValue(num.value(), *this);
                         pos = num.nextPos();
                     }
-                    else {
+                    else
+                    {
                         showInputHelpMessage();
                         goto inputLoop;
                     }
                 }
 
                 // If we get here, we've read input for all the variables
-                switch (stateBeforeInput) {
+                switch (stateBeforeInput)
+                {
                     case InterpreterStateRunning:
                         st = InterpreterStateRunning;
                         break;
@@ -747,7 +823,8 @@ void InterpreterEngine::continueInput()
                 }
 
                 return;
-            } break;
+            }
+            break;
 
             case InputResultKindWaiting:
                 st = InterpreterStateReadingInput;
@@ -770,7 +847,8 @@ void InterpreterEngine::continueInput()
 void InterpreterEngine::DIM(const Expression &expr)
 {
     const auto newCount = evaluate(expr);
-    if (newCount < 0) {
+    if (newCount < 0)
+    {
         abortRunWithErrorMessage("error: DIM - size cannot be negative");
         return;
     }
@@ -783,8 +861,10 @@ void InterpreterEngine::DIM(const Expression &expr)
 void InterpreterEngine::SAVE(std::string filename)
 {
     auto file = std::fopen(filename.c_str(), "w");
-    if (file) {
-        for (auto ns: program) {
+    if (file)
+    {
+        for (auto ns : program)
+        {
             std::ostringstream s;
             s << ns.lineNumber << " " << ns.statement.listText() << "\n";
             const auto outputString = s.str();
@@ -794,7 +874,8 @@ void InterpreterEngine::SAVE(std::string filename)
         }
         std::fclose(file);
     }
-    else {
+    else
+    {
         std::ostringstream s;
         s << "error: SAVE - unable to open file \"" << filename
           << ": " << std::strerror(errno);
@@ -806,16 +887,20 @@ void InterpreterEngine::SAVE(std::string filename)
 void InterpreterEngine::LOAD(std::string filename)
 {
     auto file = std::fopen(filename.c_str(), "r");
-    if (file) {
+    if (file)
+    {
         // Read lines until end-of-stream or error
-        bool keepGoing {true};
-        do {
-            const auto inputLineResult = getInputLine([=]() -> InputCharResult {
+        bool keepGoing{ true };
+        do
+        {
+            const auto inputLineResult = getInputLine([=]() -> InputCharResult
+                                                      {
                 const auto c = std::fgetc(file);
                 return c == EOF ? InputCharResult_EndOfStream() : InputCharResult_Value(c);
             });
 
-            switch (inputLineResult.kind) {
+            switch (inputLineResult.kind)
+            {
                 case InputResultKindValue:
                     processInput(inputLineResult.value);
                     break;
@@ -833,19 +918,21 @@ void InterpreterEngine::LOAD(std::string filename)
         } while (keepGoing);
 
         // If we got an error, report it
-        if (std::ferror(file) != 0) {
+        if (std::ferror(file) != 0)
+        {
             std::ostringstream s;
             s << "error: LOAD - read error for file \"" << filename
-            << ": " << std::strerror(errno);
+              << ": " << std::strerror(errno);
             abortRunWithErrorMessage(s.str());
         }
 
         fclose(file);
     }
-    else {
+    else
+    {
         std::ostringstream s;
         s << "error: LOAD - unable to open file \"" << filename
-        << ": " << std::strerror(errno);
+          << ": " << std::strerror(errno);
         abortRunWithErrorMessage(s.str());
     }
 }
@@ -859,13 +946,16 @@ void InterpreterEngine::FILES()
 
     // Open the directory
     const auto dir = opendir(workingDirectory);
-    if (dir) {
+    if (dir)
+    {
         // Use readdir to get each element
         auto dirent = readdir(dir);
-        while (dirent) {
+        while (dirent)
+        {
             // Only list files, not directories
-            if (dirent->d_type != DT_DIR) {
-                std::string name {dirent->d_name, dirent->d_namlen};
+            if (dirent->d_type != DT_DIR)
+            {
+                std::string name{ dirent->d_name, dirent->d_namlen };
                 writeOutput(name + "\n");
             }
             dirent = readdir(dir);
@@ -885,5 +975,4 @@ void InterpreterEngine::TROFF()
 {
     isTraceOn = false;
 }
-
 }

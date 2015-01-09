@@ -31,7 +31,8 @@ using std::string;
 using std::vector;
 
 
-namespace finchlib_cpp {
+namespace finchlib_cpp
+{
 
 static Parse<Expression> expression(const InputPos &pos);
 
@@ -40,27 +41,33 @@ static Parse<Expression> expression(const InputPos &pos);
 /// If true, returns position of the character following the matched string. If false, returns nil.
 ///
 /// Matching is case-insensitive. Spaces in the input are ignored.
-Parse<std::string> literal(std::string s, const InputPos &pos) {
-    size_t matchCount {0};
-    const size_t matchGoal {s.length()};
+Parse<std::string> literal(std::string s, const InputPos &pos)
+{
+    size_t matchCount{ 0 };
+    const size_t matchGoal{ s.length() };
 
     auto i = pos;
-    while ((matchCount < matchGoal) && !i.isAtEndOfLine()) {
+    while ((matchCount < matchGoal) && !i.isAtEndOfLine())
+    {
         auto c = i.at();
         i = i.next();
 
-        if (c == ' ') {
+        if (c == ' ')
+        {
             continue;
         }
-        else if (std::toupper(c) == std::toupper(s[matchCount])) {
+        else if (std::toupper(c) == std::toupper(s[matchCount]))
+        {
             ++matchCount;
         }
-        else {
+        else
+        {
             return failedParse<string>();
         }
     }
 
-    if (matchCount == matchGoal) {
+    if (matchCount == matchGoal)
+    {
         return successfulParse(s, i);
     }
 
@@ -68,14 +75,19 @@ Parse<std::string> literal(std::string s, const InputPos &pos) {
 }
 
 /// Callable object that tries to parse a literal
-class lit {
+class lit
+{
 private:
     string s;
 
 public:
-    lit(string literalString): s{literalString} {}
+    lit(string literalString)
+        : s{ literalString }
+    {
+    }
 
-    Parse<string> operator()(const InputPos &pos) {
+    Parse<string> operator()(const InputPos &pos)
+    {
         return literal(s, pos);
     }
 };
@@ -83,10 +95,13 @@ public:
 /// Try to parse one of a set of literals
 ///
 /// Returns first match, or nil if there are no matches
-static Parse<string> oneOfLiteral(vector<string> strings, const InputPos &pos) {
-    for (auto s: strings) {
+static Parse<string> oneOfLiteral(vector<string> strings, const InputPos &pos)
+{
+    for (auto s : strings)
+    {
         const auto match = literal(s, pos);
-        if (match.wasParsed()) {
+        if (match.wasParsed())
+        {
             return match;
         }
     }
@@ -95,15 +110,19 @@ static Parse<string> oneOfLiteral(vector<string> strings, const InputPos &pos) {
 }
 
 /// Callable object that tries to parse one of a set of literals
-class oneOfLit {
+class oneOfLit
+{
 private:
     vector<string> strings;
 
 public:
     oneOfLit(std::initializer_list<string> initList)
-    : strings(initList) {}
+        : strings(initList)
+    {
+    }
 
-    Parse<string> operator()(const InputPos &pos) {
+    Parse<string> operator()(const InputPos &pos)
+    {
         return oneOfLiteral(strings, pos);
     }
 };
@@ -119,7 +138,8 @@ public:
 static Parse<string> optLiteral(string s, const InputPos &pos)
 {
     const auto lit = literal(s, pos);
-    if (lit.wasParsed()) {
+    if (lit.wasParsed())
+    {
         return successfulParse(s, lit.nextPos());
     }
 
@@ -127,15 +147,19 @@ static Parse<string> optLiteral(string s, const InputPos &pos)
 }
 
 /// Callable object that tries to parse an optional literal
-class optLit {
+class optLit
+{
 private:
     string s;
 
 public:
     optLit(string literal)
-    : s(literal) {}
+        : s(literal)
+    {
+    }
 
-    Parse<string> operator()(const InputPos &pos) {
+    Parse<string> operator()(const InputPos &pos)
+    {
         return optLiteral(s, pos);
     }
 };
@@ -143,25 +167,31 @@ public:
 
 /// Attempt to read an unsigned number from input.  If successful, returns
 /// parsed number and position of next input character.  If not, returns nil.
-Parse<Number> numberLiteral(const InputPos &pos) {
+Parse<Number> numberLiteral(const InputPos &pos)
+{
     auto i = pos.afterSpaces();
 
-    if (i.isAtEndOfLine()) {
+    if (i.isAtEndOfLine())
+    {
         return failedParse<Number>();
     }
 
-    if (!isDigitChar(i.at())) {
+    if (!isDigitChar(i.at()))
+    {
         return failedParse<Number>();
     }
 
-    Number num {i.at() - '0'};
+    Number num{ i.at() - '0' };
     i = i.next();
-    while (!i.isAtEndOfLine()) {
+    while (!i.isAtEndOfLine())
+    {
         const auto c = i.at();
-        if (isDigitChar(c)) {
+        if (isDigitChar(c))
+        {
             num = (num * 10) + (c - '0');
         }
-        else if (c != ' ') {
+        else if (c != ' ')
+        {
             break;
         }
         i = i.next();
@@ -174,32 +204,39 @@ Parse<Number> numberLiteral(const InputPos &pos) {
 ///
 /// Returns characters and position of next character if successful.
 /// Returns nil otherwise.
-Parse<vector<Char>> stringLiteral(const InputPos &pos) {
+Parse<vector<Char> > stringLiteral(const InputPos &pos)
+{
     auto i = pos.afterSpaces();
-    if (!i.isAtEndOfLine()) {
-        if (i.at() == '"') {
+    if (!i.isAtEndOfLine())
+    {
+        if (i.at() == '"')
+        {
             i = i.next();
             vector<Char> stringChars;
-            bool foundTrailingDelim {false};
+            bool foundTrailingDelim{ false };
 
-            while (!i.isAtEndOfLine()) {
+            while (!i.isAtEndOfLine())
+            {
                 const auto c = i.at();
                 i = i.next();
-                if (c == '"') {
+                if (c == '"')
+                {
                     foundTrailingDelim = true;
                     break;
                 }
-                else {
+                else
+                {
                     stringChars.push_back(c);
                 }
             }
 
-            if (foundTrailingDelim) {
+            if (foundTrailingDelim)
+            {
                 return successfulParse(stringChars, i);
             }
         }
     }
-    return failedParse<vector<Char>>();
+    return failedParse<vector<Char> >();
 }
 
 /// Attempt to read a variable name.
@@ -208,9 +245,11 @@ Parse<vector<Char>> stringLiteral(const InputPos &pos) {
 static Parse<VariableName> variableName(const InputPos &pos)
 {
     const auto i = pos.afterSpaces();
-    if (!i.isAtEndOfLine()) {
+    if (!i.isAtEndOfLine())
+    {
         const auto c = i.at();
-        if (std::isalpha(c)) {
+        if (std::isalpha(c))
+        {
             const auto result = VariableName(std::toupper(c));
             return successfulParse(result, i.next());
         }
@@ -225,15 +264,16 @@ static Parse<VariableName> variableName(const InputPos &pos)
 static Parse<Lvalue> lvalue(const InputPos &pos)
 {
     const auto v = variableName(pos);
-    if (v.wasParsed()) {
+    if (v.wasParsed())
+    {
         const auto result = Lvalue::var(v.value());
         return successfulParse(result, v.nextPos());
     }
 
     const auto aelem = pos.parse<string, Expression, string>(
-                                                             lit("@("), expression, lit(")")
-                                                             );
-    if (aelem != nullptr) {
+        lit("@("), expression, lit(")"));
+    if (aelem != nullptr)
+    {
         const auto expr = std::get<1>(*aelem);
         const auto nextPos = std::get<3>(*aelem);
         const auto result = Lvalue::arrayElement(expr);
@@ -248,16 +288,17 @@ static Parse<Factor> factor(const InputPos &pos)
 {
     // number
     const auto num = numberLiteral(pos);
-    if (num.wasParsed()) {
+    if (num.wasParsed())
+    {
         const auto result = Factor::number(num.value());
         return successfulParse(result, num.nextPos());
     }
 
     // "RND(" expression ")"
     const auto rnd = pos.parse<string, Expression, string>(
-                                                           lit("RND("), expression, lit(")")
-                                                           );
-    if (rnd != nullptr) {
+        lit("RND("), expression, lit(")"));
+    if (rnd != nullptr)
+    {
         const auto expr = std::get<1>(*rnd);
         const auto nextPos = std::get<3>(*rnd);
         const auto result = Factor::rnd(expr);
@@ -266,9 +307,9 @@ static Parse<Factor> factor(const InputPos &pos)
 
     // "(" expression ")"
     const auto parenExpr = pos.parse<string, Expression, string>(
-                                                                 lit("("), expression, lit(")")
-                                                                 );
-    if (parenExpr != nullptr) {
+        lit("("), expression, lit(")"));
+    if (parenExpr != nullptr)
+    {
         const auto expr = std::get<1>(*parenExpr);
         const auto nextPos = std::get<3>(*parenExpr);
         const auto result = Factor::parenExpr(expr);
@@ -277,9 +318,9 @@ static Parse<Factor> factor(const InputPos &pos)
 
     // "@(" expression ")"
     const auto aelem = pos.parse<string, Expression, string>(
-                                                             lit("@("), expression, lit(")")
-                                                             );
-    if (aelem != nullptr) {
+        lit("@("), expression, lit(")"));
+    if (aelem != nullptr)
+    {
         const auto expr = std::get<1>(*aelem);
         const auto nextPos = std::get<3>(*aelem);
         const auto result = Factor::arrayElement(expr);
@@ -288,7 +329,8 @@ static Parse<Factor> factor(const InputPos &pos)
 
     // variable
     const auto v = variableName(pos);
-    if (v.wasParsed()) {
+    if (v.wasParsed())
+    {
         const auto result = Factor::var(v.value());
         return successfulParse(result, v.nextPos());
     }
@@ -302,12 +344,13 @@ static Parse<Factor> factor(const InputPos &pos)
 static Parse<Term> term(const InputPos &pos)
 {
     const auto fact = factor(pos);
-    if (fact.wasParsed()) {
+    if (fact.wasParsed())
+    {
         // If followed by "*", then it's a product
         const auto mult = fact.nextPos().parse<string, Term>(
-                                                             lit("*"), term
-                                                             );
-        if (mult != nullptr) {
+            lit("*"), term);
+        if (mult != nullptr)
+        {
             const Term t = std::get<1>(*mult);
             const InputPos nextPos = std::get<2>(*mult);
             const auto result = Term::compound(fact.value(), ArithOp::Multiply, t);
@@ -316,9 +359,9 @@ static Parse<Term> term(const InputPos &pos)
 
         // If followed by "/", then it's a quotient
         const auto div = fact.nextPos().parse<string, Term>(
-                                                            lit("/"), term
-                                                            );
-        if (div != nullptr) {
+            lit("/"), term);
+        if (div != nullptr)
+        {
             const Term t = std::get<1>(*div);
             const InputPos nextPos = std::get<2>(*div);
             const auto result = Term::compound(fact.value(), ArithOp::Divide, t);
@@ -338,12 +381,13 @@ static Parse<Term> term(const InputPos &pos)
 static Parse<UnsignedExpression> unsignedExpression(const InputPos &pos)
 {
     const auto t = term(pos);
-    if (t.wasParsed()) {
+    if (t.wasParsed())
+    {
         // If followed by "+", then it's addition
         const auto add = t.nextPos().parse<string, UnsignedExpression>(
-                                                                       lit("+"), unsignedExpression
-                                                                       );
-        if (add != nullptr) {
+            lit("+"), unsignedExpression);
+        if (add != nullptr)
+        {
             const UnsignedExpression uexpr = std::get<1>(*add);
             const InputPos nextPos = std::get<2>(*add);
             const auto result = UnsignedExpression::compound(t.value(), ArithOp::Add, uexpr);
@@ -352,9 +396,9 @@ static Parse<UnsignedExpression> unsignedExpression(const InputPos &pos)
 
         // If followed by "+", then it's addition
         const auto sub = t.nextPos().parse<string, UnsignedExpression>(
-                                                                       lit("-"), unsignedExpression
-                                                                       );
-        if (sub != nullptr) {
+            lit("-"), unsignedExpression);
+        if (sub != nullptr)
+        {
             const UnsignedExpression uexpr = std::get<1>(*sub);
             const InputPos nextPos = std::get<2>(*sub);
             const auto result = UnsignedExpression::compound(t.value(), ArithOp::Subtract, uexpr);
@@ -375,9 +419,9 @@ static Parse<UnsignedExpression> unsignedExpression(const InputPos &pos)
 static Parse<Expression> expression(const InputPos &pos)
 {
     const auto leadingPlus = pos.parse<string, UnsignedExpression>(
-                                                                   lit("+"), unsignedExpression
-                                                                   );
-    if (leadingPlus != nullptr) {
+        lit("+"), unsignedExpression);
+    if (leadingPlus != nullptr)
+    {
         const auto uexpr = std::get<1>(*leadingPlus);
         const auto nextPos = std::get<2>(*leadingPlus);
         const auto result = Expression::plus(uexpr);
@@ -385,9 +429,9 @@ static Parse<Expression> expression(const InputPos &pos)
     }
 
     const auto leadingMinus = pos.parse<string, UnsignedExpression>(
-                                                                    lit("-"), unsignedExpression
-                                                                    );
-    if (leadingMinus != nullptr) {
+        lit("-"), unsignedExpression);
+    if (leadingMinus != nullptr)
+    {
         const auto uexpr = std::get<1>(*leadingMinus);
         const auto nextPos = std::get<2>(*leadingMinus);
         const auto result = Expression::minus(uexpr);
@@ -395,7 +439,8 @@ static Parse<Expression> expression(const InputPos &pos)
     }
 
     const auto uexpr = unsignedExpression(pos);
-    if (uexpr.wasParsed()) {
+    if (uexpr.wasParsed())
+    {
         const auto result = Expression::unsignedExpr(uexpr.value());
         return successfulParse(result, uexpr.nextPos());
     }
@@ -409,13 +454,15 @@ static Parse<Expression> expression(const InputPos &pos)
 static Parse<PrintItem> printItem(const InputPos &pos)
 {
     const auto s = stringLiteral(pos);
-    if (s.wasParsed()) {
+    if (s.wasParsed())
+    {
         const auto item = PrintItem::stringLiteral(s.value());
         return successfulParse(item, s.nextPos());
     }
 
     const auto expr = expression(pos);
-    if (expr.wasParsed()) {
+    if (expr.wasParsed())
+    {
         const auto result = PrintItem::expression(expr.value());
         return successfulParse(result, expr.nextPos());
     }
@@ -429,43 +476,51 @@ static Parse<PrintItem> printItem(const InputPos &pos)
 static Parse<PrintList> printList(const InputPos &pos)
 {
     const auto item = printItem(pos);
-    if (item.wasParsed()) {
+    if (item.wasParsed())
+    {
         const auto comma = literal(",", item.nextPos());
-        if (comma.wasParsed()) {
+        if (comma.wasParsed())
+        {
             // "," printList
             // "," (trailing at end of line)
 
             const auto tail = printList(comma.nextPos());
-            if (tail.wasParsed()) {
+            if (tail.wasParsed())
+            {
                 const auto pTail = std::shared_ptr<PrintList>(new PrintList(tail.value()));
-                PrintList result {item.value(), PrintSeparatorTab, pTail};
+                PrintList result{ item.value(), PrintSeparatorTab, pTail };
                 return successfulParse(result, tail.nextPos());
             }
-            else if (comma.nextPos().isRemainingLineEmpty()) {
-                PrintList result {item.value(), PrintSeparatorTab, nullptr};
+            else if (comma.nextPos().isRemainingLineEmpty())
+            {
+                PrintList result{ item.value(), PrintSeparatorTab, nullptr };
                 return successfulParse(result, comma.nextPos());
             }
         }
-        else {
+        else
+        {
             const auto semicolon = literal(";", item.nextPos());
-            if (semicolon.wasParsed()) {
+            if (semicolon.wasParsed())
+            {
                 // ";" printList
                 // ";" (trailing at end of line)
 
                 const auto tail = printList(semicolon.nextPos());
-                if (tail.wasParsed()) {
+                if (tail.wasParsed())
+                {
                     const auto pTail = std::shared_ptr<PrintList>(new PrintList(tail.value()));
-                    PrintList result {item.value(), PrintSeparatorEmpty, pTail};
+                    PrintList result{ item.value(), PrintSeparatorEmpty, pTail };
                     return successfulParse(result, tail.nextPos());
                 }
-                else if (semicolon.nextPos().isRemainingLineEmpty()) {
-                    PrintList result {item.value(), PrintSeparatorEmpty, nullptr};
+                else if (semicolon.nextPos().isRemainingLineEmpty())
+                {
+                    PrintList result{ item.value(), PrintSeparatorEmpty, nullptr };
                     return successfulParse(result, semicolon.nextPos());
                 }
             }
         }
 
-        PrintList result {item.value(), PrintSeparatorNewline, nullptr};
+        PrintList result{ item.value(), PrintSeparatorNewline, nullptr };
         return successfulParse(result, item.nextPos());
     }
 
@@ -476,19 +531,21 @@ static Parse<PrintList> printList(const InputPos &pos)
 static Parse<RelOp> relOp(const InputPos &pos)
 {
     // Note: We need to test the longer sequences before the shorter
-    static const vector<tuple<string, RelOp>> opTable = {
-        {"<=", RelOp::LessOrEqual   },
-        {">=", RelOp::GreaterOrEqual},
-        {"<>", RelOp::NotEqual      },
-        {"><", RelOp::NotEqual      },
-        {"=",  RelOp::Equal         },
-        {"<",  RelOp::Less          },
-        {">",  RelOp::Greater       }
+    static const vector<tuple<string, RelOp> > opTable = {
+        { "<=", RelOp::LessOrEqual },
+        { ">=", RelOp::GreaterOrEqual },
+        { "<>", RelOp::NotEqual },
+        { "><", RelOp::NotEqual },
+        { "=", RelOp::Equal },
+        { "<", RelOp::Less },
+        { ">", RelOp::Greater }
     };
 
-    for (const auto item: opTable) {
+    for (const auto item : opTable)
+    {
         const auto op = literal(std::get<0>(item), pos);
-        if (op.wasParsed()) {
+        if (op.wasParsed())
+        {
             return successfulParse(std::get<1>(item), op.nextPos());
         }
     }
@@ -504,14 +561,17 @@ static Parse<Statement> printStatement(const InputPos &pos)
     // "PRINT" printList
     // "PR" printList
     // "?" printList
-    const auto keyword = oneOfLit{"PRINT", "PR", "?"}(pos);
-    if (keyword.wasParsed()) {
+    const auto keyword = oneOfLit{ "PRINT", "PR", "?" }(pos);
+    if (keyword.wasParsed())
+    {
         const auto plist = printList(keyword.nextPos());
-        if (plist.wasParsed()) {
+        if (plist.wasParsed())
+        {
             const auto stmt = Statement::print(plist.value());
             return successfulParse(stmt, plist.nextPos());
         }
-        else {
+        else
+        {
             const auto stmt = Statement::printNewline();
             return successfulParse(stmt, keyword.nextPos());
         }
@@ -527,14 +587,16 @@ static Parse<Statement> listStatement(const InputPos &pos)
 {
     // "LIST" [expression ["," expression]]
     // "LS" [expression ["," expression]]
-    const auto keyword = oneOfLiteral({"LIST", "LS"}, pos);
-    if (keyword.wasParsed()) {
+    const auto keyword = oneOfLiteral({ "LIST", "LS" }, pos);
+    if (keyword.wasParsed())
+    {
         const auto lowExpr = expression(keyword.nextPos());
-        if (lowExpr.wasParsed()) {
+        if (lowExpr.wasParsed())
+        {
             const auto commaExpr = lowExpr.nextPos().parse<string, Expression>(
-                                                                               lit(","), expression
-                                                                               );
-            if (commaExpr != nullptr) {
+                lit(","), expression);
+            if (commaExpr != nullptr)
+            {
                 const auto highExpr = std::get<1>(*commaExpr);
                 const auto nextPos = std::get<2>(*commaExpr);
                 const auto stmt = Statement::list(lowExpr.value(), highExpr);
@@ -556,10 +618,10 @@ static Parse<Statement> listStatement(const InputPos &pos)
 /// Returns statement and position of next character if successful.
 static Parse<Statement> letStatement(const InputPos &pos)
 {
-    const auto let = pos.parse<string, Lvalue, string, Expression> (
-                                                                    optLit("LET"), lvalue, lit("="), expression
-                                                                    );
-    if (let != nullptr) {
+    const auto let = pos.parse<string, Lvalue, string, Expression>(
+        optLit("LET"), lvalue, lit("="), expression);
+    if (let != nullptr)
+    {
         const auto lv = std::get<1>(*let);
         const auto expr = std::get<3>(*let);
         const auto nextPos = std::get<4>(*let);
@@ -573,12 +635,14 @@ static Parse<Statement> letStatement(const InputPos &pos)
 static Parse<Lvalues> lvalueList(const InputPos &pos)
 {
     const auto firstItem = lvalue(pos);
-    if (firstItem.wasParsed()) {
-        Lvalues lvalues {firstItem.value()};
+    if (firstItem.wasParsed())
+    {
+        Lvalues lvalues{ firstItem.value() };
         auto nextPos = firstItem.nextPos();
 
         auto more = nextPos.parse<string, Lvalue>(lit(","), lvalue);
-        while (more != nullptr) {
+        while (more != nullptr)
+        {
             lvalues.push_back(std::get<1>(*more));
             nextPos = std::get<2>(*more);
             more = nextPos.parse<string, Lvalue>(lit(","), lvalue);
@@ -596,9 +660,9 @@ static Parse<Lvalues> lvalueList(const InputPos &pos)
 static Parse<Statement> inputStatement(const InputPos &pos)
 {
     const auto parsed = pos.parse<string, Lvalues>(
-                                                   oneOfLit{"INPUT", "IN"}, lvalueList
-                                                   );
-    if (parsed != nullptr) {
+        oneOfLit{ "INPUT", "IN" }, lvalueList);
+    if (parsed != nullptr)
+    {
         const auto lvalues = std::get<1>(*parsed);
         const auto nextPos = std::get<2>(*parsed);
         const auto result = Statement::input(lvalues);
@@ -614,9 +678,9 @@ static Parse<Statement> inputStatement(const InputPos &pos)
 static Parse<Statement> ifStatement(const InputPos &pos)
 {
     const auto ifThen = pos.parse<string, Expression, RelOp, Expression, string, Statement>(
-                                                                                            lit("IF"), expression, relOp, expression, optLit("THEN"), statement
-                                                                                            );
-    if (ifThen != nullptr) {
+        lit("IF"), expression, relOp, expression, optLit("THEN"), statement);
+    if (ifThen != nullptr)
+    {
         const auto lhs = std::get<1>(*ifThen);
         const auto op = std::get<2>(*ifThen);
         const auto rhs = std::get<3>(*ifThen);
@@ -635,9 +699,9 @@ static Parse<Statement> ifStatement(const InputPos &pos)
 static Parse<Statement> gotoStatement(const InputPos &pos)
 {
     const auto s = pos.parse<string, Expression>(
-                                                 oneOfLit{"GOTO", "GT"}, expression
-                                                 );
-    if (s != nullptr) {
+        oneOfLit{ "GOTO", "GT" }, expression);
+    if (s != nullptr)
+    {
         const auto expr = std::get<1>(*s);
         const auto nextPos = std::get<2>(*s);
         const auto result = Statement::gotoStatement(expr);
@@ -653,9 +717,9 @@ static Parse<Statement> gotoStatement(const InputPos &pos)
 static Parse<Statement> gosubStatement(const InputPos &pos)
 {
     const auto s = pos.parse<string, Expression>(
-                                                 oneOfLit{"GOSUB", "GS"}, expression
-                                                 );
-    if (s != nullptr) {
+        oneOfLit{ "GOSUB", "GS" }, expression);
+    if (s != nullptr)
+    {
         const auto expr = std::get<1>(*s);
         const auto nextPos = std::get<2>(*s);
         const auto result = Statement::gosub(expr);
@@ -670,11 +734,13 @@ static Parse<Statement> gosubStatement(const InputPos &pos)
 /// Returns statement and position of next character if successful.
 static Parse<Statement> remStatement(const InputPos &pos)
 {
-    const auto rem = oneOfLiteral({"REM", "'"}, pos);
-    if (rem.wasParsed()) {
+    const auto rem = oneOfLiteral({ "REM", "'" }, pos);
+    if (rem.wasParsed())
+    {
         const auto commentChars = rem.nextPos().remainingChars();
-        std::string commentString {};
-        for (auto c: commentChars) {
+        std::string commentString{};
+        for (auto c : commentChars)
+        {
             commentString.push_back(c);
         }
         const auto result = Statement::rem(commentString);
@@ -690,9 +756,9 @@ static Parse<Statement> remStatement(const InputPos &pos)
 static Parse<Statement> dimStatement(const InputPos &pos)
 {
     const auto parsed = pos.parse<string, Expression, string>(
-                                                              lit("DIM@("), expression, lit(")")
-                                                              );
-    if (parsed != nullptr) {
+        lit("DIM@("), expression, lit(")"));
+    if (parsed != nullptr)
+    {
         const auto result = Statement::dim(std::get<1>(*parsed));
         const auto nextPos = std::get<3>(*parsed);
         return successfulParse(result, nextPos);
@@ -706,12 +772,12 @@ static Parse<Statement> dimStatement(const InputPos &pos)
 /// Return statement and position of next character if successful.
 static Parse<Statement> saveStatement(const InputPos &pos)
 {
-    const auto parsed = pos.parse<string, vector<Char>>(
-                                                        oneOfLit{"SAVE", "SV"}, stringLiteral
-                                                        );
-    if (parsed != nullptr) {
+    const auto parsed = pos.parse<string, vector<Char> >(
+        oneOfLit{ "SAVE", "SV" }, stringLiteral);
+    if (parsed != nullptr)
+    {
         const auto chars = std::get<1>(*parsed);
-        const std::string filename {chars.cbegin(), chars.cend()};
+        const std::string filename{ chars.cbegin(), chars.cend() };
         const auto result = Statement::save(filename);
         const auto nextPos = std::get<2>(*parsed);
         return successfulParse(result, nextPos);
@@ -725,12 +791,12 @@ static Parse<Statement> saveStatement(const InputPos &pos)
 /// Return statement and position of next character if successful.
 static Parse<Statement> loadStatement(const InputPos &pos)
 {
-    const auto parsed = pos.parse<string, vector<Char>>(
-                                                        oneOfLit{"LOAD", "LD"}, stringLiteral
-                                                        );
-    if (parsed != nullptr) {
+    const auto parsed = pos.parse<string, vector<Char> >(
+        oneOfLit{ "LOAD", "LD" }, stringLiteral);
+    if (parsed != nullptr)
+    {
         const auto chars = std::get<1>(*parsed);
-        const std::string filename {chars.cbegin(), chars.cend()};
+        const std::string filename{ chars.cbegin(), chars.cend() };
         const auto result = Statement::load(filename);
         const auto nextPos = std::get<2>(*parsed);
         return successfulParse(result, nextPos);
@@ -747,8 +813,7 @@ static Parse<Statement> loadStatement(const InputPos &pos)
 Parse<Statement> statement(const InputPos &pos)
 {
     // List of parsing functions to try
-    static const vector<function<Parse<Statement>(const InputPos &pos)>> functions
-    {
+    static const vector<function<Parse<Statement>(const InputPos &pos)> > functions{
         printStatement,
         letStatement,
         inputStatement,
@@ -761,31 +826,34 @@ Parse<Statement> statement(const InputPos &pos)
         saveStatement,
         loadStatement
     };
-    for (auto f: functions) {
+    for (auto f : functions)
+    {
         const auto stmt = f(pos);
-        if (stmt.wasParsed()) {
+        if (stmt.wasParsed())
+        {
             return stmt;
         }
     }
 
     // For simple single-word statements, we use this table
-    static const vector<pair<string, function<Statement()>>> statements
-    {
-        {"RETURN", Statement::returnStatement},
-        {"RT",     Statement::returnStatement},
-        {"RUN",    Statement::run            },
-        {"END",    Statement::end            },
-        {"CLEAR",  Statement::clear          },
-        {"BYE",    Statement::bye            },
-        {"FILES",  Statement::files          },
-        {"FL",     Statement::files          },
-        {"TRON",   Statement::tron           },
-        {"TROFF",  Statement::troff          },
-        {"HELP",   Statement::help           }
+    static const vector<pair<string, function<Statement()> > > statements{
+        { "RETURN", Statement::returnStatement },
+        { "RT", Statement::returnStatement },
+        { "RUN", Statement::run },
+        { "END", Statement::end },
+        { "CLEAR", Statement::clear },
+        { "BYE", Statement::bye },
+        { "FILES", Statement::files },
+        { "FL", Statement::files },
+        { "TRON", Statement::tron },
+        { "TROFF", Statement::troff },
+        { "HELP", Statement::help }
     };
-    for (auto s: statements) {
+    for (auto s : statements)
+    {
         const auto keyword = literal(s.first, pos);
-        if (keyword.wasParsed()) {
+        if (keyword.wasParsed())
+        {
             return successfulParse(s.second(), keyword.nextPos());
         }
     }
@@ -802,25 +870,29 @@ Parse<Number> inputExpression(const InputPos &pos, InterpreterEngine &engine)
 {
     // number
     const auto num = numberLiteral(pos);
-    if (num.wasParsed()) {
+    if (num.wasParsed())
+    {
         return successfulParse(num.value(), num.nextPos());
     }
 
     // "+" number
     const auto plusNum = pos.parse<string, Number>(lit("+"), numberLiteral);
-    if (plusNum != nullptr) {
+    if (plusNum != nullptr)
+    {
         return successfulParse(std::get<1>(*plusNum), std::get<2>(*plusNum));
     }
 
     // "-" number
     const auto minusNum = pos.parse<string, Number>(lit("-"), numberLiteral);
-    if (minusNum != nullptr) {
+    if (minusNum != nullptr)
+    {
         return successfulParse(-std::get<1>(*minusNum), std::get<2>(*minusNum));
     }
 
     // variable
     const auto varname = variableName(pos);
-    if (varname.wasParsed()) {
+    if (varname.wasParsed())
+    {
         const auto value = engine.getVariableValue(varname.value());
         return successfulParse(value, varname.nextPos());
     }
@@ -829,4 +901,3 @@ Parse<Number> inputExpression(const InputPos &pos, InterpreterEngine &engine)
 }
 
 } // namespace finchlib_cpp
-

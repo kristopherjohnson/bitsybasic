@@ -1,0 +1,6 @@
+BasedOnStyle: Webkit
+IndentCaseLabels: true
+MaxEmptyLinesToKeep: 2
+PointerBindsToType: false
+BreakBeforeBraces: Allman
+

@@ -28,17 +28,20 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using namespace finchlib_cpp;
 
-InputCharResult InputCharResult_Value(Char c) {
+InputCharResult InputCharResult_Value(Char c)
+{
     InputCharResult result = { InputResultKindValue, c };
     return result;
 }
 
-InputCharResult InputCharResult_EndOfStream() {
+InputCharResult InputCharResult_EndOfStream()
+{
     InputCharResult result = { InputResultKindEndOfStream, 0 };
     return result;
 }
 
-InputCharResult InputCharResult_Waiting() {
+InputCharResult InputCharResult_Waiting()
+{
     InputCharResult result = { InputResultKindWaiting, 0 };
     return result;
 }
@@ -49,36 +52,43 @@ InputCharResult InputCharResult_Waiting() {
 @end
 
 
-@implementation Interpreter {
+@implementation Interpreter
+{
     // The real implementation is in the C++ InterpreterEngine class.
-    InterpreterEngine* _engine;
+    InterpreterEngine *_engine;
 }
 
-- (instancetype)initWithInterpreterIO:(id<InterpreterIO>)interpreterIO {
+- (instancetype)initWithInterpreterIO:(id<InterpreterIO>)interpreterIO
+{
     self = [super init];
-    if (!self) return nil;
+    if (!self)
+        return nil;
 
     // Keep a reference to the InterpreterIO object
     self.interpreterIO = interpreterIO;
 
     _engine = new InterpreterEngine(self, interpreterIO);
-    
+
     return self;
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
     delete _engine;
 }
 
-- (void)runUntilEndOfInput {
+- (void)runUntilEndOfInput
+{
     _engine->runUntilEndOfInput();
 }
 
-- (void)next {
+- (void)next
+{
     _engine->next();
 }
 
-- (InterpreterState)state {
+- (InterpreterState)state
+{
     return _engine->state();
 }
 

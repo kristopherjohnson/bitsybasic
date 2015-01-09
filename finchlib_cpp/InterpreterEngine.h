@@ -28,251 +28,257 @@
 #import "syntax.h"
 
 
-namespace finchlib_cpp {
+namespace finchlib_cpp
+{
 
-    typedef std::vector<Char> InputLine;
+typedef std::vector<Char> InputLine;
 
-    /// Values for `kind` field of `InterpreterEngine::Line`
-    typedef NS_ENUM(NSInteger, LineKind) {
-        LineKindNumberedStatement,
-        LineKindUnnumberedStatement,
-        LineKindEmpty,
-        LineKindEmptyNumberedLine,
-        LineKindError
-    };
+/// Values for `kind` field of `InterpreterEngine::Line`
+typedef NS_ENUM(NSInteger, LineKind)
+{
+    LineKindNumberedStatement,
+    LineKindUnnumberedStatement,
+    LineKindEmpty,
+    LineKindEmptyNumberedLine,
+    LineKindError
+};
 
-    /// Result of attempting to read a line of input
-    struct InputLineResult {
-        InputResultKind kind;
-        InputLine       value; // only used when kind == InputResultKindValue
+/// Result of attempting to read a line of input
+struct InputLineResult
+{
+    InputResultKind kind;
+    InputLine value; // only used when kind == InputResultKindValue
 
-        static InputLineResult inputLine(const InputLine &input) {
-            return {InputResultKindValue, input};
-        }
+    static InputLineResult inputLine(const InputLine &input)
+    {
+        return { InputResultKindValue, input };
+    }
 
-        static InputLineResult endOfStream() {
-            return {InputResultKindEndOfStream};
-        }
-        
-        static InputLineResult waiting() {
-            return {InputResultKindWaiting};
-        }
-    };
-    
+    static InputLineResult endOfStream()
+    {
+        return { InputResultKindEndOfStream };
+    }
+
+    static InputLineResult waiting()
+    {
+        return { InputResultKindWaiting };
+    }
+};
+
 
 #pragma mark - InterpreterEngine
 
-    class InterpreterEngine {
-    public:
-        /// Constructor
-        InterpreterEngine(Interpreter *interpreter, id<InterpreterIO> interpreterIO);
+class InterpreterEngine
+{
+public:
+    /// Constructor
+    InterpreterEngine(Interpreter *interpreter, id<InterpreterIO> interpreterIO);
 
-        /// Display prompt and read input lines and interpret them until end of input.
-        ///
-        /// This method should only be used when `InterpreterIO.getInputChar()`
-        /// will never return `InputCharResult.Waiting`.
-        /// Otherwise, host should call `next()` in a loop.
-        void runUntilEndOfInput();
+    /// Display prompt and read input lines and interpret them until end of input.
+    ///
+    /// This method should only be used when `InterpreterIO.getInputChar()`
+    /// will never return `InputCharResult.Waiting`.
+    /// Otherwise, host should call `next()` in a loop.
+    void runUntilEndOfInput();
 
-        /// Perform next operation.
-        ///
-        /// The host can drive the interpreter by calling `next()`
-        /// in a loop.
-        void next();
+    /// Perform next operation.
+    ///
+    /// The host can drive the interpreter by calling `next()`
+    /// in a loop.
+    void next();
 
-        /// Return interpreter state
-        InterpreterState state();
+    /// Return interpreter state
+    InterpreterState state();
 
-        /// Execute a PRINT statement with arguments
-        void PRINT(const PrintList &printList);
+    /// Execute a PRINT statement with arguments
+    void PRINT(const PrintList &printList);
 
-        /// Execute a PRINT statement that takes no arguments
-        void PRINT();
+    /// Execute a PRINT statement that takes no arguments
+    void PRINT();
 
-        /// Execute an INPUT statement
-        void INPUT(const Lvalues &lvalues);
+    /// Execute an INPUT statement
+    void INPUT(const Lvalues &lvalues);
 
-        /// Execute a LIST statement
-        void LIST(const Expression &lowExpr, const Expression &highExpr);
+    /// Execute a LIST statement
+    void LIST(const Expression &lowExpr, const Expression &highExpr);
 
-        /// Execute an IF statement
-        void IF(const Expression &lhs, const RelOp &op, const Expression &rhs, const Statement &consequent);
+    /// Execute an IF statement
+    void IF(const Expression &lhs, const RelOp &op, const Expression &rhs, const Statement &consequent);
 
-        /// Execute a RUN statement
-        void RUN();
+    /// Execute a RUN statement
+    void RUN();
 
-        /// Execute END statement
-        void END();
+    /// Execute END statement
+    void END();
 
-        /// Execute GOTO statement
-        void GOTO(const Expression &lineNumber);
+    /// Execute GOTO statement
+    void GOTO(const Expression &lineNumber);
 
-        /// Execute GOSUB statement
-        void GOSUB(const Expression &lineNumber);
+    /// Execute GOSUB statement
+    void GOSUB(const Expression &lineNumber);
 
-        /// Execute RETURN statement
-        void RETURN();
+    /// Execute RETURN statement
+    void RETURN();
 
-        /// Execute CLEAR statement
-        void CLEAR();
+    /// Execute CLEAR statement
+    void CLEAR();
 
-        /// Execute BYE statement
-        void BYE();
+    /// Execute BYE statement
+    void BYE();
 
-        /// Execute HELP statement
-        void HELP();
+    /// Execute HELP statement
+    void HELP();
 
-        /// Execute a DIM statement
-        void DIM(const Expression &expr);
+    /// Execute a DIM statement
+    void DIM(const Expression &expr);
 
-        /// Execute a SAVE statement
-        void SAVE(std::string filename);
+    /// Execute a SAVE statement
+    void SAVE(std::string filename);
 
-        /// Execute a LOAD statement
-        void LOAD(std::string filename);
+    /// Execute a LOAD statement
+    void LOAD(std::string filename);
 
-        /// Execute a FILES statement
-        void FILES();
+    /// Execute a FILES statement
+    void FILES();
 
-        /// Execute a TRON statement
-        void TRON();
+    /// Execute a TRON statement
+    void TRON();
 
-        /// Execute a TROFF statement
-        void TROFF();
-        
-        /// Evaluate an expression
-        Number evaluate(const Expression &expr);
+    /// Execute a TROFF statement
+    void TROFF();
 
-        Number getVariableValue(VariableName variableName) const;
-        void setVariableValue(VariableName variableName, Number value);
+    /// Evaluate an expression
+    Number evaluate(const Expression &expr);
 
-        Number getArrayElementValue(Number index);
-        void setArrayElementValue(Number index, Number value);
-        void setArrayElementValue(const Expression &indexExpression, Number value);
+    Number getVariableValue(VariableName variableName) const;
+    void setVariableValue(VariableName variableName, Number value);
 
-    private:
+    Number getArrayElementValue(Number index);
+    void setArrayElementValue(Number index, Number value);
+    void setArrayElementValue(const Expression &indexExpression, Number value);
 
+private:
 #pragma mark - Private data members
 
-        /// Interpreter instance that owns this engine
-        Interpreter *interpreter;
+    /// Interpreter instance that owns this engine
+    Interpreter *interpreter;
 
-        /// Low-level I/O interface
-        id<InterpreterIO> io;
+    /// Low-level I/O interface
+    id<InterpreterIO> io;
 
-        /// Interpreter state
-        InterpreterState st {InterpreterStateIdle};
+    /// Interpreter state
+    InterpreterState st{ InterpreterStateIdle };
 
-        /// Variable values
-        VariableBindings v;
+    /// Variable values
+    VariableBindings v;
 
-        /// Array of numbers, addressable using the syntax "@(i)"
-        Numbers a;
+    /// Array of numbers, addressable using the syntax "@(i)"
+    Numbers a;
 
-        /// Characters that have been read from input but not yet been returned by readInputLine()
-        InputLine inputLineBuffer;
+    /// Characters that have been read from input but not yet been returned by readInputLine()
+    InputLine inputLineBuffer;
 
-        /// Array of program lines
-        Program program;
+    /// Array of program lines
+    Program program;
 
-        /// Index of currently executing line in program
-        size_t programIndex {0};
+    /// Index of currently executing line in program
+    size_t programIndex{ 0 };
 
-        /// Return stack used by GOSUB/RETURN
-        ReturnStack returnStack;
+    /// Return stack used by GOSUB/RETURN
+    ReturnStack returnStack;
 
-        /// If true, print line numbers while program runs
-        bool isTraceOn {false};
+    /// If true, print line numbers while program runs
+    bool isTraceOn{ false };
 
-        /// If true, have encountered EOF while processing input
-        bool hasReachedEndOfInput {false};
+    /// If true, have encountered EOF while processing input
+    bool hasReachedEndOfInput{ false };
 
-        /// Lvalues being read by current INPUT statement
-        Lvalues inputLvalues;
+    /// Lvalues being read by current INPUT statement
+    Lvalues inputLvalues;
 
-        /// State that interpreter was in when INPUT was called
-        InterpreterState stateBeforeInput {InterpreterStateIdle};
+    /// State that interpreter was in when INPUT was called
+    InterpreterState stateBeforeInput{ InterpreterStateIdle };
 
 #pragma mark - Private methods
 
-        /// Set values of all variables and array elements to zero
-        void clearVariablesAndArray();
-        
-        /// Remove program from memory
-        void clearProgram();
-        
-        /// Remove all items from the return stack
-        void clearReturnStack();
-        
-        /// Parse an input line and execute it or add it to the program
-        void processInput(const InputLine &input);
-        
-        struct Line parseInputLine(const InputLine &input);
+    /// Set values of all variables and array elements to zero
+    void clearVariablesAndArray();
 
-        void insertLineIntoProgram(Number lineNumber, Statement statement);
+    /// Remove program from memory
+    void clearProgram();
 
-        /// Delete the line with the specified number from the program.
-        ///
-        /// No effect if there is no such line.
-        void deleteLineFromProgram(Number lineNumber);
+    /// Remove all items from the return stack
+    void clearReturnStack();
 
-        Program::iterator programLineWithNumber(Number lineNumber);
+    /// Parse an input line and execute it or add it to the program
+    void processInput(const InputLine &input);
 
-        /// Return line number of the last line in the program.
-        ///
-        /// Returns 0 if there is no program.
-        Number getLastProgramLineNumber();
+    struct Line parseInputLine(const InputLine &input);
 
-        void execute(Statement s);
+    void insertLineIntoProgram(Number lineNumber, Statement statement);
 
-        void executeNextProgramStatement();
+    /// Delete the line with the specified number from the program.
+    ///
+    /// No effect if there is no such line.
+    void deleteLineFromProgram(Number lineNumber);
 
-        /// Display error message and stop running
-        ///
-        /// Call this method if an unrecoverable error happens while executing a statement
-        void abortRunWithErrorMessage(std::string message);
+    Program::iterator programLineWithNumber(Number lineNumber);
 
-        /// Send a single character to the output stream
-        void writeOutput(Char c);
+    /// Return line number of the last line in the program.
+    ///
+    /// Returns 0 if there is no program.
+    Number getLastProgramLineNumber();
 
-        /// Send characters to the output stream
-        void writeOutput(const std::vector<Char> &chars);
+    void execute(Statement s);
 
-        /// Send string to the output stream
-        void writeOutput(std::string s);
+    void executeNextProgramStatement();
 
-        /// Print an object that conforms to the PrintTextProvider protocol
-        void writeOutput(const PrintTextProvider &p);
+    /// Display error message and stop running
+    ///
+    /// Call this method if an unrecoverable error happens while executing a statement
+    void abortRunWithErrorMessage(std::string message);
 
-        /// Display error message
-        void showError(std::string message);
+    /// Send a single character to the output stream
+    void writeOutput(Char c);
 
-        /// Read a line using the InterpreterIO interface.
-        ///
-        /// Return array of characters, or nil if at end of input stream.
-        ///
-        /// Result does not include any non-graphic characters that were in the input stream.
-        /// Any horizontal tab ('\t') in the input will be converted to a single space.
-        ///
-        /// Result may be an empty array, indicating an empty input line, not end of input.
-        InputLineResult readInputLine();
+    /// Send characters to the output stream
+    void writeOutput(const std::vector<Char> &chars);
 
-        /// Get a line of input, using specified function to retrieve characters.
-        ///
-        /// Result does not include any non-graphic characters that were in the input stream.
-        /// Any horizontal tab ('\t') in the input will be converted to a single space.
-        InputLineResult getInputLine(std::function<InputCharResult()> getChar);
+    /// Send string to the output stream
+    void writeOutput(std::string s);
 
-        /// Perform an INPUT operation
-        ///
-        /// This may be called by INPUT(), or by next() if resuming an operation
-        /// following a .Waiting result from readInputLine()
-        void continueInput();
+    /// Print an object that conforms to the PrintTextProvider protocol
+    void writeOutput(const PrintTextProvider &p);
 
-        /// Display error message to user during an INPUT operation
-        void showInputHelpMessage();
-    };
-    
+    /// Display error message
+    void showError(std::string message);
+
+    /// Read a line using the InterpreterIO interface.
+    ///
+    /// Return array of characters, or nil if at end of input stream.
+    ///
+    /// Result does not include any non-graphic characters that were in the input stream.
+    /// Any horizontal tab ('\t') in the input will be converted to a single space.
+    ///
+    /// Result may be an empty array, indicating an empty input line, not end of input.
+    InputLineResult readInputLine();
+
+    /// Get a line of input, using specified function to retrieve characters.
+    ///
+    /// Result does not include any non-graphic characters that were in the input stream.
+    /// Any horizontal tab ('\t') in the input will be converted to a single space.
+    InputLineResult getInputLine(std::function<InputCharResult()> getChar);
+
+    /// Perform an INPUT operation
+    ///
+    /// This may be called by INPUT(), or by next() if resuming an operation
+    /// following a .Waiting result from readInputLine()
+    void continueInput();
+
+    /// Display error message to user during an INPUT operation
+    void showInputHelpMessage();
+};
+
 } // namespace finchlib_cpp
 
 #endif /* defined(__finchbasic__InterpreterEngine__) */
