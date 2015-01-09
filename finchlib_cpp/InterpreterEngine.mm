@@ -59,27 +59,27 @@ struct Line
 
     static Line numberedStatement(Number n, Statement s)
     {
-        return { LineKindNumberedStatement, n, s };
+        return {LineKindNumberedStatement, n, s};
     }
 
     static Line unnumberedStatement(Statement s)
     {
-        return { LineKindUnnumberedStatement, 0, s };
+        return {LineKindUnnumberedStatement, 0, s};
     }
 
     static Line empty()
     {
-        return { LineKindEmpty, 0, Statement::invalid() };
+        return {LineKindEmpty, 0, Statement::invalid()};
     }
 
     static Line emptyNumberedLine(Number n)
     {
-        return { LineKindEmptyNumberedLine, n, Statement::invalid() };
+        return {LineKindEmptyNumberedLine, n, Statement::invalid()};
     }
 
     static Line error(std::string message)
     {
-        return { LineKindError, 0, Statement::invalid(), message };
+        return {LineKindError, 0, Statement::invalid(), message};
     }
 };
 
@@ -87,8 +87,8 @@ struct Line
 #pragma mark - InterpreterEngine
 
 InterpreterEngine::InterpreterEngine(Interpreter *interpreter, id<InterpreterIO> interpreterIO)
-    : interpreter{ interpreter }
-    , io{ interpreterIO }
+    : interpreter{interpreter}
+    , io{interpreterIO}
     , a(1024)
 {
     clearVariablesAndArray();
@@ -237,7 +237,7 @@ void InterpreterEngine::processInput(const InputLine &input)
 
 Line InterpreterEngine::parseInputLine(const InputLine &input)
 {
-    const auto start = InputPos{ input, 0 };
+    const auto start = InputPos{input, 0};
     const auto afterSpaces = start.afterSpaces();
 
     // If there are no non-space characters, skip this line
@@ -301,7 +301,7 @@ Line InterpreterEngine::parseInputLine(const InputLine &input)
 
 void InterpreterEngine::insertLineIntoProgram(Number lineNumber, Statement statement)
 {
-    NumberedStatement line{ lineNumber, statement };
+    NumberedStatement line{lineNumber, statement};
 
     const auto existing = programLineWithNumber(lineNumber);
     if (existing != program.end())
@@ -724,8 +724,7 @@ void InterpreterEngine::HELP()
         "  10 print \"Hello, world!\"",
         "  20 end",
         "  list",
-        "  run"
-    };
+        "  run"};
 
     for (auto line : lines)
     {
@@ -774,9 +773,9 @@ void InterpreterEngine::continueInput()
         {
             case InputResultKindValue:
             {
-                InputPos pos{ inputLineResult.value, 0 };
+                InputPos pos{inputLineResult.value, 0};
 
-                bool first{ true };
+                bool first{true};
                 for (const auto lv : inputLvalues)
                 {
                     // If this is not the first value, need to see a comma
@@ -890,7 +889,7 @@ void InterpreterEngine::LOAD(std::string filename)
     if (file)
     {
         // Read lines until end-of-stream or error
-        bool keepGoing{ true };
+        bool keepGoing{true};
         do
         {
             const auto inputLineResult = getInputLine([=]() -> InputCharResult
@@ -955,7 +954,7 @@ void InterpreterEngine::FILES()
             // Only list files, not directories
             if (dirent->d_type != DT_DIR)
             {
-                std::string name{ dirent->d_name, dirent->d_namlen };
+                std::string name{dirent->d_name, dirent->d_namlen};
                 writeOutput(name + "\n");
             }
             dirent = readdir(dir);

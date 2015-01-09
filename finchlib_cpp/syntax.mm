@@ -94,20 +94,20 @@ struct SafeDivides
     }
 };
 
-const ArithOp ArithOp::Add{ std::plus<Number>{}, "+" };
-const ArithOp ArithOp::Subtract{ std::minus<Number>{}, "-" };
-const ArithOp ArithOp::Multiply{ std::multiplies<Number>{}, "*" };
-const ArithOp ArithOp::Divide{ SafeDivides{}, "/" };
+const ArithOp ArithOp::Add{std::plus<Number>{}, "+"};
+const ArithOp ArithOp::Subtract{std::minus<Number>{}, "-"};
+const ArithOp ArithOp::Multiply{std::multiplies<Number>{}, "*"};
+const ArithOp ArithOp::Divide{SafeDivides{}, "/"};
 
 
 #pragma mark - RelOp
 
-const RelOp RelOp::Less{ std::less<Number>{}, "<" };
-const RelOp RelOp::Greater{ std::greater<Number>{}, ">" };
-const RelOp RelOp::Equal{ std::equal_to<Number>{}, "=" };
-const RelOp RelOp::LessOrEqual{ std::less_equal<Number>{}, "<=" };
-const RelOp RelOp::GreaterOrEqual{ std::greater_equal<Number>{}, ">=" };
-const RelOp RelOp::NotEqual{ std::not_equal_to<Number>{}, "<>" };
+const RelOp RelOp::Less{std::less<Number>{}, "<"};
+const RelOp RelOp::Greater{std::greater<Number>{}, ">"};
+const RelOp RelOp::Equal{std::equal_to<Number>{}, "="};
+const RelOp RelOp::LessOrEqual{std::less_equal<Number>{}, "<="};
+const RelOp RelOp::GreaterOrEqual{std::greater_equal<Number>{}, ">="};
+const RelOp RelOp::NotEqual{std::not_equal_to<Number>{}, "<>"};
 
 
 #pragma mark - Factor
@@ -136,7 +136,7 @@ std::string Factor::Num::listText() const
 }
 
 Factor::ParenExpr::ParenExpr(const Expression &expr)
-    : expression{ std::shared_ptr<Expression>{ new Expression{ expr } } }
+    : expression{std::shared_ptr<Expression>{new Expression{expr}}}
 {
 }
 
@@ -162,7 +162,7 @@ std::string Factor::Var::listText() const
 }
 
 Factor::ArrayElement::ArrayElement(const Expression &e)
-    : expression{ std::shared_ptr<Expression>{ new Expression{ e } } }
+    : expression{std::shared_ptr<Expression>{new Expression{e}}}
 {
 }
 
@@ -187,7 +187,7 @@ std::string Factor::ArrayElement::listText() const
 
 
 Factor::Rnd::Rnd(const Expression &e)
-    : expression{ std::shared_ptr<Expression>{ new Expression{ e } } }
+    : expression{std::shared_ptr<Expression>{new Expression{e}}}
 {
 }
 
@@ -238,9 +238,9 @@ std::string Term::Value::listText() const
 }
 
 Term::Compound::Compound(Factor f, ArithOp op, const Term &t)
-    : factor{ f }
-    , arithOp{ op }
-    , term{ std::shared_ptr<Term>{ new Term{ t } } }
+    : factor{f}
+    , arithOp{op}
+    , term{std::shared_ptr<Term>{new Term{t}}}
 {
 }
 
@@ -325,9 +325,9 @@ std::string UnsignedExpression::Value::listText() const
 }
 
 UnsignedExpression::Compound::Compound(Term t, ArithOp op, const UnsignedExpression &u)
-    : term{ t }
-    , arithOp{ op }
-    , tail{ std::shared_ptr<UnsignedExpression>{ new UnsignedExpression{ u } } }
+    : term{t}
+    , arithOp{op}
+    , tail{std::shared_ptr<UnsignedExpression>{new UnsignedExpression{u}}}
 {
 }
 
@@ -611,10 +611,10 @@ std::string Statement::Input::listText() const
 
 
 Statement::IfThen::IfThen(const Expression &left, const RelOp &relop, const Expression &right, const Statement &thenStatement)
-    : lhs{ left }
-    , op{ relop }
-    , rhs{ right }
-    , consequent{ std::shared_ptr<Statement>{ new Statement{ thenStatement } } }
+    : lhs{left}
+    , op{relop}
+    , rhs{right}
+    , consequent{std::shared_ptr<Statement>{new Statement{thenStatement}}}
 {
 }
 

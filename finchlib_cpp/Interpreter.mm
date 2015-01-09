@@ -30,19 +30,19 @@ using namespace finchlib_cpp;
 
 InputCharResult InputCharResult_Value(Char c)
 {
-    InputCharResult result = { InputResultKindValue, c };
+    InputCharResult result = {InputResultKindValue, c};
     return result;
 }
 
 InputCharResult InputCharResult_EndOfStream()
 {
-    InputCharResult result = { InputResultKindEndOfStream, 0 };
+    InputCharResult result = {InputResultKindEndOfStream, 0};
     return result;
 }
 
 InputCharResult InputCharResult_Waiting()
 {
-    InputCharResult result = { InputResultKindWaiting, 0 };
+    InputCharResult result = {InputResultKindWaiting, 0};
     return result;
 }
 

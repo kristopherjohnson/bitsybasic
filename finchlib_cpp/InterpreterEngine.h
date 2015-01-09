@@ -51,17 +51,17 @@ struct InputLineResult
 
     static InputLineResult inputLine(const InputLine &input)
     {
-        return { InputResultKindValue, input };
+        return {InputResultKindValue, input};
     }
 
     static InputLineResult endOfStream()
     {
-        return { InputResultKindEndOfStream };
+        return {InputResultKindEndOfStream};
     }
 
     static InputLineResult waiting()
     {
-        return { InputResultKindWaiting };
+        return {InputResultKindWaiting};
     }
 };
 
@@ -167,7 +167,7 @@ private:
     id<InterpreterIO> io;
 
     /// Interpreter state
-    InterpreterState st{ InterpreterStateIdle };
+    InterpreterState st{InterpreterStateIdle};
 
     /// Variable values
     VariableBindings v;
@@ -182,22 +182,22 @@ private:
     Program program;
 
     /// Index of currently executing line in program
-    size_t programIndex{ 0 };
+    size_t programIndex{0};
 
     /// Return stack used by GOSUB/RETURN
     ReturnStack returnStack;
 
     /// If true, print line numbers while program runs
-    bool isTraceOn{ false };
+    bool isTraceOn{false};
 
     /// If true, have encountered EOF while processing input
-    bool hasReachedEndOfInput{ false };
+    bool hasReachedEndOfInput{false};
 
     /// Lvalues being read by current INPUT statement
     Lvalues inputLvalues;
 
     /// State that interpreter was in when INPUT was called
-    InterpreterState stateBeforeInput{ InterpreterStateIdle };
+    InterpreterState stateBeforeInput{InterpreterStateIdle};
 
 #pragma mark - Private methods
 

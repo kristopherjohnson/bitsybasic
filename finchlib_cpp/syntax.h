@@ -53,8 +53,8 @@ private:
 
 public:
     ArithOp(std::function<Number(Number, Number)> f, std::string listText)
-        : fn{ f }
-        , text{ listText }
+        : fn{f}
+        , text{listText}
     {
     }
 
@@ -83,8 +83,8 @@ private:
 
 public:
     RelOp(std::function<bool(Number, Number)> f, std::string listText)
-        : fn{ f }
-        , text{ listText }
+        : fn{f}
+        , text{listText}
     {
     }
 
@@ -147,7 +147,7 @@ private:
         VariableName variableName;
 
         Var(VariableName v)
-            : variableName{ v }
+            : variableName{v}
         {
         }
 
@@ -188,31 +188,31 @@ public:
     /// Construct a Factor from a Number
     static Factor number(Number n)
     {
-        return { std::shared_ptr<Subtype>{ new Num{ n } } };
+        return {std::shared_ptr<Subtype>{new Num{n}}};
     }
 
     /// Construct a Factor from a parenthesized expression
     static Factor parenExpr(const Expression &expr)
     {
-        return { std::shared_ptr<Subtype>{ new ParenExpr{ expr } } };
+        return {std::shared_ptr<Subtype>{new ParenExpr{expr}}};
     }
 
     /// Construct a Factor from a variable name
     static Factor var(VariableName v)
     {
-        return { std::shared_ptr<Subtype>{ new Var{ v } } };
+        return {std::shared_ptr<Subtype>{new Var{v}}};
     }
 
     /// Construct a Factor for an array element
     static Factor arrayElement(const Expression &expr)
     {
-        return { std::shared_ptr<Subtype>{ new ArrayElement{ expr } } };
+        return {std::shared_ptr<Subtype>{new ArrayElement{expr}}};
     }
 
     /// Construct a Factor for a RND() function call
     static Factor rnd(const Expression &expr)
     {
-        return { std::shared_ptr<Subtype>{ new Rnd{ expr } } };
+        return {std::shared_ptr<Subtype>{new Rnd{expr}}};
     }
 
 
@@ -240,7 +240,7 @@ private:
         Factor factor;
 
         Value(Factor f)
-            : factor{ f }
+            : factor{f}
         {
         }
 
@@ -269,7 +269,7 @@ private:
     std::shared_ptr<Subtype> subtype;
 
     Term(std::shared_ptr<Subtype> s)
-        : subtype{ s }
+        : subtype{s}
     {
     }
 
@@ -277,13 +277,13 @@ public:
     /// Construct a Term from a Factor
     static Term factor(Factor f)
     {
-        return { std::shared_ptr<Subtype>{ new Value{ f } } };
+        return {std::shared_ptr<Subtype>{new Value{f}}};
     }
 
     /// Construct a Term from a Factor, ArithOp, and another Term
     static Term compound(Factor f, ArithOp op, const Term &t)
     {
-        return { std::shared_ptr<Subtype>{ new Compound{ f, op, t } } };
+        return {std::shared_ptr<Subtype>{new Compound{f, op, t}}};
     }
 
     /// Return the value of the term
@@ -350,13 +350,13 @@ public:
     /// Construct an UnsignedExpression from a Term
     static UnsignedExpression term(Term t)
     {
-        return { std::shared_ptr<Subtype>{ new Value{ t } } };
+        return {std::shared_ptr<Subtype>{new Value{t}}};
     }
 
     /// Construct an UnsignedExpression from a term, an operation, and successive expression
     static UnsignedExpression compound(Term t, ArithOp op, const UnsignedExpression &u)
     {
-        return { std::shared_ptr<Subtype>{ new Compound{ t, op, u } } };
+        return {std::shared_ptr<Subtype>{new Compound{t, op, u}}};
     }
 
     /// Return the value of the expression
@@ -381,7 +381,7 @@ private:
         UnsignedExpression unsignedExpression;
 
         Subtype(UnsignedExpression uexpr)
-            : unsignedExpression{ uexpr }
+            : unsignedExpression{uexpr}
         {
         }
 
@@ -393,7 +393,7 @@ private:
     struct UnsignedExpr : public Subtype
     {
         UnsignedExpr(UnsignedExpression uexpr)
-            : Subtype{ uexpr }
+            : Subtype{uexpr}
         {
         }
 
@@ -405,7 +405,7 @@ private:
     struct Plus : public Subtype
     {
         Plus(UnsignedExpression uexpr)
-            : Subtype{ uexpr }
+            : Subtype{uexpr}
         {
         }
 
@@ -417,7 +417,7 @@ private:
     struct Minus : public Subtype
     {
         Minus(UnsignedExpression uexpr)
-            : Subtype{ uexpr }
+            : Subtype{uexpr}
         {
         }
 
@@ -428,7 +428,7 @@ private:
     std::shared_ptr<Subtype> subtype;
 
     Expression(std::shared_ptr<Subtype> s)
-        : subtype{ s }
+        : subtype{s}
     {
     }
 
@@ -436,19 +436,19 @@ public:
     /// Construct an expression from an UnsignedExpression
     static Expression unsignedExpr(UnsignedExpression uexpr)
     {
-        return { std::shared_ptr<Subtype>{ new UnsignedExpr{ uexpr } } };
+        return {std::shared_ptr<Subtype>{new UnsignedExpr{uexpr}}};
     }
 
     /// Construct an expression from an UnsignedExpression
     static Expression plus(UnsignedExpression uexpr)
     {
-        return { std::shared_ptr<Subtype>{ new Plus{ uexpr } } };
+        return {std::shared_ptr<Subtype>{new Plus{uexpr}}};
     }
 
     /// Construct an expression from an UnsignedExpression
     static Expression minus(UnsignedExpression uexpr)
     {
-        return { std::shared_ptr<Subtype>{ new Minus{ uexpr } } };
+        return {std::shared_ptr<Subtype>{new Minus{uexpr}}};
     }
 
     /// Construct an expression from a numeric constant
@@ -512,7 +512,7 @@ private:
     std::shared_ptr<Subtype> subtype;
 
     PrintItem(std::shared_ptr<Subtype> sub)
-        : subtype{ sub }
+        : subtype{sub}
     {
     }
 
@@ -520,13 +520,13 @@ public:
     /// Construct a PrintItem from an expression
     static PrintItem expression(Expression expr)
     {
-        return { std::shared_ptr<Subtype>{ new Expr{ expr } } };
+        return {std::shared_ptr<Subtype>{new Expr{expr}}};
     }
 
     /// Construct a PrintItem from a string literal
     static PrintItem stringLiteral(const std::vector<Char> &value)
     {
-        return { std::shared_ptr<Subtype>{ new StringLiteral{ value } } };
+        return {std::shared_ptr<Subtype>{new StringLiteral{value}}};
     }
 
     virtual std::vector<Char> printText(const VariableBindings &v, const Numbers &a) const;
@@ -586,7 +586,7 @@ private:
         VariableName variableName;
 
         Var(VariableName v)
-            : variableName{ v }
+            : variableName{v}
         {
         }
 
@@ -599,7 +599,7 @@ private:
         Expression subscript;
 
         ArrayElement(const Expression &sub)
-            : subscript{ sub }
+            : subscript{sub}
         {
         }
 
@@ -610,7 +610,7 @@ private:
     std::shared_ptr<Subtype> subtype;
 
     Lvalue(std::shared_ptr<Subtype> s)
-        : subtype{ s }
+        : subtype{s}
     {
     }
 
@@ -618,13 +618,13 @@ public:
     /// Return an Lvalue for a variable
     static Lvalue var(VariableName v)
     {
-        return { std::shared_ptr<Subtype>{ new Var{ v } } };
+        return {std::shared_ptr<Subtype>{new Var{v}}};
     }
 
     /// Return an Lvalue for an array element
     static Lvalue arrayElement(const Expression &expr)
     {
-        return { std::shared_ptr<Subtype>{ new ArrayElement{ expr } } };
+        return {std::shared_ptr<Subtype>{new ArrayElement{expr}}};
     }
 
     /// Return pretty-printed text
@@ -676,8 +676,8 @@ private:
         Expression highLineNumber;
 
         List(const Expression &low, const Expression &high)
-            : lowLineNumber{ low }
-            , highLineNumber{ high }
+            : lowLineNumber{low}
+            , highLineNumber{high}
         {
         }
 
@@ -743,7 +743,7 @@ private:
         Expression lineNumber;
 
         Goto(const Expression &expr)
-            : lineNumber{ expr }
+            : lineNumber{expr}
         {
         }
 
@@ -756,7 +756,7 @@ private:
         Expression lineNumber;
 
         Gosub(const Expression &expr)
-            : lineNumber{ expr }
+            : lineNumber{expr}
         {
         }
 
@@ -775,7 +775,7 @@ private:
         std::string text;
 
         Rem(const std::string &s)
-            : text{ s }
+            : text{s}
         {
         }
 
@@ -806,7 +806,7 @@ private:
         Expression expression;
 
         Dim(const Expression &expr)
-            : expression{ expr }
+            : expression{expr}
         {
         }
 
@@ -819,7 +819,7 @@ private:
         std::string filename;
 
         Save(std::string s)
-            : filename{ s }
+            : filename{s}
         {
         }
 
@@ -832,7 +832,7 @@ private:
         std::string filename;
 
         Load(std::string s)
-            : filename{ s }
+            : filename{s}
         {
         }
 
@@ -880,13 +880,13 @@ public:
     /// Return a PRINT statement that has arguments
     static Statement print(const PrintList &printList)
     {
-        return { std::shared_ptr<Subtype>{ new Print{ printList } } };
+        return {std::shared_ptr<Subtype>{new Print{printList}}};
     }
 
     /// Return a PRINT statement with no arguments
     static Statement printNewline()
     {
-        return { std::shared_ptr<Subtype>{ new PrintNewline{} } };
+        return {std::shared_ptr<Subtype>{new PrintNewline{}}};
     }
 
     /// Return a LIST statement
@@ -894,115 +894,115 @@ public:
         const Expression &lowLineNumber = Expression::number(0),
         const Expression &highLineNumber = Expression::number(std::numeric_limits<Number>::max()))
     {
-        return { std::shared_ptr<Subtype>{ new List{ lowLineNumber, highLineNumber } } };
+        return {std::shared_ptr<Subtype>{new List{lowLineNumber, highLineNumber}}};
     }
 
     /// Return a LET statement
     static Statement let(const Lvalue &lv, const Expression &expr)
     {
-        return { std::shared_ptr<Subtype>{ new Let{ lv, expr } } };
+        return {std::shared_ptr<Subtype>{new Let{lv, expr}}};
     }
 
     /// Return an INPUT statement
     static Statement input(const Lvalues &lv)
     {
-        return { std::shared_ptr<Subtype>{ new Input{ lv } } };
+        return {std::shared_ptr<Subtype>{new Input{lv}}};
     }
 
     /// Return an IF statement
     static Statement ifThen(const Expression &left, const RelOp &relop, const Expression &right, const Statement &thenStatement)
     {
-        return { std::shared_ptr<Subtype>{ new IfThen{ left, relop, right, thenStatement } } };
+        return {std::shared_ptr<Subtype>{new IfThen{left, relop, right, thenStatement}}};
     }
 
     /// Return a RUN statement
     static Statement run()
     {
-        return { std::shared_ptr<Subtype>{ new Run{} } };
+        return {std::shared_ptr<Subtype>{new Run{}}};
     }
 
     /// Return a END statement
     static Statement end()
     {
-        return { std::shared_ptr<Subtype>{ new End{} } };
+        return {std::shared_ptr<Subtype>{new End{}}};
     }
 
     /// Return a GOTO statement
     static Statement gotoStatement(const Expression &expr)
     {
-        return { std::shared_ptr<Subtype>{ new Goto{ expr } } };
+        return {std::shared_ptr<Subtype>{new Goto{expr}}};
     }
 
     /// Return a GOSUB statement
     static Statement gosub(const Expression &expr)
     {
-        return { std::shared_ptr<Subtype>{ new Gosub{ expr } } };
+        return {std::shared_ptr<Subtype>{new Gosub{expr}}};
     }
 
     /// Return a RETURN statement
     static Statement returnStatement()
     {
-        return { std::shared_ptr<Subtype>{ new Return{} } };
+        return {std::shared_ptr<Subtype>{new Return{}}};
     }
 
     /// Return a REM statement
     static Statement rem(const std::string &s)
     {
-        return { std::shared_ptr<Subtype>{ new Rem{ s } } };
+        return {std::shared_ptr<Subtype>{new Rem{s}}};
     }
 
     /// Return a CLEAR statement
     static Statement clear()
     {
-        return { std::shared_ptr<Subtype>{ new Clear{} } };
+        return {std::shared_ptr<Subtype>{new Clear{}}};
     }
 
     /// Return a BYE statement
     static Statement bye()
     {
-        return { std::shared_ptr<Subtype>{ new Bye{} } };
+        return {std::shared_ptr<Subtype>{new Bye{}}};
     }
 
     /// Return a HELP statement
     static Statement help()
     {
-        return { std::shared_ptr<Subtype>{ new Help{} } };
+        return {std::shared_ptr<Subtype>{new Help{}}};
     }
 
     /// Return a DIM statement
     static Statement dim(const Expression &expr)
     {
-        return { std::shared_ptr<Subtype>{ new Dim{ expr } } };
+        return {std::shared_ptr<Subtype>{new Dim{expr}}};
     }
 
     /// Return a SAVE stateent
     static Statement save(std::string filename)
     {
-        return { std::shared_ptr<Subtype>{ new Save{ filename } } };
+        return {std::shared_ptr<Subtype>{new Save{filename}}};
     }
 
     /// Return a LOAD stateent
     static Statement load(std::string filename)
     {
-        return { std::shared_ptr<Subtype>{ new Load{ filename } } };
+        return {std::shared_ptr<Subtype>{new Load{filename}}};
     }
 
     /// Return a FILES stateent
     static Statement files()
     {
-        return { std::shared_ptr<Subtype>{ new Files{} } };
+        return {std::shared_ptr<Subtype>{new Files{}}};
     }
 
     /// Return a TRON stateent
     static Statement tron()
     {
-        return { std::shared_ptr<Subtype>{ new Tron{} } };
+        return {std::shared_ptr<Subtype>{new Tron{}}};
     }
 
     /// Return a TROFF stateent
     static Statement troff()
     {
-        return { std::shared_ptr<Subtype>{ new Troff{} } };
+        return {std::shared_ptr<Subtype>{new Troff{}}};
     }
 
     /// Return an invalid Statement

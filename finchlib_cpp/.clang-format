@@ -3,4 +3,5 @@ IndentCaseLabels: true
 MaxEmptyLinesToKeep: 2
 PointerBindsToType: false
 BreakBeforeBraces: Allman
+Cpp11BracedListStyle: true
 

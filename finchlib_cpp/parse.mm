@@ -43,8 +43,8 @@ static Parse<Expression> expression(const InputPos &pos);
 /// Matching is case-insensitive. Spaces in the input are ignored.
 Parse<std::string> literal(std::string s, const InputPos &pos)
 {
-    size_t matchCount{ 0 };
-    const size_t matchGoal{ s.length() };
+    size_t matchCount{0};
+    const size_t matchGoal{s.length()};
 
     auto i = pos;
     while ((matchCount < matchGoal) && !i.isAtEndOfLine())
@@ -82,7 +82,7 @@ private:
 
 public:
     lit(string literalString)
-        : s{ literalString }
+        : s{literalString}
     {
     }
 
@@ -181,7 +181,7 @@ Parse<Number> numberLiteral(const InputPos &pos)
         return failedParse<Number>();
     }
 
-    Number num{ i.at() - '0' };
+    Number num{i.at() - '0'};
     i = i.next();
     while (!i.isAtEndOfLine())
     {
@@ -213,7 +213,7 @@ Parse<vector<Char> > stringLiteral(const InputPos &pos)
         {
             i = i.next();
             vector<Char> stringChars;
-            bool foundTrailingDelim{ false };
+            bool foundTrailingDelim{false};
 
             while (!i.isAtEndOfLine())
             {
@@ -488,12 +488,12 @@ static Parse<PrintList> printList(const InputPos &pos)
             if (tail.wasParsed())
             {
                 const auto pTail = std::shared_ptr<PrintList>(new PrintList(tail.value()));
-                PrintList result{ item.value(), PrintSeparatorTab, pTail };
+                PrintList result{item.value(), PrintSeparatorTab, pTail};
                 return successfulParse(result, tail.nextPos());
             }
             else if (comma.nextPos().isRemainingLineEmpty())
             {
-                PrintList result{ item.value(), PrintSeparatorTab, nullptr };
+                PrintList result{item.value(), PrintSeparatorTab, nullptr};
                 return successfulParse(result, comma.nextPos());
             }
         }
@@ -509,18 +509,18 @@ static Parse<PrintList> printList(const InputPos &pos)
                 if (tail.wasParsed())
                 {
                     const auto pTail = std::shared_ptr<PrintList>(new PrintList(tail.value()));
-                    PrintList result{ item.value(), PrintSeparatorEmpty, pTail };
+                    PrintList result{item.value(), PrintSeparatorEmpty, pTail};
                     return successfulParse(result, tail.nextPos());
                 }
                 else if (semicolon.nextPos().isRemainingLineEmpty())
                 {
-                    PrintList result{ item.value(), PrintSeparatorEmpty, nullptr };
+                    PrintList result{item.value(), PrintSeparatorEmpty, nullptr};
                     return successfulParse(result, semicolon.nextPos());
                 }
             }
         }
 
-        PrintList result{ item.value(), PrintSeparatorNewline, nullptr };
+        PrintList result{item.value(), PrintSeparatorNewline, nullptr};
         return successfulParse(result, item.nextPos());
     }
 
@@ -532,14 +532,13 @@ static Parse<RelOp> relOp(const InputPos &pos)
 {
     // Note: We need to test the longer sequences before the shorter
     static const vector<tuple<string, RelOp> > opTable = {
-        { "<=", RelOp::LessOrEqual },
-        { ">=", RelOp::GreaterOrEqual },
-        { "<>", RelOp::NotEqual },
-        { "><", RelOp::NotEqual },
-        { "=", RelOp::Equal },
-        { "<", RelOp::Less },
-        { ">", RelOp::Greater }
-    };
+        {"<=", RelOp::LessOrEqual},
+        {">=", RelOp::GreaterOrEqual},
+        {"<>", RelOp::NotEqual},
+        {"><", RelOp::NotEqual},
+        {"=", RelOp::Equal},
+        {"<", RelOp::Less},
+        {">", RelOp::Greater}};
 
     for (const auto item : opTable)
     {
@@ -561,7 +560,7 @@ static Parse<Statement> printStatement(const InputPos &pos)
     // "PRINT" printList
     // "PR" printList
     // "?" printList
-    const auto keyword = oneOfLit{ "PRINT", "PR", "?" }(pos);
+    const auto keyword = oneOfLit{"PRINT", "PR", "?"}(pos);
     if (keyword.wasParsed())
     {
         const auto plist = printList(keyword.nextPos());
@@ -587,7 +586,7 @@ static Parse<Statement> listStatement(const InputPos &pos)
 {
     // "LIST" [expression ["," expression]]
     // "LS" [expression ["," expression]]
-    const auto keyword = oneOfLiteral({ "LIST", "LS" }, pos);
+    const auto keyword = oneOfLiteral({"LIST", "LS"}, pos);
     if (keyword.wasParsed())
     {
         const auto lowExpr = expression(keyword.nextPos());
@@ -637,7 +636,7 @@ static Parse<Lvalues> lvalueList(const InputPos &pos)
     const auto firstItem = lvalue(pos);
     if (firstItem.wasParsed())
     {
-        Lvalues lvalues{ firstItem.value() };
+        Lvalues lvalues{firstItem.value()};
         auto nextPos = firstItem.nextPos();
 
         auto more = nextPos.parse<string, Lvalue>(lit(","), lvalue);
@@ -660,7 +659,7 @@ static Parse<Lvalues> lvalueList(const InputPos &pos)
 static Parse<Statement> inputStatement(const InputPos &pos)
 {
     const auto parsed = pos.parse<string, Lvalues>(
-        oneOfLit{ "INPUT", "IN" }, lvalueList);
+        oneOfLit{"INPUT", "IN"}, lvalueList);
     if (parsed != nullptr)
     {
         const auto lvalues = std::get<1>(*parsed);
@@ -699,7 +698,7 @@ static Parse<Statement> ifStatement(const InputPos &pos)
 static Parse<Statement> gotoStatement(const InputPos &pos)
 {
     const auto s = pos.parse<string, Expression>(
-        oneOfLit{ "GOTO", "GT" }, expression);
+        oneOfLit{"GOTO", "GT"}, expression);
     if (s != nullptr)
     {
         const auto expr = std::get<1>(*s);
@@ -717,7 +716,7 @@ static Parse<Statement> gotoStatement(const InputPos &pos)
 static Parse<Statement> gosubStatement(const InputPos &pos)
 {
     const auto s = pos.parse<string, Expression>(
-        oneOfLit{ "GOSUB", "GS" }, expression);
+        oneOfLit{"GOSUB", "GS"}, expression);
     if (s != nullptr)
     {
         const auto expr = std::get<1>(*s);
@@ -734,7 +733,7 @@ static Parse<Statement> gosubStatement(const InputPos &pos)
 /// Returns statement and position of next character if successful.
 static Parse<Statement> remStatement(const InputPos &pos)
 {
-    const auto rem = oneOfLiteral({ "REM", "'" }, pos);
+    const auto rem = oneOfLiteral({"REM", "'"}, pos);
     if (rem.wasParsed())
     {
         const auto commentChars = rem.nextPos().remainingChars();
@@ -773,11 +772,11 @@ static Parse<Statement> dimStatement(const InputPos &pos)
 static Parse<Statement> saveStatement(const InputPos &pos)
 {
     const auto parsed = pos.parse<string, vector<Char> >(
-        oneOfLit{ "SAVE", "SV" }, stringLiteral);
+        oneOfLit{"SAVE", "SV"}, stringLiteral);
     if (parsed != nullptr)
     {
         const auto chars = std::get<1>(*parsed);
-        const std::string filename{ chars.cbegin(), chars.cend() };
+        const std::string filename{chars.cbegin(), chars.cend()};
         const auto result = Statement::save(filename);
         const auto nextPos = std::get<2>(*parsed);
         return successfulParse(result, nextPos);
@@ -792,11 +791,11 @@ static Parse<Statement> saveStatement(const InputPos &pos)
 static Parse<Statement> loadStatement(const InputPos &pos)
 {
     const auto parsed = pos.parse<string, vector<Char> >(
-        oneOfLit{ "LOAD", "LD" }, stringLiteral);
+        oneOfLit{"LOAD", "LD"}, stringLiteral);
     if (parsed != nullptr)
     {
         const auto chars = std::get<1>(*parsed);
-        const std::string filename{ chars.cbegin(), chars.cend() };
+        const std::string filename{chars.cbegin(), chars.cend()};
         const auto result = Statement::load(filename);
         const auto nextPos = std::get<2>(*parsed);
         return successfulParse(result, nextPos);
@@ -824,8 +823,7 @@ Parse<Statement> statement(const InputPos &pos)
         remStatement,
         listStatement,
         saveStatement,
-        loadStatement
-    };
+        loadStatement};
     for (auto f : functions)
     {
         const auto stmt = f(pos);
@@ -837,18 +835,17 @@ Parse<Statement> statement(const InputPos &pos)
 
     // For simple single-word statements, we use this table
     static const vector<pair<string, function<Statement()> > > statements{
-        { "RETURN", Statement::returnStatement },
-        { "RT", Statement::returnStatement },
-        { "RUN", Statement::run },
-        { "END", Statement::end },
-        { "CLEAR", Statement::clear },
-        { "BYE", Statement::bye },
-        { "FILES", Statement::files },
-        { "FL", Statement::files },
-        { "TRON", Statement::tron },
-        { "TROFF", Statement::troff },
-        { "HELP", Statement::help }
-    };
+        {"RETURN", Statement::returnStatement},
+        {"RT", Statement::returnStatement},
+        {"RUN", Statement::run},
+        {"END", Statement::end},
+        {"CLEAR", Statement::clear},
+        {"BYE", Statement::bye},
+        {"FILES", Statement::files},
+        {"FL", Statement::files},
+        {"TRON", Statement::tron},
+        {"TROFF", Statement::troff},
+        {"HELP", Statement::help}};
     for (auto s : statements)
     {
         const auto keyword = literal(s.first, pos);

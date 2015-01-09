@@ -169,13 +169,13 @@ struct InputPos
     /// Return the next input position
     InputPos next() const
     {
-        return { input, index + 1 };
+        return {input, index + 1};
     }
 
     /// Return the position at the end of the line
     InputPos endOfLine() const
     {
-        return { input, input.size() };
+        return {input, input.size()};
     }
 
     /// Return position of first non-space character at or after this position
@@ -187,7 +187,7 @@ struct InputPos
         {
             ++i;
         }
-        return { input, i };
+        return {input, i};
     }
 
     // The parse() methods take a starting position and a sequence
@@ -407,8 +407,8 @@ private:
 
 public:
     Parsed(const T &v, const InputPos &next)
-        : value_{ v }
-        , nextPos_{ next }
+        : value_{v}
+        , nextPos_{next}
     {
     }
 
@@ -422,7 +422,7 @@ template <class T>
 static Parse<T> failedParse()
 {
     ParseResult<T> *p = new NotParsed<T>();
-    return Parse<T>{ std::shared_ptr<ParseResult<T> >{ p } };
+    return Parse<T>{std::shared_ptr<ParseResult<T> >{p}};
 }
 
 /// Return a newly constructed Parse object representing success
@@ -430,7 +430,7 @@ template <class T>
 static Parse<T> successfulParse(const T &v, const InputPos &next)
 {
     ParseResult<T> *p = new Parsed<T>(v, next);
-    return Parse<T>{ std::shared_ptr<ParseResult<T> >{ p } };
+    return Parse<T>{std::shared_ptr<ParseResult<T> >{p}};
 }
 
 /// Determine whether character is a digit
