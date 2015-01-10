@@ -732,6 +732,7 @@ void InterpreterEngine::INPUT(const Lvalues &lvalues)
 {
     inputLvalues = lvalues;
     stateBeforeInput = st;
+    [io showInputPromptForInterpreter:interpreter];
     continueInput();
 }
 
@@ -749,6 +750,8 @@ void InterpreterEngine::showInputHelpMessage()
     {
         showError("You must enter a value.");
     }
+
+    [io showInputPromptForInterpreter:interpreter];
 }
 
 /// Perform an INPUT operation
@@ -761,7 +764,6 @@ void InterpreterEngine::continueInput()
     for (;;)
     {
     inputLoop:
-        [io showInputPromptForInterpreter:interpreter];
         const auto inputLineResult = readInputLine();
         switch (inputLineResult.kind)
         {
