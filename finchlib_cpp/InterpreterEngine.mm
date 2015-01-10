@@ -34,6 +34,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 using std::unique_ptr;
 using std::shared_ptr;
 using std::make_shared;
+using std::ostringstream;
 using std::string;
 using std::vector;
 using std::tuple;
@@ -55,7 +56,7 @@ struct Line
     LineKind kind;
     Number lineNumber;
     Statement statement;
-    std::string errorMessage;
+    string errorMessage;
 
     static Line numberedStatement(Number n, Statement s)
     {
@@ -67,14 +68,17 @@ struct Line
         return {LineKindUnnumberedStatement, 0, s};
     }
 
-    static Line empty() { return {LineKindEmpty, 0, Statement::invalid()}; }
+    static Line empty()
+    {
+        return {LineKindEmpty, 0, Statement::invalid()};
+    }
 
     static Line emptyNumberedLine(Number n)
     {
         return {LineKindEmptyNumberedLine, n, Statement::invalid()};
     }
 
-    static Line error(std::string message)
+    static Line error(string message)
     {
         return {LineKindError, 0, Statement::invalid(), message};
     }
@@ -82,15 +86,18 @@ struct Line
 
 #pragma mark - InterpreterEngine
 
-InterpreterEngine::InterpreterEngine(Interpreter *interpreter,
+InterpreterEngine::InterpreterEngine(Interpreter *interp,
                                      id<InterpreterIO> interpreterIO)
-    : interpreter{interpreter}, io{interpreterIO}, a(1024)
+    : interpreter{interp}, io{interpreterIO}, a(1024)
 {
     clearVariablesAndArray();
 }
 
 /// Return interpreter state
-InterpreterState InterpreterEngine::state() { return st; }
+InterpreterState InterpreterEngine::state()
+{
+    return st;
+}
 
 /// Set values of all variables and array elements to zero
 void InterpreterEngine::clearVariablesAndArray()
@@ -99,6 +106,7 @@ void InterpreterEngine::clearVariablesAndArray()
     {
         v[varname] = 0;
     }
+
     for (auto i = 0; i < a.size(); ++i)
     {
         a[i] = 0;
@@ -114,7 +122,11 @@ void InterpreterEngine::clearProgram()
 }
 
 /// Remove all items from the return stack
-void InterpreterEngine::clearReturnStack() { returnStack.resize(0); }
+void InterpreterEngine::clearReturnStack()
+{
+    returnStack.resize(0);
+}
+
 
 #pragma mark - Top-level loop
 
@@ -126,9 +138,7 @@ void InterpreterEngine::clearReturnStack() { returnStack.resize(0); }
 void InterpreterEngine::runUntilEndOfInput()
 {
     while (!hasReachedEndOfInput)
-    {
         next();
-    }
 }
 
 /// Perform next operation.
@@ -149,7 +159,6 @@ void InterpreterEngine::next()
             const auto result = readInputLine();
             switch (result.kind)
             {
-
                 case InputResultKindValue:
                     processInput(result.value);
                     break;
@@ -188,11 +197,10 @@ void InterpreterEngine::processInput(const InputLine &input)
 {
     st = InterpreterStateIdle;
 
-    auto line = parseInputLine(input);
+    const auto line = parseInputLine(input);
 
     switch (line.kind)
     {
-
         case LineKindUnnumberedStatement:
             execute(line.statement);
             break;
@@ -251,7 +259,7 @@ Line InterpreterEngine::parseInputLine(const InputLine &input)
             }
             else
             {
-                std::ostringstream msg;
+                ostringstream msg;
                 msg << "line " << parsedNumber.value()
                     << ": error: unexpected characters following complete statement";
                 return Line::error(msg.str());
@@ -259,7 +267,7 @@ Line InterpreterEngine::parseInputLine(const InputLine &input)
         }
         else
         {
-            std::ostringstream msg;
+            ostringstream msg;
             msg << "line " << parsedNumber.value()
                 << ": error: not a valid statement";
             return Line::error(msg.str());
@@ -334,7 +342,7 @@ void InterpreterEngine::deleteLineFromProgram(Number lineNumber)
 Program::iterator InterpreterEngine::programLineWithNumber(Number lineNumber)
 {
     return std::find_if(program.begin(), program.end(),
-                        [=](const NumberedStatement &s)
+                        [lineNumber](const NumberedStatement &s)
                             -> bool
                         { return s.lineNumber == lineNumber; });
 }
@@ -373,7 +381,7 @@ void InterpreterEngine::executeNextProgramStatement()
     const auto numberedStatement = program.at(programIndex);
     if (isTraceOn)
     {
-        std::ostringstream msg;
+        ostringstream msg;
         msg << "[" << numberedStatement.lineNumber << "]";
         NSString *message = [NSString stringWithUTF8String:msg.str().c_str()];
         [io showDebugTraceMessage:message forInterpreter:interpreter];
@@ -450,9 +458,7 @@ InputLineResult InterpreterEngine::readInputLine()
     const auto io = this->io;
     const auto interpreter = this->interpreter;
     return getInputLine([=]() -> InputCharResult
-                        {
-    return [io getInputCharForInterpreter:interpreter];
-    });
+                        { return [io getInputCharForInterpreter:interpreter]; });
 }
 
 /// Get a line of input, using specified function to retrieve characters.
@@ -573,25 +579,27 @@ void InterpreterEngine::PRINT() { writeOutput('\n'); }
 void InterpreterEngine::LIST(const Expression &lowExpr,
                              const Expression &highExpr)
 {
-    const auto lowNumber = evaluate(lowExpr);
-    const auto highNumber = evaluate(highExpr);
+    const auto rangeLow = evaluate(lowExpr);
+    const auto rangeHigh = evaluate(highExpr);
     for (const auto line : program)
     {
-        if (line.lineNumber < lowNumber)
+        if (line.lineNumber < rangeLow)
             continue;
 
-        if (line.lineNumber > highNumber)
+        if (line.lineNumber > rangeHigh)
             break;
 
-        std::ostringstream s;
+        ostringstream s;
         s << line.lineNumber << " " << line.statement.listText() << "\n";
         writeOutput(s.str());
     }
 }
 
 /// Execute IF statement
-void InterpreterEngine::IF(const Expression &lhs, const RelOp &op,
-                           const Expression &rhs, const Statement &consequent)
+void InterpreterEngine::IF(const Expression &lhs,
+                           const RelOp &op,
+                           const Expression &rhs,
+                           const Statement &consequent)
 {
     const auto lhsValue = evaluate(lhs);
     const auto rhsValue = evaluate(rhs);
@@ -617,7 +625,10 @@ void InterpreterEngine::RUN()
 }
 
 /// Execute END statement
-void InterpreterEngine::END() { st = InterpreterStateIdle; }
+void InterpreterEngine::END()
+{
+    st = InterpreterStateIdle;
+}
 
 /// Execute GOTO statement
 void InterpreterEngine::GOTO(const Expression &expr)
@@ -626,7 +637,7 @@ void InterpreterEngine::GOTO(const Expression &expr)
     const auto it = programLineWithNumber(lineNumber);
     if (it == program.end())
     {
-        std::ostringstream s;
+        ostringstream s;
         s << "error: GOTO " << lineNumber << " - no line with that number";
         abortRunWithErrorMessage(s.str());
         return;
@@ -643,7 +654,7 @@ void InterpreterEngine::GOSUB(const Expression &expr)
     const auto it = programLineWithNumber(lineNumber);
     if (it == program.end())
     {
-        std::ostringstream s;
+        ostringstream s;
         s << "error: GOSUB " << lineNumber << " - no line with that number";
         abortRunWithErrorMessage(s.str());
         return;
@@ -685,12 +696,28 @@ void InterpreterEngine::HELP()
     static const vector<string> lines = {
         "Enter a line number and a BASIC statement to add it to the program.  "
         "Enter a statement without a line number to execute it immediately.",
-        "", "Statements:", "  BYE", "  CLEAR", "  END", "  FILES",
-        "  GOSUB expression", "  GOTO expression", "  HELP",
-        "  IF condition THEN statement", "  INPUT var-list",
-        "  LET var = expression", "  LIST [firstLine, [lastLine]]",
-        "  LOAD \"filename\"", "  PRINT expr-list", "  REM comment", "  RETURN",
-        "  RUN", "  SAVE \"filename\"", "  TRON | TROFF", "", "Example:",
+        "",
+        "Statements:",
+        "  BYE",
+        "  CLEAR",
+        "  END",
+        "  FILES",
+        "  GOSUB expression",
+        "  GOTO expression",
+        "  HELP",
+        "  IF condition THEN statement",
+        "  INPUT var-list",
+        "  LET var = expression",
+        "  LIST [firstLine, [lastLine]]",
+        "  LOAD \"filename\"",
+        "  PRINT expr-list",
+        "  REM comment",
+        "  RETURN",
+        "  RUN",
+        "  SAVE \"filename\"",
+        "  TRON | TROFF",
+        "",
+        "Example:",
         "  10 print \"Hello, world!\"", "  20 end", "  list", "  run"};
 
     for (auto line : lines)
@@ -713,7 +740,7 @@ void InterpreterEngine::showInputHelpMessage()
 {
     if (inputLvalues.size() > 1)
     {
-        std::ostringstream s;
+        ostringstream s;
         s << "You must enter a comma-separated list of " << inputLvalues.size()
           << " values.";
         showError(s.str());
@@ -824,14 +851,14 @@ void InterpreterEngine::DIM(const Expression &expr)
 }
 
 /// Execute a SAVE statement
-void InterpreterEngine::SAVE(std::string filename)
+void InterpreterEngine::SAVE(string filename)
 {
-    auto file = std::fopen(filename.c_str(), "w");
+    const auto file = std::fopen(filename.c_str(), "w");
     if (file)
     {
         for (auto ns : program)
         {
-            std::ostringstream s;
+            ostringstream s;
             s << ns.lineNumber << " " << ns.statement.listText() << "\n";
             const auto outputString = s.str();
             const char *outputChars = outputString.c_str();
@@ -842,7 +869,7 @@ void InterpreterEngine::SAVE(std::string filename)
     }
     else
     {
-        std::ostringstream s;
+        ostringstream s;
         s << "error: SAVE - unable to open file \"" << filename << ": "
           << std::strerror(errno);
         abortRunWithErrorMessage(s.str());
@@ -850,7 +877,7 @@ void InterpreterEngine::SAVE(std::string filename)
 }
 
 /// Execute a LOAD statement
-void InterpreterEngine::LOAD(std::string filename)
+void InterpreterEngine::LOAD(string filename)
 {
     auto file = std::fopen(filename.c_str(), "r");
     if (file)
@@ -859,11 +886,10 @@ void InterpreterEngine::LOAD(std::string filename)
         bool keepGoing{true};
         do
         {
-            const auto inputLineResult = getInputLine([=]() -> InputCharResult
+            const auto inputLineResult = getInputLine([file]() -> InputCharResult
                                                       {
-        const auto c = std::fgetc(file);
-        return c == EOF ? InputCharResult_EndOfStream()
-                        : InputCharResult_Value(c);
+                const auto c = std::fgetc(file);
+                return c == EOF ? InputCharResult_EndOfStream() : InputCharResult_Value(c);
             });
 
             switch (inputLineResult.kind)
@@ -887,7 +913,7 @@ void InterpreterEngine::LOAD(std::string filename)
         // If we got an error, report it
         if (std::ferror(file) != 0)
         {
-            std::ostringstream s;
+            ostringstream s;
             s << "error: LOAD - read error for file \"" << filename << ": "
               << std::strerror(errno);
             abortRunWithErrorMessage(s.str());
@@ -897,7 +923,7 @@ void InterpreterEngine::LOAD(std::string filename)
     }
     else
     {
-        std::ostringstream s;
+        ostringstream s;
         s << "error: LOAD - unable to open file \"" << filename << ": "
           << std::strerror(errno);
         abortRunWithErrorMessage(s.str());
@@ -922,7 +948,7 @@ void InterpreterEngine::FILES()
             // Only list files, not directories
             if (dirent->d_type != DT_DIR)
             {
-                std::string name{dirent->d_name, dirent->d_namlen};
+                string name(dirent->d_name, dirent->d_namlen);
                 writeOutput(name + "\n");
             }
             dirent = readdir(dir);
@@ -932,8 +958,15 @@ void InterpreterEngine::FILES()
 }
 
 /// Execute a TRON statement
-void InterpreterEngine::TRON() { isTraceOn = true; }
+void InterpreterEngine::TRON()
+{
+    isTraceOn = true;
+}
 
 /// Execute a TROFF statement
-void InterpreterEngine::TROFF() { isTraceOn = false; }
+void InterpreterEngine::TROFF()
+{
+    isTraceOn = false;
 }
+
+}  // namespace finchlib_cpp
