@@ -14,6 +14,7 @@ The syntax and implementation are based upon these online sources:
 - ["The Return of Tiny Basic"](http://www.drdobbs.com/web-development/the-return-of-tiny-basic/184406381)
 - [Tiny Basic User's Manual](http://www.ittybittycomputers.com/IttyBitty/TinyBasic/TBuserMan.htm)
 - [TinyBasic.c](http://www.ittybittycomputers.com/IttyBitty/TinyBasic/TinyBasic.c)
+- [Li-Chen Wang's Tiny Basic Source Code for Intel 8080 Version 1.0](https://www.princeton.edu/~achaney/tmve/wiki100k/docs/Li-Chen_Wang.html)
 - [tinybc: Tiny BASIC for Beginners](http://tinybc.sourceforge.net/tinybctut.txt)
 
 
@@ -121,7 +122,7 @@ FinchBasic supports this syntax:
 
     relop ::= < (>|=|ε) | > (<|=|ε) | =
 
-Abbreviations can be used when typing some of the keywords:
+Abbreviations can be used for some of the keywords:
 
 - `PRINT`: `PR` or `?`
 - `INPUT`: `IN`
@@ -304,8 +305,8 @@ Running `xcodebuild` with no arguments builds the `finchbasic` scheme, which is 
 - `finchbasic` builds and runs the OS X command-line tool.
 - `finchlib` builds an OS X Cocoa framework containing all of the FinchBasic code and a unit test bundle. This is the scheme used most often for development.  See the `finchlibTests.swift` file for the unit tests.
 - `finchlib_Release` is like `finchlib`, but uses the Release configuration instead of Debug for unit tests and other tasks.  Use this profile to verify that code correctly when built with Swift compiler optimization enabled.
-- `BitsyBASIC` is an iOS app that presents a console-like display and runs the FinchBasic interpreter. This app currently runs fine in the iOS Simulator, but crashes when run on an actual device.
-- `finchlib_cpp` is a translation of the Swift code in `finchlib` to Objective-C and C++. This is used by `BitsyBASIC` to work around bugs in the Swift compiler and/or run-time library.
+- `BitsyBASIC` is an iOS app that presents a console-like display and runs the FinchBasic interpreter.
+- `finchlib_cpp` is a translation of the Swift code in `finchlib` to Objective-C and C++. This is used by `BitsyBASIC` to work around bugs in the Swift compiler and/or run-time library. (Eventually this library will be deprecated when BitsyBASIC can be built entirely with Swift.)
 
 
 ### Parsing and Evaluation
@@ -318,7 +319,7 @@ To add a new statement or new type of expression, there are basically three step
 
 Start by studying the enum types in `syntax.swift`. These implement the [parse trees](http://en.wikipedia.org/wiki/Parse_tree) that represent the syntactic structure of each statement.
 
-Study the parsing methods in `Interpreter.swift` to determine where to add your new parsing code.  For example, if you are adding a new statement type, you will probably add something to `statement()`, whereas if you are adding a new kind of expression or changing the way an expression is parsed, you will probably change something in `expression()`, `term()`, or `factor()`.
+Study the parsing methods in `parse.swift` to determine where to add your new parsing code.  For example, if you are adding a new statement type, you will probably add something to `statement()`, whereas if you are adding a new kind of expression or changing the way an expression is parsed, you will probably change something in `expression()`, `term()`, or `factor()`.
 
 Finally, to handle the execution or evaluation of the new construct, study the `execute` methods in `Interpreter.swift` and the `evaluate` methods in `syntax.swift`.
 
@@ -358,10 +359,9 @@ These fixes/changes/enhancements are planned:
    - `CLIPSAVE`: Copy program to clipboard
    - `CLIPLOAD`: Load program from clipboard
    - `CLS`: clear screen (iOS only)
+   - `CSAVE`, `CLOAD`, `CFILES`: use iCloud Drive
 - More extensive help. For example, "HELP PRINT" will display detailed information about the PRINT statement.
-- Command-line options to load files, send output to a log, suppress prompts, etc.
 - iOS app:
    - break execution
-   - LOAD/SAVE using iCloud Drive
 
 Contributions are welcome, but the goal is to keep this simple, so if you propose something really ambitious, you may be asked to create your own fork.
