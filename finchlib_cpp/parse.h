@@ -215,8 +215,8 @@ struct InputPos
         const auto aP = a(*this);
         if (aP.wasParsed())
         {
-            return std::unique_ptr<std::tuple<A, InputPos>>(
-                new std::tuple<A, InputPos>(aP.value(), aP.nextPos()));
+            return std::make_unique<std::tuple<A, InputPos>>(
+                aP.value(), aP.nextPos());
         }
 
         return nullptr;
@@ -233,9 +233,9 @@ struct InputPos
             const Parse<B> bP = b(aP.nextPos());
             if (bP.wasParsed())
             {
-                return std::unique_ptr<std::tuple<A, B, InputPos>>(
-                    new std::tuple<A, B, InputPos>(aP.value(), bP.value(),
-                                                   bP.nextPos()));
+                return std::make_unique<std::tuple<A, B, InputPos>>(
+                    aP.value(), bP.value(),
+                    bP.nextPos());
             }
         }
 
@@ -257,9 +257,9 @@ struct InputPos
                 const Parse<C> cP = c(bP.nextPos());
                 if (cP.wasParsed())
                 {
-                    return std::unique_ptr<std::tuple<A, B, C, InputPos>>(
-                        new std::tuple<A, B, C, InputPos>(aP.value(), bP.value(),
-                                                          cP.value(), cP.nextPos()));
+                    return std::make_unique<std::tuple<A, B, C, InputPos>>(
+                        aP.value(), bP.value(),
+                        cP.value(), cP.nextPos());
                 }
             }
         }
@@ -286,10 +286,10 @@ struct InputPos
                     const Parse<D> dP = d(cP.nextPos());
                     if (dP.wasParsed())
                     {
-                        return std::unique_ptr<std::tuple<A, B, C, D, InputPos>>(
-                            new std::tuple<A, B, C, D, InputPos>(aP.value(), bP.value(),
-                                                                 cP.value(), dP.value(),
-                                                                 dP.nextPos()));
+                        return std::make_unique<std::tuple<A, B, C, D, InputPos>>(
+                            aP.value(), bP.value(),
+                            cP.value(), dP.value(),
+                            dP.nextPos());
                     }
                 }
             }
@@ -321,10 +321,9 @@ struct InputPos
                         const Parse<E> eP = e(dP.nextPos());
                         if (eP.wasParsed())
                         {
-                            return std::unique_ptr<std::tuple<A, B, C, D, E, InputPos>>(
-                                new std::tuple<A, B, C, D, E, InputPos>(
-                                    aP.value(), bP.value(), cP.value(), dP.value(),
-                                    eP.value(), eP.nextPos()));
+                            return std::make_unique<std::tuple<A, B, C, D, E, InputPos>>(
+                                aP.value(), bP.value(), cP.value(), dP.value(),
+                                eP.value(), eP.nextPos());
                         }
                     }
                 }
@@ -336,7 +335,7 @@ struct InputPos
 
     template <typename A, typename B, typename C, typename D, typename E,
               typename F>
-    std::shared_ptr<std::tuple<A, B, C, D, E, F, InputPos>>
+    std::unique_ptr<std::tuple<A, B, C, D, E, F, InputPos>>
     parse(std::function<Parse<A>(const InputPos &pos)> a,
           std::function<Parse<B>(const InputPos &pos)> b,
           std::function<Parse<C>(const InputPos &pos)> c,
@@ -362,10 +361,9 @@ struct InputPos
                             const Parse<F> fP = f(eP.nextPos());
                             if (fP.wasParsed())
                             {
-                                return std::unique_ptr<std::tuple<A, B, C, D, E, F, InputPos>>(
-                                    new std::tuple<A, B, C, D, E, F, InputPos>(
-                                        aP.value(), bP.value(), cP.value(), dP.value(),
-                                        eP.value(), fP.value(), fP.nextPos()));
+                                return std::make_unique<std::tuple<A, B, C, D, E, F, InputPos>>(
+                                    aP.value(), bP.value(), cP.value(), dP.value(),
+                                    eP.value(), fP.value(), fP.nextPos());
                             }
                         }
                     }
