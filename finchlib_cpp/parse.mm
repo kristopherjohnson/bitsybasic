@@ -25,8 +25,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "syntax.h"
 
 using std::function;
+using std::get;
 using std::pair;
 using std::tuple;
+using std::shared_ptr;
 using std::string;
 using std::vector;
 
@@ -42,7 +44,7 @@ static Parse<Expression> expression(const InputPos &pos);
 /// false, returns nil.
 ///
 /// Matching is case-insensitive. Spaces in the input are ignored.
-Parse<std::string> literal(std::string s, const InputPos &pos)
+Parse<string> literal(string s, const InputPos &pos)
 {
     size_t matchCount{0};
     const size_t matchGoal{s.length()};
@@ -261,8 +263,8 @@ static Parse<Lvalue> lvalue(const InputPos &pos)
     const auto aelem = pos.parse<string, Expression, string>(lit("@("), expression, lit(")"));
     if (aelem != nullptr)
     {
-        const auto expr = std::get<1>(*aelem);
-        const auto nextPos = std::get<3>(*aelem);
+        const auto &expr = get<1>(*aelem);
+        const auto &nextPos = get<3>(*aelem);
         const auto result = Lvalue::arrayElement(expr);
         return successfulParse(result, nextPos);
     }
@@ -286,8 +288,8 @@ static Parse<Factor> factor(const InputPos &pos)
     const auto rnd = pos.parse<string, Expression, string>(lit("RND("), expression, lit(")"));
     if (rnd != nullptr)
     {
-        const auto expr = std::get<1>(*rnd);
-        const auto nextPos = std::get<3>(*rnd);
+        const auto &expr = get<1>(*rnd);
+        const auto &nextPos = get<3>(*rnd);
         const auto result = Factor::rnd(expr);
         return successfulParse(result, nextPos);
     }
@@ -296,8 +298,8 @@ static Parse<Factor> factor(const InputPos &pos)
     const auto parenExpr = pos.parse<string, Expression, string>(lit("("), expression, lit(")"));
     if (parenExpr != nullptr)
     {
-        const auto expr = std::get<1>(*parenExpr);
-        const auto nextPos = std::get<3>(*parenExpr);
+        const auto &expr = get<1>(*parenExpr);
+        const auto &nextPos = get<3>(*parenExpr);
         const auto result = Factor::parenExpr(expr);
         return successfulParse(result, nextPos);
     }
@@ -306,8 +308,8 @@ static Parse<Factor> factor(const InputPos &pos)
     const auto aelem = pos.parse<string, Expression, string>(lit("@("), expression, lit(")"));
     if (aelem != nullptr)
     {
-        const auto expr = std::get<1>(*aelem);
-        const auto nextPos = std::get<3>(*aelem);
+        const auto &expr = get<1>(*aelem);
+        const auto &nextPos = get<3>(*aelem);
         const auto result = Factor::arrayElement(expr);
         return successfulParse(result, nextPos);
     }
@@ -336,8 +338,8 @@ static Parse<Term> term(const InputPos &pos)
         const auto mult = fact.nextPos().parse<string, Term>(lit("*"), term);
         if (mult != nullptr)
         {
-            const Term t = std::get<1>(*mult);
-            const InputPos nextPos = std::get<2>(*mult);
+            const Term &t = get<1>(*mult);
+            const InputPos &nextPos = get<2>(*mult);
             const auto result = Term::compound(fact.value(), ArithOp::Multiply, t);
             return successfulParse(result, nextPos);
         }
@@ -346,8 +348,8 @@ static Parse<Term> term(const InputPos &pos)
         const auto div = fact.nextPos().parse<string, Term>(lit("/"), term);
         if (div != nullptr)
         {
-            const Term t = std::get<1>(*div);
-            const InputPos nextPos = std::get<2>(*div);
+            const Term &t = get<1>(*div);
+            const InputPos &nextPos = get<2>(*div);
             const auto result = Term::compound(fact.value(), ArithOp::Divide, t);
             return successfulParse(result, nextPos);
         }
@@ -373,8 +375,8 @@ static Parse<UnsignedExpression> unsignedExpression(const InputPos &pos)
             lit("+"), unsignedExpression);
         if (add != nullptr)
         {
-            const UnsignedExpression uexpr = std::get<1>(*add);
-            const InputPos nextPos = std::get<2>(*add);
+            const auto &uexpr = get<1>(*add);
+            const auto &nextPos = get<2>(*add);
             const auto result = UnsignedExpression::compound(t.value(), ArithOp::Add, uexpr);
             return successfulParse(result, nextPos);
         }
@@ -384,8 +386,8 @@ static Parse<UnsignedExpression> unsignedExpression(const InputPos &pos)
             lit("-"), unsignedExpression);
         if (sub != nullptr)
         {
-            const UnsignedExpression uexpr = std::get<1>(*sub);
-            const InputPos nextPos = std::get<2>(*sub);
+            const auto &uexpr = get<1>(*sub);
+            const auto &nextPos = get<2>(*sub);
             const auto result = UnsignedExpression::compound(t.value(), ArithOp::Subtract, uexpr);
             return successfulParse(result, nextPos);
         }
@@ -407,8 +409,8 @@ static Parse<Expression> expression(const InputPos &pos)
     const auto leadingPlus = pos.parse<string, UnsignedExpression>(lit("+"), unsignedExpression);
     if (leadingPlus != nullptr)
     {
-        const auto uexpr = std::get<1>(*leadingPlus);
-        const auto nextPos = std::get<2>(*leadingPlus);
+        const auto &uexpr = get<1>(*leadingPlus);
+        const auto &nextPos = get<2>(*leadingPlus);
         const auto result = Expression::plus(uexpr);
         return successfulParse(result, nextPos);
     }
@@ -416,8 +418,8 @@ static Parse<Expression> expression(const InputPos &pos)
     const auto leadingMinus = pos.parse<string, UnsignedExpression>(lit("-"), unsignedExpression);
     if (leadingMinus != nullptr)
     {
-        const auto uexpr = std::get<1>(*leadingMinus);
-        const auto nextPos = std::get<2>(*leadingMinus);
+        const auto &uexpr = get<1>(*leadingMinus);
+        const auto &nextPos = get<2>(*leadingMinus);
         const auto result = Expression::minus(uexpr);
         return successfulParse(result, nextPos);
     }
@@ -473,7 +475,7 @@ static Parse<PrintList> printList(const InputPos &pos)
             const auto tail = printList(comma.nextPos());
             if (tail.wasParsed())
             {
-                const auto pTail = std::shared_ptr<PrintList>(new PrintList(tail.value()));
+                const auto pTail = shared_ptr<PrintList>(new PrintList(tail.value()));
                 PrintList result{item.value(), PrintSeparatorTab, pTail};
                 return successfulParse(result, tail.nextPos());
             }
@@ -494,7 +496,7 @@ static Parse<PrintList> printList(const InputPos &pos)
                 const auto tail = printList(semicolon.nextPos());
                 if (tail.wasParsed())
                 {
-                    const auto pTail = std::shared_ptr<PrintList>(new PrintList(tail.value()));
+                    const auto pTail = shared_ptr<PrintList>(new PrintList(tail.value()));
                     PrintList result{item.value(), PrintSeparatorEmpty, pTail};
                     return successfulParse(result, tail.nextPos());
                 }
@@ -526,12 +528,12 @@ static Parse<RelOp> relOp(const InputPos &pos)
         {"<", RelOp::Less},
         {">", RelOp::Greater}};
 
-    for (const auto item : opTable)
+    for (const auto &item : opTable)
     {
-        const auto op = literal(std::get<0>(item), pos);
+        const auto op = literal(get<0>(item), pos);
         if (op.wasParsed())
         {
-            return successfulParse(std::get<1>(item), op.nextPos());
+            return successfulParse(get<1>(item), op.nextPos());
         }
     }
 
@@ -583,8 +585,8 @@ static Parse<Statement> listStatement(const InputPos &pos)
             const auto commaExpr = lowExpr.nextPos().parse<string, Expression>(lit(","), expression);
             if (commaExpr != nullptr)
             {
-                const auto highExpr = std::get<1>(*commaExpr);
-                const auto nextPos = std::get<2>(*commaExpr);
+                const auto &highExpr = get<1>(*commaExpr);
+                const auto &nextPos = get<2>(*commaExpr);
                 const auto stmt = Statement::list(lowExpr.value(), highExpr);
                 return successfulParse(stmt, nextPos);
             }
@@ -608,9 +610,9 @@ static Parse<Statement> letStatement(const InputPos &pos)
         optLit("LET"), lvalue, lit("="), expression);
     if (let != nullptr)
     {
-        const auto lv = std::get<1>(*let);
-        const auto expr = std::get<3>(*let);
-        const auto nextPos = std::get<4>(*let);
+        const auto &lv = get<1>(*let);
+        const auto &expr = get<3>(*let);
+        const auto &nextPos = get<4>(*let);
         const auto stmt = Statement::let(lv, expr);
         return successfulParse(stmt, nextPos);
     }
@@ -629,8 +631,8 @@ static Parse<Lvalues> lvalueList(const InputPos &pos)
         auto more = nextPos.parse<string, Lvalue>(lit(","), lvalue);
         while (more != nullptr)
         {
-            lvalues.push_back(std::get<1>(*more));
-            nextPos = std::get<2>(*more);
+            lvalues.push_back(get<1>(*more));
+            nextPos = get<2>(*more);
             more = nextPos.parse<string, Lvalue>(lit(","), lvalue);
         }
 
@@ -648,8 +650,8 @@ static Parse<Statement> inputStatement(const InputPos &pos)
     const auto parsed = pos.parse<string, Lvalues>(oneOfLit{"INPUT", "IN"}, lvalueList);
     if (parsed != nullptr)
     {
-        const auto lvalues = std::get<1>(*parsed);
-        const auto nextPos = std::get<2>(*parsed);
+        const auto &lvalues = get<1>(*parsed);
+        const auto &nextPos = get<2>(*parsed);
         const auto result = Statement::input(lvalues);
         return successfulParse(result, nextPos);
     }
@@ -666,11 +668,11 @@ static Parse<Statement> ifStatement(const InputPos &pos)
         lit("IF"), expression, relOp, expression, optLit("THEN"), statement);
     if (ifThen != nullptr)
     {
-        const auto lhs = std::get<1>(*ifThen);
-        const auto op = std::get<2>(*ifThen);
-        const auto rhs = std::get<3>(*ifThen);
-        const auto stmt = std::get<5>(*ifThen);
-        const auto nextPos = std::get<6>(*ifThen);
+        const auto &lhs = get<1>(*ifThen);
+        const auto &op = get<2>(*ifThen);
+        const auto &rhs = get<3>(*ifThen);
+        const auto &stmt = get<5>(*ifThen);
+        const auto &nextPos = get<6>(*ifThen);
         const auto result = Statement::ifThen(lhs, op, rhs, stmt);
         return successfulParse(result, nextPos);
     }
@@ -686,8 +688,8 @@ static Parse<Statement> gotoStatement(const InputPos &pos)
     const auto s = pos.parse<string, Expression>(oneOfLit{"GOTO", "GT"}, expression);
     if (s != nullptr)
     {
-        const auto expr = std::get<1>(*s);
-        const auto nextPos = std::get<2>(*s);
+        const auto &expr = get<1>(*s);
+        const auto &nextPos = get<2>(*s);
         const auto result = Statement::gotoStatement(expr);
         return successfulParse(result, nextPos);
     }
@@ -703,8 +705,8 @@ static Parse<Statement> gosubStatement(const InputPos &pos)
     const auto s = pos.parse<string, Expression>(oneOfLit{"GOSUB", "GS"}, expression);
     if (s != nullptr)
     {
-        const auto expr = std::get<1>(*s);
-        const auto nextPos = std::get<2>(*s);
+        const auto &expr = get<1>(*s);
+        const auto &nextPos = get<2>(*s);
         const auto result = Statement::gosub(expr);
         return successfulParse(result, nextPos);
     }
@@ -721,7 +723,7 @@ static Parse<Statement> remStatement(const InputPos &pos)
     if (rem.wasParsed())
     {
         const auto commentChars = rem.nextPos().remainingChars();
-        std::string commentString{};
+        string commentString{};
         for (auto c : commentChars)
         {
             commentString.push_back(c);
@@ -741,8 +743,8 @@ static Parse<Statement> dimStatement(const InputPos &pos)
     const auto parsed = pos.parse<string, Expression, string>(lit("DIM@("), expression, lit(")"));
     if (parsed != nullptr)
     {
-        const auto result = Statement::dim(std::get<1>(*parsed));
-        const auto nextPos = std::get<3>(*parsed);
+        const auto result = Statement::dim(get<1>(*parsed));
+        const auto &nextPos = get<3>(*parsed);
         return successfulParse(result, nextPos);
     }
 
@@ -757,10 +759,10 @@ static Parse<Statement> saveStatement(const InputPos &pos)
     const auto parsed = pos.parse<string, vector<Char>>(oneOfLit{"SAVE", "SV"}, stringLiteral);
     if (parsed != nullptr)
     {
-        const auto chars = std::get<1>(*parsed);
-        const std::string filename{chars.cbegin(), chars.cend()};
+        const auto &chars = get<1>(*parsed);
+        const auto &nextPos = get<2>(*parsed);
+        const string filename{chars.cbegin(), chars.cend()};
         const auto result = Statement::save(filename);
-        const auto nextPos = std::get<2>(*parsed);
         return successfulParse(result, nextPos);
     }
 
@@ -775,10 +777,10 @@ static Parse<Statement> loadStatement(const InputPos &pos)
     const auto parsed = pos.parse<string, vector<Char>>(oneOfLit{"LOAD", "LD"}, stringLiteral);
     if (parsed != nullptr)
     {
-        const auto chars = std::get<1>(*parsed);
-        const std::string filename{chars.cbegin(), chars.cend()};
+        const auto &chars = get<1>(*parsed);
+        const auto &nextPos = get<2>(*parsed);
+        const string filename{chars.cbegin(), chars.cend()};
         const auto result = Statement::load(filename);
-        const auto nextPos = std::get<2>(*parsed);
         return successfulParse(result, nextPos);
     }
 
@@ -850,14 +852,14 @@ Parse<Number> inputExpression(const InputPos &pos, InterpreterEngine &engine)
     const auto plusNum = pos.parse<string, Number>(lit("+"), numberLiteral);
     if (plusNum != nullptr)
     {
-        return successfulParse(std::get<1>(*plusNum), std::get<2>(*plusNum));
+        return successfulParse(get<1>(*plusNum), get<2>(*plusNum));
     }
 
     // "-" number
     const auto minusNum = pos.parse<string, Number>(lit("-"), numberLiteral);
     if (minusNum != nullptr)
     {
-        return successfulParse(-std::get<1>(*minusNum), std::get<2>(*minusNum));
+        return successfulParse(-get<1>(*minusNum), get<2>(*minusNum));
     }
 
     // variable
