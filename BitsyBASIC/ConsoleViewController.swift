@@ -85,9 +85,9 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
 
         inputTextField.text = ""
         inputTextField.tintColor = UIColor.whiteColor()
-        inputTextField.attributedPlaceholder = NSAttributedString(
-            string: inputTextField.placeholder ?? "",
-            attributes: outputAttributes)
+//        inputTextField.attributedPlaceholder = NSAttributedString(
+//            string: inputTextField.placeholder ?? "",
+//            attributes: outputAttributes)
         inputTextField.delegate = self
 
         consoleText = NSMutableAttributedString(

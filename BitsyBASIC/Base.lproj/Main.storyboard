@@ -17,7 +17,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="10 PRINT &quot;Hello, world!&quot;" borderStyle="roundedRect" placeholder="Enter statement" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="kMD-La-RiN">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="10 PRINT &quot;Hello, world!&quot;" borderStyle="roundedRect" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="kMD-La-RiN">
                                 <rect key="frame" x="16" y="562" width="568" height="30"/>
                                 <color key="backgroundColor" red="0.23341648280620575" green="0.20346829295158386" blue="0.11301452666521072" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="textColor" red="0.99880832433700562" green="0.94172322750091553" blue="0.75635451078414917" alpha="1" colorSpace="calibratedRGB"/>
