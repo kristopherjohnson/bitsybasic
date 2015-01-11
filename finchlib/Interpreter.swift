@@ -300,6 +300,8 @@ public enum InterpreterState {
         case let .Save(filename):            SAVE(filename)
         case let .Load(filename):            LOAD(filename)
         case .Files:                         FILES()
+        case .ClipSave:                      CLIPSAVE()
+        case .ClipLoad:                      CLIPLOAD()
         case .Run:                           RUN()
         case .End:                           END()
         case .Clear:                         CLEAR()
@@ -530,7 +532,9 @@ public enum InterpreterState {
                 switch maybeInputLine {
 
                 case let .Value(inputLine): processInput(inputLine)
-                case .EndOfStream:          break loop
+
+                case .EndOfStream:
+                    break loop
 
                 case .Waiting:
                     assert(false, "getInputLine() for file should never return .Waiting")
@@ -589,6 +593,56 @@ public enum InterpreterState {
             }
             closedir(dir)
         }
+    }
+
+    /// Execute CLIPLOAD statement
+    func CLIPLOAD() {
+        if let s = getPasteboardContents() {
+            let chars = Array<UInt8>(s.utf8)
+            let charCount = chars.count
+            var index = 0
+            loop: while true {
+                let maybeInputLine = getInputLine {
+                    if index >= charCount {
+                        return .EndOfStream
+                    }
+                    else {
+                        return .Value(chars[index++])
+                    }
+                }
+
+                switch maybeInputLine {
+
+                case let .Value(inputLine): processInput(inputLine)
+
+                case .EndOfStream:
+                    break loop
+
+                case .Waiting:
+                    assert(false, "getInputLine() for pasteboard should never return .Waiting")
+                    break loop
+                }
+            }
+        }
+        else {
+            abortRunWithErrorMessage("error: CLIPLOAD - unable to read text from clipboard")
+            return
+        }
+    }
+
+    /// Execute CLIPSAVE statement
+    func CLIPSAVE() {
+        var programText = ""
+        for (lineNumber, stmt) in program {
+            programText.extend("\(lineNumber) \(stmt.listText)\n")
+        }
+
+        if programText.isEmpty {
+            abortRunWithErrorMessage("error: CLIPSAVE: no program in memory")
+            return
+        }
+
+        copyToPasteboard(programText)
     }
 
     /// Execute RUN statement
@@ -665,6 +719,8 @@ public enum InterpreterState {
             "Statements:",
             "  BYE",
             "  CLEAR",
+            "  CLIPLOAD",
+            "  CLIPSAVE",
             "  END",
             "  FILES",
             "  GOSUB expression",

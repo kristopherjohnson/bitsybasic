@@ -817,6 +817,8 @@ Parse<Statement> statement(const InputPos &pos)
         {"CLEAR", Statement::clear},
         {"BYE", Statement::bye},
         {"FILES", Statement::files},
+        {"CLIPSAVE", Statement::clipSave},
+        {"CLIPLOAD", Statement::clipLoad},
         {"FL", Statement::files},
         {"TRON", Statement::tron},
         {"TROFF", Statement::troff},

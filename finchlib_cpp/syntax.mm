@@ -677,6 +677,26 @@ void Statement::Files::execute(InterpreterEngine &engine) const
 
 std::string Statement::Files::listText() const { return "FILES"; }
 
+void Statement::ClipSave::execute(InterpreterEngine &engine) const
+{
+    engine.CLIPSAVE();
+}
+
+std::string Statement::ClipSave::listText() const
+{
+    return "CLIPSAVE";
+}
+
+void Statement::ClipLoad::execute(InterpreterEngine &engine) const
+{
+    engine.CLIPLOAD();
+}
+
+std::string Statement::ClipLoad::listText() const
+{
+    return "CLIPLOAD";
+}
+
 void Statement::Tron::execute(InterpreterEngine &engine) const
 {
     engine.TRON();

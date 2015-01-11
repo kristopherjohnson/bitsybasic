@@ -45,6 +45,12 @@
 		4EC9E5661A617F6C009768DF /* parse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC9E5641A617F6C009768DF /* parse.swift */; };
 		4EC9E5681A618552009768DF /* io.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC9E5671A618552009768DF /* io.swift */; };
 		4EC9E5691A618552009768DF /* io.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC9E5671A618552009768DF /* io.swift */; };
+		4EC9E56F1A61F539009768DF /* pasteboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC9E56E1A61F539009768DF /* pasteboard.swift */; };
+		4EC9E5701A61F539009768DF /* pasteboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC9E56E1A61F539009768DF /* pasteboard.swift */; };
+		4EC9E5731A61F77D009768DF /* pasteboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4EC9E5711A61F77D009768DF /* pasteboard.mm */; };
+		4EC9E5741A61F77D009768DF /* pasteboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4EC9E5711A61F77D009768DF /* pasteboard.mm */; };
+		4EC9E5751A61F77D009768DF /* pasteboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EC9E5721A61F77D009768DF /* pasteboard.h */; };
+		4EC9E5771A61FDC5009768DF /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4EC9E5761A61FDC5009768DF /* AppKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,6 +129,10 @@
 		4EC42A3F1A4E3EF5004581C6 /* KeyboardNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardNotification.swift; sourceTree = "<group>"; };
 		4EC9E5641A617F6C009768DF /* parse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = parse.swift; sourceTree = "<group>"; };
 		4EC9E5671A618552009768DF /* io.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = io.swift; sourceTree = "<group>"; };
+		4EC9E56E1A61F539009768DF /* pasteboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = pasteboard.swift; sourceTree = "<group>"; };
+		4EC9E5711A61F77D009768DF /* pasteboard.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = pasteboard.mm; sourceTree = "<group>"; };
+		4EC9E5721A61F77D009768DF /* pasteboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pasteboard.h; sourceTree = "<group>"; };
+		4EC9E5761A61FDC5009768DF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +140,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4EC9E5771A61FDC5009768DF /* AppKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,6 +202,8 @@
 				4E079DF11A56E6EA00186E12 /* InterpreterEngine.mm */,
 				4E199E361A5F08CD00C2EEE8 /* parse.h */,
 				4E199E351A5F08CD00C2EEE8 /* parse.mm */,
+				4EC9E5721A61F77D009768DF /* pasteboard.h */,
+				4EC9E5711A61F77D009768DF /* pasteboard.mm */,
 				4E0CAE891A55E79800A0938B /* Supporting Files */,
 				4E49838A1A5819A6007FC727 /* syntax.h */,
 				4E4983891A5819A6007FC727 /* syntax.mm */,
@@ -225,6 +238,7 @@
 		4EC1B5241A428CFE0060EEDE = {
 			isa = PBXGroup;
 			children = (
+				4EC9E5761A61FDC5009768DF /* AppKit.framework */,
 				4EC42A101A4E33B0004581C6 /* BitsyBASIC */,
 				4EC42A261A4E33B1004581C6 /* BitsyBASICTests */,
 				4EC1B52F1A428CFF0060EEDE /* finchbasic */,
@@ -265,6 +279,7 @@
 				4EC1B5551A428D5E0060EEDE /* Interpreter.swift */,
 				4EC9E5671A618552009768DF /* io.swift */,
 				4EC9E5641A617F6C009768DF /* parse.swift */,
+				4EC9E56E1A61F539009768DF /* pasteboard.swift */,
 				4EC1B53E1A428D400060EEDE /* Supporting Files */,
 				4E2047351A43C5810016822F /* syntax.swift */,
 				4E2047371A43C6310016822F /* util.swift */,
@@ -348,6 +363,7 @@
 				4E0CAE8C1A55E79800A0938B /* finchlib_cpp.h in Headers */,
 				4E49838D1A5819A6007FC727 /* syntax.h in Headers */,
 				4E079DF51A56E6EA00186E12 /* InterpreterEngine.h in Headers */,
+				4EC9E5751A61F77D009768DF /* pasteboard.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -596,6 +612,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4EC9E5741A61F77D009768DF /* pasteboard.mm in Sources */,
 				4E079DF41A56E6EA00186E12 /* InterpreterEngine.mm in Sources */,
 				4E49838C1A5819A6007FC727 /* syntax.mm in Sources */,
 				4E0CAEA31A55E8A200A0938B /* Interpreter.mm in Sources */,
@@ -615,6 +632,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4EC9E56F1A61F539009768DF /* pasteboard.swift in Sources */,
 				4EC1B5561A428D5E0060EEDE /* Interpreter.swift in Sources */,
 				4E20473B1A43C8AD0016822F /* char.swift in Sources */,
 				4EC9E5681A618552009768DF /* io.swift in Sources */,
@@ -632,6 +650,7 @@
 				4E2047381A43C6310016822F /* util.swift in Sources */,
 				4EC9E5691A618552009768DF /* io.swift in Sources */,
 				4EC9E5661A617F6C009768DF /* parse.swift in Sources */,
+				4EC9E5701A61F539009768DF /* pasteboard.swift in Sources */,
 				4E2047361A43C5810016822F /* syntax.swift in Sources */,
 				4EC1B5571A428D5E0060EEDE /* Interpreter.swift in Sources */,
 				4E20473A1A43C69C0016822F /* char.swift in Sources */,
@@ -652,6 +671,7 @@
 			files = (
 				4E0CAEA21A55E8A200A0938B /* Interpreter.mm in Sources */,
 				4E063C1A1A4E86340007E4DF /* ConsoleViewController.swift in Sources */,
+				4EC9E5731A61F77D009768DF /* pasteboard.mm in Sources */,
 				4E079DF31A56E6EA00186E12 /* InterpreterEngine.mm in Sources */,
 				4EC42A401A4E3EF5004581C6 /* KeyboardNotification.swift in Sources */,
 				4E49838B1A5819A6007FC727 /* syntax.mm in Sources */,

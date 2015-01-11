@@ -753,6 +753,18 @@ private:
         virtual std::string listText() const;
     };
 
+    struct ClipSave : public Subtype
+    {
+        virtual void execute(InterpreterEngine &engine) const;
+        virtual std::string listText() const;
+    };
+
+    struct ClipLoad : public Subtype
+    {
+        virtual void execute(InterpreterEngine &engine) const;
+        virtual std::string listText() const;
+    };
+
     struct Tron : public Subtype
     {
         virtual void execute(InterpreterEngine &engine) const;
@@ -878,6 +890,12 @@ public:
 
     /// Return a FILES stateent
     static Statement files() { return {std::shared_ptr<Subtype>{new Files{}}}; }
+
+    /// Return a CLIPSAVE stateent
+    static Statement clipSave() { return {std::shared_ptr<Subtype>{new ClipSave{}}}; }
+
+    /// Return a CLIPLOAD stateent
+    static Statement clipLoad() { return {std::shared_ptr<Subtype>{new ClipLoad{}}}; }
 
     /// Return a TRON stateent
     static Statement tron() { return {std::shared_ptr<Subtype>{new Tron{}}}; }

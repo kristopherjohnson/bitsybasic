@@ -134,6 +134,12 @@ public:
     /// Execute a FILES statement
     void FILES();
 
+    /// Execute a CLIPSAVE statement
+    void CLIPSAVE();
+
+    /// Execute a CLIPLOAD statement
+    void CLIPLOAD();
+
     /// Execute a TRON statement
     void TRON();
 

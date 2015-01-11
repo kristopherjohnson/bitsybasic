@@ -55,6 +55,8 @@ let T_NotEqualAlt    = "><"
 
 let T_BYE            = "BYE"
 let T_CLEAR          = "CLEAR"
+let T_CLIPLOAD       = "CLIPLOAD"
+let T_CLIPSAVE       = "CLIPSAVE"
 let T_DIM            = "DIM"
 let T_END            = "END"
 let T_FILES          = "FILES"
@@ -162,6 +164,12 @@ enum Statement {
     /// "FILES"
     case Files
 
+    /// "CLIPSAVE"
+    case ClipSave
+
+    /// "CLIPLOAD"
+    case ClipLoad
+
     /// "TRON"
     case Tron
 
@@ -227,9 +235,15 @@ enum Statement {
         case let .Load(filename):
             return "\(T_LOAD) \"\(filename)\""
 
-        case let .Files:
+        case .Files:
             return T_FILES
-            
+
+        case .ClipLoad:
+            return T_CLIPLOAD
+
+        case .ClipSave:
+            return T_CLIPSAVE
+
         case .Tron:
             return T_TRON
 

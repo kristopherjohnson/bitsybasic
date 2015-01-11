@@ -21,13 +21,41 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#import <Cocoa/Cocoa.h>
+import Foundation
 
-//! Project version number for finchlib_cpp.
-FOUNDATION_EXPORT double finchlib_cppVersionNumber;
+#if os(iOS)
+    import UIKit
+#else
+    import AppKit
+#endif
 
-//! Project version string for finchlib_cpp.
-FOUNDATION_EXPORT const unsigned char finchlib_cppVersionString[];
+/// Return string value currently on clipboard
+func getPasteboardContents() -> String? {
+    #if os(iOS)
 
-// In this header, you should import all the public headers of your framework
-// using statements like #import <finchlib_cpp/PublicHeader.h>
+        let pasteboard = UIPasteboard.generalPasteboard()
+        return pasteboard.string
+
+    #else
+
+        let pasteboard = NSPasteboard.generalPasteboard()
+        return pasteboard.stringForType(NSPasteboardTypeString)
+
+    #endif
+}
+
+/// Write a string value to the pasteboard
+func copyToPasteboard(text: String) {
+    #if os(iOS)
+
+        let pasteboard = UIPasteboard.generalPasteboard()
+        pasteboard.string = text
+
+    #else
+
+        let pasteboard = NSPasteboard.generalPasteboard()
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: NSPasteboardTypeString)
+
+    #endif
+}

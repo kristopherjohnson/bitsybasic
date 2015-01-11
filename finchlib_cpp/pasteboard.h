@@ -21,13 +21,20 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#import <Cocoa/Cocoa.h>
+#ifndef __finchbasic__pasteboard__
+#define __finchbasic__pasteboard__
 
-//! Project version number for finchlib_cpp.
-FOUNDATION_EXPORT double finchlib_cppVersionNumber;
+#include <string>
 
-//! Project version string for finchlib_cpp.
-FOUNDATION_EXPORT const unsigned char finchlib_cppVersionString[];
+namespace finchlib_cpp
+{
+/// Return contents of the system clipboard as a string,
+/// or empty string if no text on clipboard.
+std::string getPasteboardContents();
 
-// In this header, you should import all the public headers of your framework
-// using statements like #import <finchlib_cpp/PublicHeader.h>
+/// Copy the specified text to the system clipboard,
+/// replacing any existing contents of the clipboard.
+void copyToPasteboard(std::string text);
+}
+
+#endif /* defined(__finchbasic__pasteboard__) */

@@ -352,17 +352,19 @@ func statement(pos: InputPosition) -> (Statement, InputPosition)? {
 
     // For statements that consist only of a keyword, we can use a simple table
     let simpleStatements: [(String, Statement)] = [
-        (T_RETURN, .Return),
-        (T_RT,     .Return),
-        (T_RUN,    .Run   ),
-        (T_END,    .End   ),
-        (T_CLEAR,  .Clear ),
-        (T_BYE,    .Bye   ),
-        (T_FILES,  .Files ),
-        (T_FL,     .Files ),
-        (T_TRON,   .Tron  ),
-        (T_TROFF,  .Troff ),
-        (T_HELP,   .Help  )
+        (T_RETURN,   .Return),
+        (T_RT,       .Return),
+        (T_RUN,      .Run   ),
+        (T_END,      .End   ),
+        (T_CLEAR,    .Clear ),
+        (T_BYE,      .Bye   ),
+        (T_FILES,    .Files ),
+        (T_FL,       .Files ),
+        (T_CLIPSAVE, .ClipSave),
+        (T_CLIPLOAD, .ClipLoad),
+        (T_TRON,     .Tron  ),
+        (T_TROFF,    .Troff ),
+        (T_HELP,     .Help  )
     ]
     for (token, stmt) in simpleStatements {
         if let (TOKEN, nextPos) = literal(token, pos) {

@@ -23,6 +23,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "InterpreterEngine.h"
 #include "parse.h"
+#include "pasteboard.h"
 
 #include <cctype>
 #include <sstream>
@@ -700,6 +701,8 @@ void InterpreterEngine::HELP()
         "Statements:",
         "  BYE",
         "  CLEAR",
+        "  CLIPLOAD",
+        "  CLIPSAVE",
         "  END",
         "  FILES",
         "  GOSUB expression",
@@ -958,6 +961,71 @@ void InterpreterEngine::FILES()
         closedir(dir);
     }
 }
+
+/// Execute a CLIPSAVE statement
+void InterpreterEngine::CLIPSAVE()
+{
+    ostringstream s;
+    for (auto ns : program)
+    {
+        s << ns.lineNumber << " " << ns.statement.listText() << "\n";
+    }
+
+    const auto outputString = s.str();
+    if (outputString.empty())
+    {
+        abortRunWithErrorMessage("error: CLIPSAVE - no program in memory");
+        return;
+    }
+
+    copyToPasteboard(outputString);
+}
+
+/// Execute a CLIPLOAD statement
+void InterpreterEngine::CLIPLOAD()
+{
+    const auto s = getPasteboardContents();
+    if (s.empty())
+    {
+        abortRunWithErrorMessage("error: CLIPLOAD - unable to read text from clipboard");
+        return;
+    }
+
+    size_t index = 0;
+
+    // Read lines until end-of-stream or error
+    bool keepGoing{true};
+    do
+    {
+        const auto inputLineResult = getInputLine([&]() -> InputCharResult
+                                                  {
+            if (index >= s.length()) {
+                return InputCharResult_EndOfStream();
+            }
+            else {
+                return InputCharResult_Value(s[index++]);
+            }
+        });
+
+        switch (inputLineResult.kind)
+        {
+            case InputResultKindValue:
+                processInput(inputLineResult.value);
+                break;
+
+            case InputResultKindEndOfStream:
+                keepGoing = false;
+                break;
+
+            default:
+                // getInputLine() for file should only return Value or EndOfStream
+                assert(false);
+                keepGoing = false;
+                break;
+        }
+    } while (keepGoing);
+}
+
 
 /// Execute a TRON statement
 void InterpreterEngine::TRON()

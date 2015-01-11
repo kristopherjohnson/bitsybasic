@@ -93,6 +93,8 @@ FinchBasic supports this syntax:
                   SAVE string
                   LOAD string
                   FILES
+                  CLIPSAVE
+                  CLIPLOAD
                   RUN
                   REM comment | ' comment
                   TRON
@@ -261,6 +263,15 @@ The `FILES` command displays the names of files in the current directory.
 These files can be loaded by using the `LOAD` command. Note, however, that the output of `FILES` may include files that are not valid BASIC programs.
 
 
+**CLIPLOAD/CLIPSAVE**
+
+These are like `LOAD` and `SAVE` except, instead of reading from files, they read from and write to the system clipboard.
+
+`CLIPLOAD` is like pasting the clipboard contents into your program.  So, you can copy a program from a text editor or other application and then use `CLIPLOAD` to load it into FinchBasic.
+
+`CLIPSAVE` is like doing a `LIST` and then copying the result to the clipboard.  So you can do a `CLIPSAVE` and then paste the result into a text editor or other application.
+
+
 **TRON/TROFF**
 
 The `TRON` command enables statement tracing. Line numbers are printed as each statement is executed.  `TROFF` disables statement tracing.
@@ -288,6 +299,8 @@ The `HELP` command displays a summary of BASIC syntax.
 - `finchlib/` - source for `finchbasic` executable and `finchlib` framework
    - `Interpreter.swift` - defines the `Interpreter` class
    - `io.swift` - defines the `InterpreterIO` protocol used for interface between `Interpreter` and its environment, and the `StandardIO` implementation of that protocol
+   - `parse.swift` - defines the functions used to parse BASIC statements
+   - `pasteboard.swift` - platform-specific code used by `CLIPSAVE` and `CLIPLOAD`
    - `syntax.swift` - defines the parse-tree data structures
    - `char.swift` - ASCII character constants and functions for converting between String and arrays of ASCII characters
    - `util.swift` - miscellaneous auxiliary types and functions
@@ -356,10 +369,8 @@ So, if you want to implement your own control-flow statements, you probably just
 These fixes/changes/enhancements are planned:
 
 - Statements:
-   - `CLIPSAVE`: Copy program to clipboard
-   - `CLIPLOAD`: Load program from clipboard
    - `CLS`: clear screen (iOS only)
-   - `CSAVE`, `CLOAD`, `CFILES`: use iCloud Drive
+   - `CSAVE`, `CLOAD`, `CFILES`: access iCloud Drive
 - More extensive help. For example, "HELP PRINT" will display detailed information about the PRINT statement.
 - iOS app:
    - break execution
