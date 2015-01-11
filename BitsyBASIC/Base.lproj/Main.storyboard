@@ -47,6 +47,11 @@
                     </view>
                     <navigationItem key="navigationItem" title="Console" id="t4U-Zp-Axw">
                         <barButtonItem key="backBarButtonItem" title="Console" id="0Sq-rO-w5D"/>
+                        <barButtonItem key="rightBarButtonItem" title="Break" id="mr9-Re-Djc">
+                            <connections>
+                                <action selector="onBreakTapped:" destination="BYZ-38-t0r" id="ZVz-FW-vvu"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="bottomLayoutConstraint" destination="0hn-xF-2U4" id="crv-zR-8pQ"/>

@@ -82,6 +82,9 @@ public:
     /// Return interpreter state
     InterpreterState state();
 
+    /// Halt running machine
+    void breakExecution();
+
     /// Execute a PRINT statement with arguments
     void PRINT(const PrintList &printList);
 

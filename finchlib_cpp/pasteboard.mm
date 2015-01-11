@@ -80,4 +80,4 @@ void copyToPasteboard(std::string text)
     setPasteboardContents(nsString);
 }
 
-} // namespace finchlib_cpp
+}  // namespace finchlib_cpp

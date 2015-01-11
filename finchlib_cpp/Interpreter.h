@@ -125,4 +125,6 @@ typedef NS_ENUM(NSInteger, InterpreterState)
 
 - (InterpreterState)state;
 
+- (void)breakExecution;
+
 @end

@@ -100,6 +100,13 @@ InterpreterState InterpreterEngine::state()
     return st;
 }
 
+/// Halt execution
+void InterpreterEngine::breakExecution()
+{
+    showError("BREAK");
+    st = InterpreterStateIdle;
+}
+
 /// Set values of all variables and array elements to zero
 void InterpreterEngine::clearVariablesAndArray()
 {

@@ -90,4 +90,9 @@ InputCharResult InputCharResult_Waiting()
     return _engine->state();
 }
 
+- (void)breakExecution
+{
+    _engine->breakExecution();
+}
+
 @end

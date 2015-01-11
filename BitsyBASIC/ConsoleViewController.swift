@@ -259,6 +259,13 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     func showInputPrompt() {
         appendOutputToConsoleText("? ")
     }
+
+    @IBAction func onBreakTapped(sender: UIBarButtonItem) {
+        interpreter.breakExecution()
+        if !interpreterScheduled {
+            scheduleInterpreter()
+        }
+    }
 }
 
 /// Interface between the BASIC interpreter and ConsoleViewController

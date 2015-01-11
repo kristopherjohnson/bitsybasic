@@ -166,6 +166,12 @@ public enum InterpreterState {
         }
     }
 
+    /// Halt execution
+    public func breakExecution() {
+        showError("BREAK")
+        state = .Idle
+    }
+
     /// Parse an input line and execute it or add it to the program
     func processInput(input: InputLine) {
         state = .Idle
