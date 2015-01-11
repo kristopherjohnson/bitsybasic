@@ -927,6 +927,7 @@ struct NumberedStatement
 };
 
 typedef std::vector<NumberedStatement> Program;
-}
+
+} // namespace finchlib_cpp
 
 #endif /* defined(__finchbasic__syntax__) */

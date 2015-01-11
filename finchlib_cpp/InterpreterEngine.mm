@@ -103,7 +103,19 @@ InterpreterState InterpreterEngine::state()
 /// Halt execution
 void InterpreterEngine::breakExecution()
 {
-    showError("BREAK");
+    if ((st == InterpreterStateRunning || st == InterpreterStateReadingInput)
+        && (programIndex < program.size()))
+    {
+        const auto &currentLine = program[programIndex];
+        const auto lineNumber = currentLine.lineNumber;
+        ostringstream msg;
+        msg << "BREAK at line " << lineNumber;
+        showError(msg.str());
+    }
+    else {
+        showError("BREAK");
+    }
+
     st = InterpreterStateIdle;
 }
 

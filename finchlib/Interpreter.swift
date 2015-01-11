@@ -168,7 +168,21 @@ public enum InterpreterState {
 
     /// Halt execution
     public func breakExecution() {
-        showError("BREAK")
+        sw: switch state {
+
+        case .Running, .ReadingInput:
+            if programIndex < program.count {
+                let (lineNumber, _) = program[programIndex]
+                showError("BREAK at line \(lineNumber)")
+                break sw
+            }
+            // If for some reason programIndex is not valid, then fall through
+            fallthrough
+
+        case .Idle, .ReadingStatement:
+            showError("BREAK")
+        }
+
         state = .Idle
     }
 
