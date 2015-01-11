@@ -29,7 +29,7 @@
                                 <color key="backgroundColor" red="0.23341648280620575" green="0.20346829295158386" blue="0.11301452666521072" alpha="1" colorSpace="calibratedRGB"/>
                                 <string key="text">10 PRINT "Hello, world!"
 20 END</string>
-                                <color key="textColor" red="0.99513959884643555" green="0.76360046863555908" blue="0.15681850910186768" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="textColor" red="0.99650025367736816" green="0.83219432830810547" blue="0.42697003483772278" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="17"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
                             </textView>
