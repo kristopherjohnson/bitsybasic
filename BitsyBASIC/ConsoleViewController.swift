@@ -221,7 +221,12 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
         interpreterScheduled = false
         interpreter.next()
 
-        let state = interpreter.state()
+        #if BitsyBASIC_Swift
+            let state = interpreter.state
+        #else
+            let state = interpreter.state()
+        #endif
+
         switch state {
         case .Idle, .Running:
             scheduleInterpreter()
@@ -283,9 +288,14 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
 
     /// Return next input character for the interpreter,
     /// or nil if at end-of-file or an error occurs.
-    func getInputCharForInterpreter(interpreter: Interpreter!) -> InputCharResult {
+    func getInputCharForInterpreter(interpreter: Interpreter) -> InputCharResult {
         if inputIndex < inputBuffer.count {
-            let result: InputCharResult = InputCharResult_Value(inputBuffer[inputIndex])
+            #if BitsyBASIC_Swift
+                let result: InputCharResult = .Value(inputBuffer[inputIndex])
+            #else
+                let result: InputCharResult = InputCharResult_Value(inputBuffer[inputIndex])
+            #endif
+
             ++inputIndex
             if inputIndex == inputBuffer.count {
                 inputBuffer = Array()
@@ -294,7 +304,11 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
             return result
         }
 
-        return InputCharResult_Waiting()
+        #if BitsyBASIC_Swift
+            return .Waiting
+        #else
+            return InputCharResult_Waiting()
+        #endif
     }
 
     /// Send characters from the console to the interpreter
@@ -303,7 +317,7 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     }
 
     /// Write specified output character
-    func putOutputChar(c: Char, forInterpreter interpreter: Interpreter!) {
+    func putOutputChar(c: Char, forInterpreter interpreter: Interpreter) {
         outputBuffer.append(c)
         if c == 10 || outputBuffer.count >= 40 {
             flushOutput()
@@ -326,38 +340,40 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     }
 
     /// Display a prompt to the user for entering an immediate command or line of code
-    func showCommandPromptForInterpreter(interpreter: Interpreter!) {
+    func showCommandPromptForInterpreter(interpreter: Interpreter) {
         flushOutput()
         viewController!.showCommandPrompt()
     }
 
     /// Display a prompt to the user for entering data for an INPUT statement
-    func showInputPromptForInterpreter(interpreter: Interpreter!) {
+    func showInputPromptForInterpreter(interpreter: Interpreter) {
         flushOutput()
         viewController!.showInputPrompt()
     }
 
     /// Display error message to user
-    func showErrorMessage(message: String!, forInterpreter interpreter: Interpreter!) {
+    func showErrorMessage(message: String, forInterpreter interpreter: Interpreter) {
         flushOutput()
         let messageWithNewline = "\(message)\n"
         viewController!.appendOutputToConsoleText(messageWithNewline)
     }
 
     /// Display a debug trace message
-    func showDebugTraceMessage(message: String!, forInterpreter interpreter: Interpreter!) {
+    func showDebugTraceMessage(message: String, forInterpreter interpreter: Interpreter) {
         flushOutput()
         viewController!.appendOutputToConsoleText(message)
     }
 
     /// Called when BYE is executed
-    func byeForInterpreter(interpreter: Interpreter!) {
+    func byeForInterpreter(interpreter: Interpreter) {
         flushOutput()
         viewController!.appendOutputToConsoleText("error: BYE not available in iOS")
     }
 }
 
+#if !BitsyBASIC_Swift
 /// Given a string, return array of Chars
 public func charsFromString(s: String) -> [UInt8] {
     return Array(s.utf8)
 }
+#endif

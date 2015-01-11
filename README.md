@@ -320,6 +320,7 @@ Running `xcodebuild` with no arguments builds the `finchbasic` scheme, which is 
 - `finchlib_Release` is like `finchlib`, but uses the Release configuration instead of Debug for unit tests and other tasks.  Use this profile to verify that code correctly when built with Swift compiler optimization enabled.
 - `BitsyBASIC` is an iOS app that presents a console-like display and runs the FinchBasic interpreter.
 - `finchlib_cpp` is a translation of the Swift code in `finchlib` to Objective-C and C++. This is used by `BitsyBASIC` to work around bugs in the Swift compiler and/or run-time library. (Eventually this library will be deprecated when BitsyBASIC can be built entirely with Swift.)
+- `BitsyBASIC_Swift` is an iOS app that uses the Swift `finchlib` library instead of the Objective-C/C++ library.  Due to apparent Swift compiler bugs, this app crashes.
 
 
 ### Parsing and Evaluation

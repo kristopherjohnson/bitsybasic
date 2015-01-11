@@ -51,6 +51,19 @@
 		4EC9E5741A61F77D009768DF /* pasteboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4EC9E5711A61F77D009768DF /* pasteboard.mm */; };
 		4EC9E5751A61F77D009768DF /* pasteboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EC9E5721A61F77D009768DF /* pasteboard.h */; };
 		4EC9E5771A61FDC5009768DF /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4EC9E5761A61FDC5009768DF /* AppKit.framework */; };
+		4EC9E57B1A62CAFA009768DF /* ConsoleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E063C191A4E86340007E4DF /* ConsoleViewController.swift */; };
+		4EC9E57E1A62CAFA009768DF /* KeyboardNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC42A3F1A4E3EF5004581C6 /* KeyboardNotification.swift */; };
+		4EC9E5801A62CAFA009768DF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC42A131A4E33B0004581C6 /* AppDelegate.swift */; };
+		4EC9E5841A62CAFA009768DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EC42A3C1A4E3A6B004581C6 /* LaunchScreen.storyboard */; };
+		4EC9E5851A62CAFA009768DF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EC42A171A4E33B0004581C6 /* Main.storyboard */; };
+		4EC9E5861A62CAFA009768DF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EC42A1A1A4E33B0004581C6 /* Images.xcassets */; };
+		4EC9E58C1A62CC60009768DF /* char.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047391A43C69C0016822F /* char.swift */; };
+		4EC9E58D1A62CC64009768DF /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC1B5551A428D5E0060EEDE /* Interpreter.swift */; };
+		4EC9E58E1A62CC68009768DF /* io.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC9E5671A618552009768DF /* io.swift */; };
+		4EC9E58F1A62CC6C009768DF /* parse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC9E5641A617F6C009768DF /* parse.swift */; };
+		4EC9E5901A62CC72009768DF /* pasteboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC9E56E1A61F539009768DF /* pasteboard.swift */; };
+		4EC9E5911A62CC76009768DF /* syntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047351A43C5810016822F /* syntax.swift */; };
+		4EC9E5921A62CC7A009768DF /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2047371A43C6310016822F /* util.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -133,6 +146,8 @@
 		4EC9E5711A61F77D009768DF /* pasteboard.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = pasteboard.mm; sourceTree = "<group>"; };
 		4EC9E5721A61F77D009768DF /* pasteboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pasteboard.h; sourceTree = "<group>"; };
 		4EC9E5761A61FDC5009768DF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		4EC9E58A1A62CAFA009768DF /* BitsyBASIC_Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BitsyBASIC_Swift.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EC9E5931A62CF84009768DF /* BitsyBASIC_Swift-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "BitsyBASIC_Swift-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -182,6 +197,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4EC42A201A4E33B0004581C6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EC9E5821A62CAFA009768DF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -260,6 +282,7 @@
 				4EC42A231A4E33B0004581C6 /* BitsyBASICTests.xctest */,
 				4E0CAE871A55E79800A0938B /* finchlib_cpp.framework */,
 				4E0CAE911A55E79900A0938B /* finchlib_cppTests.xctest */,
+				4EC9E58A1A62CAFA009768DF /* BitsyBASIC_Swift.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -330,6 +353,7 @@
 		4EC42A111A4E33B0004581C6 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				4EC9E5931A62CF84009768DF /* BitsyBASIC_Swift-Info.plist */,
 				4EC42A121A4E33B0004581C6 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -502,6 +526,23 @@
 			productReference = 4EC42A231A4E33B0004581C6 /* BitsyBASICTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		4EC9E5781A62CAFA009768DF /* BitsyBASIC_Swift */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4EC9E5871A62CAFA009768DF /* Build configuration list for PBXNativeTarget "BitsyBASIC_Swift" */;
+			buildPhases = (
+				4EC9E5791A62CAFA009768DF /* Sources */,
+				4EC9E5821A62CAFA009768DF /* Frameworks */,
+				4EC9E5831A62CAFA009768DF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BitsyBASIC_Swift;
+			productName = BitsyBASIC;
+			productReference = 4EC9E58A1A62CAFA009768DF /* BitsyBASIC_Swift.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -551,6 +592,7 @@
 				4EC1B52C1A428CFF0060EEDE /* finchbasic */,
 				4EC42A0E1A4E33B0004581C6 /* BitsyBASIC */,
 				4EC42A221A4E33B0004581C6 /* BitsyBASICTests */,
+				4EC9E5781A62CAFA009768DF /* BitsyBASIC_Swift */,
 				4EC1B53B1A428D400060EEDE /* finchlib */,
 				4EC1B5451A428D400060EEDE /* finchlibTests */,
 				4E0CAE861A55E79800A0938B /* finchlib_cpp */,
@@ -602,6 +644,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EC9E5831A62CAFA009768DF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EC9E5841A62CAFA009768DF /* LaunchScreen.storyboard in Resources */,
+				4EC9E5851A62CAFA009768DF /* Main.storyboard in Resources */,
+				4EC9E5861A62CAFA009768DF /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -686,6 +738,23 @@
 			files = (
 				4EC42A3B1A4E33D7004581C6 /* finchlibTests.swift in Sources */,
 				4EC42A2A1A4E33B1004581C6 /* BitsyBASICTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EC9E5791A62CAFA009768DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EC9E5901A62CC72009768DF /* pasteboard.swift in Sources */,
+				4EC9E5911A62CC76009768DF /* syntax.swift in Sources */,
+				4EC9E57B1A62CAFA009768DF /* ConsoleViewController.swift in Sources */,
+				4EC9E5921A62CC7A009768DF /* util.swift in Sources */,
+				4EC9E58E1A62CC68009768DF /* io.swift in Sources */,
+				4EC9E57E1A62CAFA009768DF /* KeyboardNotification.swift in Sources */,
+				4EC9E58F1A62CC6C009768DF /* parse.swift in Sources */,
+				4EC9E5801A62CAFA009768DF /* AppDelegate.swift in Sources */,
+				4EC9E58C1A62CC60009768DF /* char.swift in Sources */,
+				4EC9E58D1A62CC64009768DF /* Interpreter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1060,6 +1129,47 @@
 			};
 			name = Release;
 		};
+		4EC9E5881A62CAFA009768DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "BitsyBASIC/BitsyBASIC_Swift-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-DBitsyBASIC_Swift";
+				PRODUCT_NAME = BitsyBASIC_Swift;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4EC9E5891A62CAFA009768DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				INFOPLIST_FILE = "BitsyBASIC/BitsyBASIC_Swift-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-DBitsyBASIC_Swift";
+				PRODUCT_NAME = BitsyBASIC_Swift;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1131,6 +1241,15 @@
 			buildConfigurations = (
 				4EC42A2D1A4E33B1004581C6 /* Debug */,
 				4EC42A2E1A4E33B1004581C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4EC9E5871A62CAFA009768DF /* Build configuration list for PBXNativeTarget "BitsyBASIC_Swift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EC9E5881A62CAFA009768DF /* Debug */,
+				4EC9E5891A62CAFA009768DF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
