@@ -91,7 +91,7 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
         inputTextField.delegate = self
 
         consoleText = NSMutableAttributedString(
-            string: "BitsyBASIC v1.0\n\nType HELP if you don't know what to do.\n\nREADY\n",
+            string: "BitsyBASIC v1.0\nCopyright 2015 Kristopher Johnson\n\nType HELP if you don't know what to do.\n\nREADY\n",
             attributes: outputAttributes)
 
         interpreterIO = ConsoleInterpreterIO(viewController: self)
@@ -367,7 +367,7 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     /// Called when BYE is executed
     func byeForInterpreter(interpreter: Interpreter) {
         flushOutput()
-        viewController!.appendOutputToConsoleText("error: BYE not available in iOS")
+        viewController!.appendOutputToConsoleText("error: BYE has no effect in iOS\n")
     }
 }
 

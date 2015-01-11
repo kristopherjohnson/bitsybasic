@@ -269,7 +269,7 @@ Line InterpreterEngine::parseInputLine(const InputLine &input)
             {
                 ostringstream msg;
                 msg << "line " << parsedNumber.value()
-                    << ": error: unexpected characters following complete statement";
+                    << ": error: not a valid statement";
                 return Line::error(msg.str());
             }
         }
@@ -292,8 +292,7 @@ Line InterpreterEngine::parseInputLine(const InputLine &input)
         }
         else
         {
-            return Line::error(
-                "error: unexpected characters following complete statement");
+            return Line::error("error: not a valid statement");
         }
     }
     else
@@ -696,7 +695,11 @@ void InterpreterEngine::CLEAR()
 }
 
 /// Execute BYE statement
-void InterpreterEngine::BYE() { [io byeForInterpreter:interpreter]; }
+void InterpreterEngine::BYE()
+{
+    st = InterpreterStateIdle;
+    [io byeForInterpreter:interpreter];
+}
 
 /// Execute HELP statement
 void InterpreterEngine::HELP()

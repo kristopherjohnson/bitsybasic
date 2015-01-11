@@ -211,7 +211,7 @@ public enum InterpreterState {
                     return .NumberedStatement(num, stmt)
                 }
                 else {
-                    return .Error("line \(num): error: unexpected characters following complete statement")
+                    return .Error("line \(num): error: not a valid statement")
                 }
             }
             else {
@@ -225,7 +225,7 @@ public enum InterpreterState {
                 return .UnnumberedStatement(stmt)
             }
             else {
-                return .Error("error: unexpected characters following complete statement")
+                return .Error("error: not a valid statement")
             }
         }
         else {
@@ -714,6 +714,7 @@ public enum InterpreterState {
 
     /// Execute BYE statement
     public func BYE() {
+        state = .Idle;
         io.byeForInterpreter(self)
     }
 
