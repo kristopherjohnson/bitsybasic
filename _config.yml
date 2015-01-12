@@ -5,7 +5,7 @@ description: > # this means to ignore newlines until "baseurl:"
   Tiny BASIC implementation for iOS devices and OS X
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://www.bitsybasic.com/" # the base hostname & protocol for your site
-twitter_username: oldmankris
+twitter_username: bitsybasic
 github_username:  kristopherjohnson
 
 # Build settings
