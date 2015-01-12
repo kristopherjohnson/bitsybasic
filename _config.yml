@@ -1,6 +1,6 @@
 # Site settings
 title: BitsyBASIC
-email: kris@kristopherjohnson.net
+email: support@bitsybasic.com
 description: > # this means to ignore newlines until "baseurl:"
   Tiny BASIC implementation for iOS devices and OS X
 baseurl: "" # the subpath of your site, e.g. /blog/

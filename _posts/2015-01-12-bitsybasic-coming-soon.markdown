@@ -2,7 +2,7 @@
 layout: post
 title:  "Coming soon: BitsyBASIC for iOS"
 date:   2015-01-12 09:04:11
-categories: bitsybasic ios announcement
+categories: news
 ---
 
 This site will be the home page for **BitsyBASIC**, a [Tiny BASIC][tbasic] interpreter for iOS.
