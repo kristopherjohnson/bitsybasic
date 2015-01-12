@@ -1,11 +1,11 @@
-# FinchBasic
+# FinchBasic and BitsyBASIC
 
 Copyright 2014 Kristopher Johnson
 
 
 ## Overview
 
-FinchBasic is a dialect of [Tiny BASIC](http://en.wikipedia.org/wiki/Tiny_BASIC), implemented in [Swift](https://developer.apple.com/swift/).
+FinchBasic is a dialect of [Tiny BASIC](http://en.wikipedia.org/wiki/Tiny_BASIC), implemented in [Swift](https://developer.apple.com/swift/).  BitsyBASIC is an iOS app that uses the FinchBasic interpreter.
 
 The syntax and implementation are based upon these online sources:
 
@@ -20,7 +20,7 @@ The syntax and implementation are based upon these online sources:
 
 ## Building FinchBasic
 
-To build the `finchbasic` executable, `cd` to the project directory and do this:
+To build the `finchbasic` executable for OS X, `cd` to the project directory and do this:
 
     xcodebuild
 
@@ -69,6 +69,15 @@ Another example:
     50 Print a; " + "; b; " = "; a + b
     60 End
     run
+
+
+## Building BitsyBASIC
+
+The BitsyBASIC iOS app is a work-in-progress.  It generally works, but needs some bug fixes and polish before it is ready for the App Store.
+
+To build and run it, open the project in Xcode and select the `BitsyBASIC` scheme.
+
+BitsyBASIC currently uses the `finchlib_cpp` library, which is a translation of the Swift code in `finchlib` to Objective-C++.  There is another target, `BitsyBASIC_Swift`, that uses the Swift code, but it crashes mysteriously when parsing statements.  It is hoped that future updates to the Swift compiler will fix this issue, so that `finchlib_cpp` can be deprecated.
 
 
 ## Syntax
@@ -373,7 +382,5 @@ These fixes/changes/enhancements are planned:
    - `CLS`: clear screen (iOS only)
    - `CSAVE`, `CLOAD`, `CFILES`: access iCloud Drive
 - More extensive help. For example, "HELP PRINT" will display detailed information about the PRINT statement.
-- iOS app:
-   - break execution
 
 Contributions are welcome, but the goal is to keep this simple, so if you propose something really ambitious, you may be asked to create your own fork.

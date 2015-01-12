@@ -14,24 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4EC1B53B1A428D400060EEDE"
-               BuildableName = "finchlib.framework"
-               BlueprintName = "finchlib"
-               ReferencedContainer = "container:finchbasic.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4EC1B5451A428D400060EEDE"
-               BuildableName = "finchlibTests.xctest"
-               BlueprintName = "finchlibTests"
-               ReferencedContainer = "container:finchbasic.xcodeproj">
+               BlueprintIdentifier = "4EC1B52C1A428CFF0060EEDE"
+               BuildableName = "finchbasic"
+               BlueprintName = "finchbasic"
+               ReferencedContainer = "container:bitsybasic.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -40,7 +26,7 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      buildConfiguration = "Release">
+      buildConfiguration = "Debug">
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -49,17 +35,17 @@
                BlueprintIdentifier = "4EC1B5451A428D400060EEDE"
                BuildableName = "finchlibTests.xctest"
                BlueprintName = "finchlibTests"
-               ReferencedContainer = "container:finchbasic.xcodeproj">
+               ReferencedContainer = "container:bitsybasic.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4EC1B53B1A428D400060EEDE"
-            BuildableName = "finchlib.framework"
-            BlueprintName = "finchlib"
-            ReferencedContainer = "container:finchbasic.xcodeproj">
+            BlueprintIdentifier = "4EC1B52C1A428CFF0060EEDE"
+            BuildableName = "finchbasic"
+            BlueprintName = "finchbasic"
+            ReferencedContainer = "container:bitsybasic.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -68,19 +54,19 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Release"
+      buildConfiguration = "Debug"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4EC1B53B1A428D400060EEDE"
-            BuildableName = "finchlib.framework"
-            BlueprintName = "finchlib"
-            ReferencedContainer = "container:finchbasic.xcodeproj">
+            BlueprintIdentifier = "4EC1B52C1A428CFF0060EEDE"
+            BuildableName = "finchbasic"
+            BlueprintName = "finchbasic"
+            ReferencedContainer = "container:bitsybasic.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -90,18 +76,18 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4EC1B53B1A428D400060EEDE"
-            BuildableName = "finchlib.framework"
-            BlueprintName = "finchlib"
-            ReferencedContainer = "container:finchbasic.xcodeproj">
+            BlueprintIdentifier = "4EC1B52C1A428CFF0060EEDE"
+            BuildableName = "finchbasic"
+            BlueprintName = "finchbasic"
+            ReferencedContainer = "container:bitsybasic.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
-      buildConfiguration = "Release">
+      buildConfiguration = "Debug">
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"

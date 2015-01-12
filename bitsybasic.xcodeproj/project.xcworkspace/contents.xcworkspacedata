@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:finchbasic.xcodeproj">
+      location = "self:bitsybasic.xcodeproj">
    </FileRef>
 </Workspace>

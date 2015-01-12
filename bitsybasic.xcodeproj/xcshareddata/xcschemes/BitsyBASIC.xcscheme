@@ -17,7 +17,7 @@
                BlueprintIdentifier = "4EC42A0E1A4E33B0004581C6"
                BuildableName = "BitsyBASIC.app"
                BlueprintName = "BitsyBASIC"
-               ReferencedContainer = "container:finchbasic.xcodeproj">
+               ReferencedContainer = "container:bitsybasic.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -31,7 +31,7 @@
                BlueprintIdentifier = "4EC42A221A4E33B0004581C6"
                BuildableName = "BitsyBASICTests.xctest"
                BlueprintName = "BitsyBASICTests"
-               ReferencedContainer = "container:finchbasic.xcodeproj">
+               ReferencedContainer = "container:bitsybasic.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -49,7 +49,7 @@
                BlueprintIdentifier = "4EC42A221A4E33B0004581C6"
                BuildableName = "BitsyBASICTests.xctest"
                BlueprintName = "BitsyBASICTests"
-               ReferencedContainer = "container:finchbasic.xcodeproj">
+               ReferencedContainer = "container:bitsybasic.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -59,7 +59,7 @@
             BlueprintIdentifier = "4EC42A0E1A4E33B0004581C6"
             BuildableName = "BitsyBASIC.app"
             BlueprintName = "BitsyBASIC"
-            ReferencedContainer = "container:finchbasic.xcodeproj">
+            ReferencedContainer = "container:bitsybasic.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -78,7 +78,7 @@
             BlueprintIdentifier = "4EC42A0E1A4E33B0004581C6"
             BuildableName = "BitsyBASIC.app"
             BlueprintName = "BitsyBASIC"
-            ReferencedContainer = "container:finchbasic.xcodeproj">
+            ReferencedContainer = "container:bitsybasic.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -96,7 +96,7 @@
             BlueprintIdentifier = "4EC42A0E1A4E33B0004581C6"
             BuildableName = "BitsyBASIC.app"
             BlueprintName = "BitsyBASIC"
-            ReferencedContainer = "container:finchbasic.xcodeproj">
+            ReferencedContainer = "container:bitsybasic.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -14,10 +14,24 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4EC1B52C1A428CFF0060EEDE"
-               BuildableName = "finchbasic"
-               BlueprintName = "finchbasic"
-               ReferencedContainer = "container:finchbasic.xcodeproj">
+               BlueprintIdentifier = "4E0CAE861A55E79800A0938B"
+               BuildableName = "finchlib_cpp.framework"
+               BlueprintName = "finchlib_cpp"
+               ReferencedContainer = "container:bitsybasic.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4E0CAE901A55E79900A0938B"
+               BuildableName = "finchlib_cppTests.xctest"
+               BlueprintName = "finchlib_cppTests"
+               ReferencedContainer = "container:bitsybasic.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -28,14 +42,24 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4E0CAE901A55E79900A0938B"
+               BuildableName = "finchlib_cppTests.xctest"
+               BlueprintName = "finchlib_cppTests"
+               ReferencedContainer = "container:bitsybasic.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4EC1B52C1A428CFF0060EEDE"
-            BuildableName = "finchbasic"
-            BlueprintName = "finchbasic"
-            ReferencedContainer = "container:finchbasic.xcodeproj">
+            BlueprintIdentifier = "4E0CAE861A55E79800A0938B"
+            BuildableName = "finchlib_cpp.framework"
+            BlueprintName = "finchlib_cpp"
+            ReferencedContainer = "container:bitsybasic.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -48,15 +72,15 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4EC1B52C1A428CFF0060EEDE"
-            BuildableName = "finchbasic"
-            BlueprintName = "finchbasic"
-            ReferencedContainer = "container:finchbasic.xcodeproj">
+            BlueprintIdentifier = "4E0CAE861A55E79800A0938B"
+            BuildableName = "finchlib_cpp.framework"
+            BlueprintName = "finchlib_cpp"
+            ReferencedContainer = "container:bitsybasic.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -66,15 +90,15 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4EC1B52C1A428CFF0060EEDE"
-            BuildableName = "finchbasic"
-            BlueprintName = "finchbasic"
-            ReferencedContainer = "container:finchbasic.xcodeproj">
+            BlueprintIdentifier = "4E0CAE861A55E79800A0938B"
+            BuildableName = "finchlib_cpp.framework"
+            BlueprintName = "finchlib_cpp"
+            ReferencedContainer = "container:bitsybasic.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
