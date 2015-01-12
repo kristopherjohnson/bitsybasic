@@ -64,4 +64,6 @@ local.properties
 *~
 
 TBout.txt
+_site
+.sass-cache
 
