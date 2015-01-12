@@ -750,7 +750,7 @@ public enum InterpreterState {
             "  IF condition THEN statement",
             "  INPUT var-list",
             "  LET var = expression",
-            "  LIST [firstLine, [lastLine]]",
+            "  LIST [firstLine [, lastLine]]",
             "  LOAD \"filename\"",
             "  PRINT expr-list",
             "  REM comment",
