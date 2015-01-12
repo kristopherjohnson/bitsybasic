@@ -10,7 +10,7 @@ Send characters to the display
 
 ![Syntax diagram](/diagram/PRINT-statement.png)
 
-Also see [expression](/expression/) and [string-literal](/string-literal/).
+Also see [expression](/reference/expression) and [string-literal](/reference/string-literal).
 
 
 ## Details
