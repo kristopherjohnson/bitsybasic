@@ -8,5 +8,13 @@ url: "http://www.bitsybasic.com/" # the base hostname & protocol for your site
 twitter_username: bitsybasic
 github_username:  kristopherjohnson
 
+collections:
+  tutorial:
+    output: true
+    permalink: /tutorial/:path/
+  reference:
+    output: true
+    permalink: /reference/:path/
+
 # Build settings
 markdown: kramdown
