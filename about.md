@@ -1,6 +1,12 @@
+---
+layout: page
+title: About
+permalink: /about/
+---
+
 # FinchBasic and BitsyBASIC
 
-Copyright 2014 Kristopher Johnson
+Copyright 2014-2015 Kristopher Johnson
 
 
 ## Overview
@@ -384,3 +390,4 @@ These fixes/changes/enhancements are planned:
 - More extensive help. For example, "HELP PRINT" will display detailed information about the PRINT statement.
 
 Contributions are welcome, but the goal is to keep this simple, so if you propose something really ambitious, you may be asked to create your own fork.
+
