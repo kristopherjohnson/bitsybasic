@@ -1,0 +1,76 @@
+/* EBNF grammar for FinchBasic. */
+/* This file can be used to generate syntax diagrams at http://bottlecaps.de/rr/ui */
+
+input-line ::= statement | number statement
+
+statement ::= PRINT-statement
+        | LET-statement
+        | INPUT-statement
+        | IF-statement
+        | GOTO-statement
+        | GOSUB-statement
+        | RETURN-statement
+        | END-statement
+        | RUN-statement
+        | REM-statement
+        | LIST-statement
+        | BYE-statement
+        | CLEAR-statement
+        | DIM-statement
+        | SAVE-statement
+        | LOAD-statement
+        | FILES-statement
+        | CLIPLOAD-statement
+        | CLIPSAVE-statement
+        | TRON-statement
+        | TROFF-statement
+        | HELP-statement
+
+PRINT-statement ::= ('PRINT'|'PR'|'?') ((expression|string-literal) ((';'|',') (expression|string-literal))* (';'|',')?)?
+string-literal ::= '"' (character)* '"'
+
+LET-statement ::= 'LET'? (variable|array-element) '=' expression
+
+INPUT-statement ::= ('INPUT'|'IN') (variable|array-element) (',' (variable|array-element))*
+
+IF-statement ::= 'IF' expression ( '=' | '<' | '<=' | '>' | '>=' | '<>' | '><') expression 'THEN'? statement
+
+GOTO-statement ::= ('GOTO'|'GT') expression
+
+GOSUB-statement ::= ('GOSUB'|'GS') expression
+
+RETURN-statement ::= 'RETURN' | 'RT'
+
+END-statement ::= 'END'
+
+RUN-statement ::= 'RUN'
+
+REM-statement ::= ('REM'|"'") comment
+
+LIST-statement ::= ('LIST'|'LS') (expression (',' expression)?)?
+
+BYE-statement ::= 'BYE'
+
+CLEAR-statement ::= 'CLEAR'
+
+DIM-statement ::= 'DIM' '@(' expression ')'
+
+SAVE-statement ::= ('SAVE'|'SV') string-literal
+
+LOAD-statement ::= ('LOAD'|'LD') string-literal
+
+FILES-statement ::= ('FILES'|'FL')
+
+CLIPLOAD-statement ::= 'CLIPLOAD'
+
+CLIPSAVE-statement ::= 'CLIPSAVE'
+
+TRON-statement ::= 'TRON'
+
+TROFF-statement ::= 'TROFF'
+
+expression ::= ('+'|'-')? ( number | variable | array-element | '(' expression ')' | expression ('+'|'-'|'*'|'/') expression | 'RND(' expression ')')
+
+number ::= [0-9]+
+variable ::= [A-Z]
+array-element ::= '@(' expression ')'
