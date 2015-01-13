@@ -4,6 +4,8 @@ title: Reference
 permalink: /reference/
 ---
 
+[Complete EBNF syntax and diagram](/reference/diagram/index.xhtml)
+
 ## Statements
 
 - [BYE](bye)
@@ -34,3 +36,4 @@ permalink: /reference/
 - [number](number)
 - [string literal](string-literal)
 - [variable](variable)
+
