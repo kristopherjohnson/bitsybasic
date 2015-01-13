@@ -3,7 +3,7 @@ layout: page
 title: REM statement
 ---
 
-(summary)
+Comment
 
 
 ## Syntax Diagram
@@ -13,9 +13,17 @@ title: REM statement
 
 ## Details
 
-...
+A `REM` (remark) statement has no effect.  It provides a means to include documentation and notes in a program.
+
+All characters between `REM` and the end of the line make up the comment.  The comment may be empty.
+
+A tick mark (') can be used as an abbreviation for `REM`.
 
 
 ## Examples
 
-...
+    10 REM - This is a comment
+    20 REM This is also a comment
+    30 REMARK: Yet another comment
+    40 ' A tick mark can be used as
+    50 ' an abbreviation.

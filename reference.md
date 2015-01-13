@@ -4,7 +4,7 @@ title: Reference
 permalink: /reference/
 ---
 
-[Complete EBNF syntax and diagram](/reference/diagram/index.xhtml)
+[Complete EBNF syntax and diagram](/diagram/index.xhtml)
 
 ## Statements
 
@@ -31,9 +31,9 @@ permalink: /reference/
 - [TRON](tron)
 
 ## Syntactic Elements
-- [array element](array-element)
+- [array-element](array-element)
 - [expression](expression)
 - [number](number)
-- [string literal](string-literal)
+- [string-literal](string-literal)
 - [variable](variable)
 

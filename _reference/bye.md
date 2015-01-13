@@ -3,7 +3,7 @@ layout: page
 title: BYE statement
 ---
 
-(summary)
+Terminates the BASIC interpreter
 
 
 ## Syntax Diagram
@@ -13,9 +13,12 @@ title: BYE statement
 
 ## Details
 
-...
+This statement has no effect in iOS. (An app is not allowed to terminate itself.)
+
+On OS X, this statement causes the interpreter to terminate and return control to the shell prompt.
 
 
 ## Examples
 
-...
+    BYE
+
