@@ -25,7 +25,7 @@ The BitsyBASIC interpreter provides 26 global variables, named `A`, `B`, `C`, ..
 
 All variables have the value zero when the interpreter starts, and are reset to zero by the [CLEAR statement](/reference/clear).
 
-Variable values are used in expressions.  Variable values can be set with the [LET statement](/reference/let) and [INPUT statement](/reference/input).
+Use the [LET statement](/reference/let) and [INPUT statement](/reference/input) to set variable values.
 
 
 ## Examples
@@ -34,4 +34,5 @@ Variable values are used in expressions.  Variable values can be set with the [L
     20 LET Y = 2 * X
     30 PRINT "X + Y = "; X + Y
     40 INPUT A, B
+    50 PRINT A, B
 

@@ -3,7 +3,7 @@ layout: page
 title: CLEAR statement
 ---
 
-Clear program, variables, and array
+Reset program, variables, and array
 
 
 ## Syntax Diagram
@@ -13,7 +13,7 @@ Clear program, variables, and array
 
 ## Details
 
-The `CLEAR` command erases any stored program and sets the values of all variables and array elements to zero.
+The `CLEAR` command erases the stored program and sets the values of all variables and array elements to zero.
 
 If a program was running, the interpreter will return to command mode.
 

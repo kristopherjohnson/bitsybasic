@@ -16,7 +16,7 @@ Assign value to variable or array element
 - [variable](/reference/variable)
 - [array-element](/reference/array-element)
 - [expression](/reference/expression)
-
+- [INPUT statement](/reference/input)
 
 ## Details
 
@@ -26,6 +26,7 @@ The `LET` keyword is optional. That is, these two statements are equivalent:
 
     LET X = 1
     X = 1
+
 
 ## Examples
 

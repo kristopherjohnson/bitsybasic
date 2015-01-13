@@ -18,7 +18,7 @@ Return from subroutine
 
 ## Details
 
-A `RETURN` statement pops a program location from the return stack and jumps to that location.  It is used to return from a subroutine that was entered by using [GOSUB](/reference/gosub).
+A `RETURN` statement pops a program location from the return stack and jumps to that location.  It is used to return from a subroutine that was called with [GOSUB](/reference/gosub).
 
 
 ## Examples

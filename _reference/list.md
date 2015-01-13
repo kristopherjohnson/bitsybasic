@@ -31,7 +31,12 @@ If the statement is used with two arguments, it displays the lines in the range 
 
 ## Examples
 
+    REM - Display entire program
     LIST
+
+    REM - Display line 100
     LIST 100
+
+    REM - Display lines 1000-1500
     LIST 1000,1500
 

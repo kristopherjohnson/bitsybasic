@@ -3,7 +3,7 @@ layout: page
 title: CLIPLOAD statement
 ---
 
-Load program from clipboard
+Read program from clipboard
 
 
 ## Syntax Diagram
@@ -20,7 +20,7 @@ Load program from clipboard
 
 Loads a program from the system clipboard.
 
-This statement is similar to [LOAD](/reference/load), but instead of reading a program from a file it reads it from the clipboard.  This allows the user to copy a program from another application by selecting its text and choosing the Copy command, and then "pasting" it into BitsyBASIC by executing `CLIPLOAD`.
+This statement is similar to [LOAD](/reference/load), but instead of reading a program from a file it reads it from the clipboard.  This allows the user to copy a program from another app by selecting its text and choosing the Copy command, and then "pasting" it into BitsyBASIC by executing `CLIPLOAD`.
 
 
 ## Examples

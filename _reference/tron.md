@@ -18,7 +18,7 @@ Enable statement tracing
 
 ## Details
 
-The `TRON` statement enables statement tracing. While tracing is enabled, line numbers will be printed as each program statement is executed. This is helpful in debugging programs.
+The `TRON` statement enables statement tracing.  While tracing is enabled, line numbers will be printed as each program statement is executed.  This is helpful when debugging programs.
 
 Use the [TROFF statement](/reference/troff) to disable tracing.
 

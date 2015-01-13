@@ -33,7 +33,7 @@ The `GOTO` statement causes the interpreter to jump to the specified location in
     50 PRINT "We're done!"
     60 END
 
-    10 REM - This program will not stop until user hits Break
+    10 REM - This program will not stop until user hits Break/Ctrl-C
     20 PRINT "BitsyBASIC is cool!  ";
     30 GOTO 20
 

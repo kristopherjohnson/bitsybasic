@@ -25,5 +25,6 @@ A tick mark (') can be used as an abbreviation for `REM`.
     10 REM - This is a comment
     20 REM This is also a comment
     30 REMARK: Yet another comment
-    40 ' A tick mark can be used as
-    50 ' an abbreviation.
+    40 REM
+    50 ' A tick mark can be used as
+    60 ' an abbreviation for REM.

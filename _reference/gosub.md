@@ -3,7 +3,7 @@ layout: page
 title: GOSUB statement
 ---
 
-Call subroutine
+Call a subroutine
 
 
 ## Syntax Diagram
@@ -15,11 +15,11 @@ Call subroutine
 
 - [expression](/reference/expression)
 - [RETURN statement](/reference/return)
-
+- [GOTO statement](/reference/goto)
 
 ## Details
 
-The `GOSUB` statement pushes the current program location to the return stack, and then jumps to the specified line number (like [GOTO](/reference/goto)).  A subsequent use of [RETURN](/reference/return) will cause the program to jump back to the statement following the `GOSUB`.
+The `GOSUB` statement saves the current program location to the return stack, and then jumps to the specified line number.  A subsequent use of [RETURN](/reference/return) will cause the program to jump back to the line following the `GOSUB`.
 
 `GS` is an abbreviation for `GOSUB`.
 

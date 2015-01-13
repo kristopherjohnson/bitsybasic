@@ -13,17 +13,12 @@ Conditional execution
 
 ## Also See
 
-- [expression](/reference/expression).
+- [expression](/reference/expression)
 
 
 ## Details
 
 The `IF` statement evaluates a condition, and if it is true, executes a statement.
-
-The `THEN` keyword between the condition and the statement is optional.  That is, these two statements are equivalent:
-
-    IF X = Y THEN GOTO 200
-    IF X = Y GOTO 200
 
 The condition consists of two expressions separated by a relational operator.  The relational operators are
 
@@ -33,6 +28,11 @@ The condition consists of two expressions separated by a relational operator.  T
 - `>` (greater than)
 - `>=` (greater than or equal to)
 - `<>` or `><` (not equal)
+
+The `THEN` keyword between the condition and the statement is optional.  That is, these two statements are equivalent:
+
+    IF X = Y THEN GOTO 200
+    IF X = Y GOTO 200
 
 
 ## Examples

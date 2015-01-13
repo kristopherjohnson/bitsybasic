@@ -15,7 +15,7 @@ Stop the program.
 
 The `END` statement stops the running program and returns the interpreter to command mode.
 
-All programs should terminate with an `END` statement.  An error message is displayed if the interpreter has to terminate because it has executed the last program statement rather than because it encountered `END`
+All programs should terminate with an `END` statement.  The interpreter will display an error message it has to terminate because it has executed the last program statement rather than because it encountered `END`
 
 
 ## Examples

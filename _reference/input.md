@@ -3,7 +3,7 @@ layout: page
 title: INPUT statement
 ---
 
-Read numeric input from user
+Read numeric input from the user
 
 
 ## Syntax Diagram
@@ -23,7 +23,7 @@ The `INPUT` statement displays a "?" prompt and then waits for the user to enter
 
 If there is more than one input value, the user must separate the values with a comma.
 
-In addition to numeric values, the user may specify a single alphabetic character for a value.  The value of the associated variable with be the value stored.  This allows for simple character-based input, as shown in the example.
+In addition to numeric values, the user may specify a single alphabetic character for a value.  The value of the associated variable will be the value stored to the destination.  This allows for simple character-based input, as shown in the last example below.
 
 
 ## Examples

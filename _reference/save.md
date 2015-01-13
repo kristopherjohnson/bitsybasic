@@ -20,7 +20,7 @@ Save the program to a file.
 
 ## Details
 
-The `SAVE` statement writes the program to a file.  The program can then later be re-loaded with the [LOAD](/reference/load) statement.
+The `SAVE` statement writes the program to a file.  After a program is saved, the user can reload it with the [LOAD](/reference/load) statement.
 
 `SV` is an abbreviation for `SAVE`.
 

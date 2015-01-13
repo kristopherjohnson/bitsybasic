@@ -18,7 +18,7 @@ Disable statement tracing
 
 ## Details
 
-Disables statement tracing that is enabled by the [TRON statement](/reference/tron).
+Disables statement tracing that was enabled by the [TRON statement](/reference/tron).
 
 
 ## Examples

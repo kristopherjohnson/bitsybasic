@@ -18,7 +18,9 @@ Execute the program in memory.
 
 ## Details
 
-`RUN` starts running the program at its first line. The program will continue running until it reaches an [END](/reference/end) statement, an error occurs, or the user kills the program with Break/Ctrl-C.
+`RUN` starts running the program at its first line.
+
+The interpreter runs the program until it reaches an [END](/reference/end) statement, an error occurs, or the user kills the program with Break/Ctrl-C.
 
 
 ## Examples

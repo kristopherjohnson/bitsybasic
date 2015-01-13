@@ -21,9 +21,9 @@ Send characters to the display
 
 A `PRINT` statement with no arguments sends a newline character to the display.
 
-A `PRINT` statement with arguments will print those arguments. When arguments are separated by a semicolon, then they will be displayed with no separator between them.  When arguments are separated by a comma, they will be aligned in columns (a TAB character is sent to the output).
+A `PRINT` statement with arguments displays those arguments. When arguments are separated by a semicolon, then they are displayed without any separator between them.  When arguments are separated by a comma, they are aligned in columns.
 
-By default, a `PRINT` statement will send a newline character to the display after processing all the arguments. If a semicolon is present at the end of the statement, then this newline will be suppressed, and so a subsequent `PRINT` statement will continue at position where the last one finished. If a comma is present at the end of the line, then a TAB character is sent to the display instead of a newline.
+By default, a `PRINT` statement sends a newline character to the display after processing all the arguments. If a semicolon is present at the end of the statement, then the newline is suppressed, and a subsequent `PRINT` statement will continue at position where the last one finished. If a comma is present at the end of the line, then a TAB character is sent to the display instead of a newline.
 
 `PR` and `?` are abbreviations for the `PRINT` keyword.
 
@@ -33,3 +33,9 @@ By default, a `PRINT` statement will send a newline character to the display aft
     PRINT
     PRINT X, Y, Z
     PRINT "The sum of " ; X ; " and " ; Y ; " is " ; (X + Y)
+
+    10 REM - Print "One two three" on a single line
+    20 PRINT "One ";
+    30 PRINT "two ";
+    40 PRINT "three"
+    50 END
