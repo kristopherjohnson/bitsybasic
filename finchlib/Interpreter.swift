@@ -23,6 +23,21 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import Foundation
 
+// Keys used for property list and NSCoding
+let InterpreterPropertyListKey = "InterpreterPropertyList"
+let StateKey = "state"
+let VariablesKey = "variables"
+let ArrayCountKey = "arrayCount"
+let ArrayValuesKey = "arrayValues"
+let InputLineBufferKey = "inputLineBuffer"
+let ProgramKey = "program"
+let ProgramIndexKey = "programIndex"
+let ReturnStackKey = "returnStack"
+let IsTraceOnKey = "isTraceOn"
+let HasReachedEndOfInputKey = "hasReachedEndOfInput"
+let InputLvaluesKey = "inputLvalues"
+let StateBeforeInputKey = "stateBeforeInput"
+
 
 /// State of the interpreter
 ///
@@ -39,7 +54,7 @@ import Foundation
 ///
 /// The state returns to `.ReadingStatement` on an `END`
 /// statement or if `RUN` has to abort due to an error.
-public enum InterpreterState {
+public enum InterpreterState: Int {
     /// Interpreter is not "doing anything".
     /// 
     /// When in this state, interpreter will display
@@ -61,7 +76,7 @@ public enum InterpreterState {
 // MARK: - Interpreter
 
 /// Tiny Basic interpreter
-@objc public final class Interpreter {
+public final class Interpreter: NSObject, NSCoding {
     /// Interpreter state
     var state: InterpreterState = .Idle
 
@@ -75,7 +90,11 @@ public enum InterpreterState {
     var inputLineBuffer: InputLine = Array()
 
     /// Low-level I/O interface
-    var io: InterpreterIO
+    ///
+    /// This member is `public` so that it can be manipulated by
+    /// unit tests.  Production code should not change it
+    /// after an Interpreter is initialized.
+    public weak var io: InterpreterIO?
 
     /// Array of program lines
     var program: Program = Array()
@@ -98,12 +117,284 @@ public enum InterpreterState {
     /// State that interpreter was in when INPUT was called
     var stateBeforeInput: InterpreterState = .Idle
 
+
+    // MARK: - Constructor
+
     /// Initialize, optionally passing in a custom InterpreterIO handler
     public init(interpreterIO: InterpreterIO = StandardIO()) {
         io = interpreterIO
+        super.init()
         clearVariablesAndArray()
     }
+
+
+    // MARK: - NSCoding
+
+    /// Return the state of the interpreter as a property-list dictionary.
+    ///
+    /// This property list can be used to restore interpreter state
+    /// with restoreStateFromPropertyList()
+    public func stateAsPropertyList() -> NSDictionary {
+        let dict = NSMutableDictionary()
+
+        // state
+        dict[StateKey] = state.rawValue
+
+        // v
+        //
+        // We encode only the non-zero values
+        let vValues = NSMutableDictionary()
+        for varname in v.keys {
+            let value = v[varname]
+            if value != 0 {
+                let varnameKey = NSNumber(unsignedChar: varname)
+                vValues[varnameKey] = value
+            }
+        }
+        dict[VariablesKey] = vValues
+
+        // a
+        //
+        // To encode the (probably sparse) array, we note the size and then
+        // save only the non-zero values
+        dict[ArrayCountKey] = a.count
+        let aValues = NSMutableDictionary()
+        for i in 0..<a.count {
+            let value = a[i]
+            if value != 0 {
+                let key: NSNumber = i
+                aValues[key] = value
+            }
+        }
+        dict[ArrayValuesKey] = aValues
+
+        // inputLineBuffer
+        let inputLineData = NSData(bytes: &inputLineBuffer, length: inputLineBuffer.count)
+        dict[InputLineBufferKey] = inputLineData
+
+        // program
+        let programText: NSString = programAsString()
+        dict[ProgramKey] = programText
+
+        // programIndex
+        dict[ProgramIndexKey] = programIndex
+
+        // inputLvalues
+        let lvalues = NSMutableArray()
+        for lv in inputLvalues {
+            lvalues.addObject(lv.listText)
+        }
+        dict[InputLvaluesKey] = lvalues
+
+        // isTraceOn
+        dict[IsTraceOnKey] = isTraceOn
+
+        // hasReachedEndOfInput
+        dict[HasReachedEndOfInputKey] = hasReachedEndOfInput
+
+        // stateBeforeInput
+        dict[StateBeforeInputKey] = stateBeforeInput.rawValue
+
+        return dict
+    }
+
+    /// Set interpreter's properties using archived state produced by stateAsPropertyList()'
+    public func restoreStateFromPropertyList(dict: NSDictionary) {
+
+        // Note: The "simple" elements like `state`, `hasReachedEndOfInput`, etc. are restored
+        // after restoring the more complex elements, which may themselves make changes
+        // to those simple members as part of their restoration process.
+
+        // v
+        if let vValues = dict[VariablesKey] as? NSDictionary {
+            for (key, value) in vValues {
+                if let key = key as? NSNumber {
+                    if let value = value as? NSNumber {
+                        let varname: Char = key.unsignedCharValue
+                        v[varname] = value.integerValue
+                    }
+                    else {
+                        assert(false, "\(VariablesKey) value is not NSNumber")
+                    }
+                }
+                else {
+                    assert(false, "\(VariablesKey) key is not NSNumber")
+                }
+            }
+        }
+        else {
+            assert(false, "unable to decode \(VariablesKey)")
+        }
+
+        // a
+        if let arraySize = dict[ArrayCountKey] as? NSNumber {
+            a = Array(count: arraySize.integerValue, repeatedValue: 0)
+            if let aValues = dict[ArrayValuesKey] as? NSDictionary {
+                for (key, value) in aValues {
+                    if let key = key as? NSNumber {
+                        if let value = value as? NSNumber {
+                            a[key.integerValue] = value.integerValue
+                        }
+                        else {
+                            assert(false, "\(ArrayValuesKey) value is not NSNumber")
+                        }
+                    }
+                    else {
+                        assert(false, "\(ArrayValuesKey) key is not NSNumber")
+                    }
+                }
+            }
+            else {
+                assert(false, "unable to decode \(ArrayValuesKey)")
+            }
+        }
+        else {
+            assert(false, "unable to decode \(ArrayCountKey)")
+        }
+
+        // inputLineBuffer
+        if let inputLineData = dict[InputLineBufferKey] as? NSData {
+            let length = inputLineData.length
+            inputLineBuffer = Array(count: length, repeatedValue: 0)
+            inputLineData.getBytes(&inputLineBuffer, length: length)
+        }
+        else {
+            assert(false, "unable to decode \(InputLineBufferKey)")
+        }
+
+        // program
+        if let programText = dict[ProgramKey] as? NSString {
+            interpretString(programText)
+        }
+        else {
+            assert(false, "unable to decode \(ProgramKey)")
+        }
+
+        // programIndex
+        if let pi = dict[ProgramIndexKey] as? NSNumber {
+            programIndex = pi.integerValue
+        }
+        else {
+            assert(false, "unable to decode \(ProgramIndexKey)")
+        }
+
+        // inputLvalues
+        if let lvalues = dict[InputLvaluesKey] as? NSArray {
+            for lvText in lvalues {
+                if let lvText = lvText as? NSString {
+                    if let lv = lvalue(lvText) {
+                        inputLvalues.append(lv)
+                    }
+                    else {
+                        assert(false, "unable to parse \(lvText) as lvalue")
+                    }
+                }
+                else {
+                    assert(false, "\(InputLvaluesKey) value is not NSString")
+                }
+            }
+        }
+        else {
+            assert(false, "unable to decode \(InputLvaluesKey)")
+        }
+
+        // isTraceOn
+        if let ito = dict[IsTraceOnKey] as? NSNumber {
+            isTraceOn = ito.boolValue
+        }
+        else {
+            assert(false, "unable to decode \(IsTraceOnKey)")
+        }
+
+        // hasReachedEndOfInput
+        if let hreof = dict[HasReachedEndOfInputKey] as NSNumber? {
+            hasReachedEndOfInput = hreof.boolValue
+        }
+        else {
+            assert(false, "unable to decode \(hasReachedEndOfInput)")
+        }
+
+        // stateBeforeInput
+        if let sbi = dict[StateBeforeInputKey] as? NSNumber {
+            stateBeforeInput = InterpreterState(rawValue: sbi.integerValue) ?? .Idle
+        }
+        else {
+            assert(false, "unable to decode \(StateBeforeInputKey)")
+        }
+
+        if let st = dict[StateKey] as? NSNumber {
+            state = InterpreterState(rawValue: st.integerValue) ?? .Idle
+        }
+        else {
+            assert(false, "unable to decode \(StateKey)")
+        }
+    }
+
+    /// Encodes the interpreter's state with the given archiver
+    ///
+    /// Note that this does not retain the reference to the InterpreterIO object.
+    public func encodeWithCoder(coder: NSCoder) {
+        let propertyList = stateAsPropertyList()
+        coder.encodeObject(propertyList, forKey: InterpreterPropertyListKey)
+    }
     
+    /// Initialize the object using archived state produced by encodeWithCoder()
+    public init(coder: NSCoder) {
+        super.init()
+
+        // Note: cannot decode the InterpreterIO reference; owner must set it
+        // after initialization
+        self.io = nil
+
+        if let propertyList = coder.decodeObjectForKey(InterpreterPropertyListKey) as? NSDictionary {
+            restoreStateFromPropertyList(propertyList)
+        }
+        else {
+            assert(false, "unable to retrieve \(InterpreterPropertyListKey)")
+        }
+    }
+
+    /// Return the entire program listing as a single String
+    func programAsString() -> String {
+        var programText = ""
+        for (lineNumber, stmt) in program {
+            programText.extend("\(lineNumber) \(stmt.listText)\n")
+        }
+        return programText
+    }
+
+    /// Interpret a String
+    func interpretString(s: String) {
+        let chars = Array<UInt8>(s.utf8)
+        let charCount = chars.count
+        var index = 0
+        loop: while true {
+            let maybeInputLine = getInputLine {
+                if index >= charCount {
+                    return .EndOfStream
+                }
+                else {
+                    return .Value(chars[index++])
+                }
+            }
+
+            switch maybeInputLine {
+
+            case let .Value(inputLine): processInput(inputLine)
+
+            case .EndOfStream:
+                break loop
+
+            case .Waiting:
+                assert(false, "getInputLine() for pasteboard should never return .Waiting")
+                break loop
+            }
+        }
+    }
+
+
+    // MARK: Initialization/reset
+
     /// Set values of all variables and array elements to zero
     func clearVariablesAndArray() {
         for varname in Ch_A...Ch_Z {
@@ -135,9 +426,10 @@ public enum InterpreterState {
     /// will never return `InputCharResult.Waiting`.
     /// Otherwise, host should call `next()` in a loop.
     public func runUntilEndOfInput() {
-        while !hasReachedEndOfInput {
+        hasReachedEndOfInput = false
+        do {
             next()
-        }
+        } while !hasReachedEndOfInput
     }
 
     /// Perform next operation.
@@ -148,7 +440,7 @@ public enum InterpreterState {
         switch state {
 
         case .Idle:
-            io.showCommandPromptForInterpreter(self)
+            io?.showCommandPromptForInterpreter(self)
             state = .ReadingStatement
 
         case .ReadingStatement:
@@ -395,7 +687,7 @@ public enum InterpreterState {
 
         // Loop until successful or we hit end of input or a wait condition
         inputLoop: while true {
-            io.showInputPromptForInterpreter(self)
+            io?.showInputPromptForInterpreter(self)
             switch readInputLine() {
             case let .Value(input):
                 var pos = InputPosition(input, 0)
@@ -618,31 +910,7 @@ public enum InterpreterState {
     /// Execute CLIPLOAD statement
     func CLIPLOAD() {
         if let s = getPasteboardContents() {
-            let chars = Array<UInt8>(s.utf8)
-            let charCount = chars.count
-            var index = 0
-            loop: while true {
-                let maybeInputLine = getInputLine {
-                    if index >= charCount {
-                        return .EndOfStream
-                    }
-                    else {
-                        return .Value(chars[index++])
-                    }
-                }
-
-                switch maybeInputLine {
-
-                case let .Value(inputLine): processInput(inputLine)
-
-                case .EndOfStream:
-                    break loop
-
-                case .Waiting:
-                    assert(false, "getInputLine() for pasteboard should never return .Waiting")
-                    break loop
-                }
-            }
+            interpretString(s)
         }
         else {
             abortRunWithErrorMessage("error: CLIPLOAD - unable to read text from clipboard")
@@ -652,10 +920,7 @@ public enum InterpreterState {
 
     /// Execute CLIPSAVE statement
     func CLIPSAVE() {
-        var programText = ""
-        for (lineNumber, stmt) in program {
-            programText.extend("\(lineNumber) \(stmt.listText)\n")
-        }
+        var programText = programAsString()
 
         if programText.isEmpty {
             abortRunWithErrorMessage("error: CLIPSAVE: no program in memory")
@@ -729,7 +994,7 @@ public enum InterpreterState {
     /// Execute BYE statement
     public func BYE() {
         state = .Idle;
-        io.byeForInterpreter(self)
+        io?.byeForInterpreter(self)
     }
 
     /// Execute HELP statement
@@ -783,7 +1048,7 @@ public enum InterpreterState {
 
         let (lineNumber, stmt) = program[programIndex]
         if isTraceOn {
-            io.showDebugTraceMessage("[\(lineNumber)]", forInterpreter: self)
+            io?.showDebugTraceMessage("[\(lineNumber)]", forInterpreter: self)
         }
         ++programIndex
         execute(stmt)
@@ -808,13 +1073,13 @@ public enum InterpreterState {
 
     /// Send a single character to the output stream
     func writeOutput(c: Char) {
-        io.putOutputChar(c, forInterpreter: self)
+        io?.putOutputChar(c, forInterpreter: self)
     }
 
     /// Send characters to the output stream
     func writeOutput(chars: [Char]) {
         for c in chars {
-            io.putOutputChar(c, forInterpreter: self)
+            io?.putOutputChar(c, forInterpreter: self)
         }
     }
 
@@ -830,7 +1095,7 @@ public enum InterpreterState {
 
     /// Display error message
     func showError(message: String) {
-        io.showErrorMessage(message, forInterpreter: self)
+        io?.showErrorMessage(message, forInterpreter: self)
     }
 
     /// Read a line using the InterpreterIO interface.
@@ -842,7 +1107,12 @@ public enum InterpreterState {
     ///
     /// Result may be an empty array, indicating an empty input line, not end of input.
     func readInputLine() -> InputLineResult {
-        return getInputLine { self.io.getInputCharForInterpreter(self) }
+        if let io = io {
+            return getInputLine { io.getInputCharForInterpreter(self) }
+        }
+        else {
+            return .EndOfStream
+        }
     }
 
     /// Get a line of input, using specified function to retrieve characters.

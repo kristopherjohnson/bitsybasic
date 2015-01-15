@@ -30,17 +30,7 @@
 namespace finchlib_cpp
 {
 
-typedef std::vector<Char> InputLine;
-
-/// Values for `kind` field of `InterpreterEngine::Line`
-typedef NS_ENUM(NSInteger, LineKind)
-{
-    LineKindNumberedStatement,
-    LineKindUnnumberedStatement,
-    LineKindEmpty,
-    LineKindEmptyNumberedLine,
-    LineKindError
-};
+using InputLine = std::vector<Char>;
 
 /// Result of attempting to read a line of input
 struct InputLineResult
@@ -64,7 +54,16 @@ class InterpreterEngine
 {
 public:
     /// Constructor
-    InterpreterEngine(Interpreter *interpreter, id<InterpreterIO> interpreterIO);
+    InterpreterEngine(Interpreter *interpreter);
+
+    /// Return the state of the interpreter as a property-list dictionary.
+    ///
+    /// This property list can be used to restore interpreter state
+    /// with restoreStateFromPropertyList()
+    NSDictionary *stateAsPropertyList();
+
+    /// Set interpreter's properties using archived state produced by stateAsPropertyList()'
+    void restoreStateFromPropertyList(NSDictionary *propertyList);
 
     /// Display prompt and read input lines and interpret them until end of input.
     ///
@@ -129,10 +128,10 @@ public:
     void DIM(const Expression &expr);
 
     /// Execute a SAVE statement
-    void SAVE(std::string filename);
+    void SAVE(const std::string &filename);
 
     /// Execute a LOAD statement
-    void LOAD(std::string filename);
+    void LOAD(const std::string &filename);
 
     /// Execute a FILES statement
     void FILES();
@@ -164,9 +163,6 @@ private:
 
     /// Interpreter instance that owns this engine
     Interpreter *interpreter;
-
-    /// Low-level I/O interface
-    id<InterpreterIO> io;
 
     /// Interpreter state
     InterpreterState st{InterpreterStateIdle};
@@ -203,6 +199,12 @@ private:
     InterpreterState stateBeforeInput{InterpreterStateIdle};
 
 #pragma mark - Private methods
+
+    /// Return the entire program listing as a single String
+    std::string programAsString();
+
+    /// Interpret a string
+    void interpretString(const std::string &s);
 
     /// Set values of all variables and array elements to zero
     void clearVariablesAndArray();
@@ -249,13 +251,13 @@ private:
     void writeOutput(const std::vector<Char> &chars);
 
     /// Send string to the output stream
-    void writeOutput(std::string s);
+    void writeOutput(const std::string &s);
 
     /// Print an object that conforms to the PrintTextProvider protocol
     void writeOutput(const PrintTextProvider &p);
 
     /// Display error message
-    void showError(std::string message);
+    void showError(const std::string &message);
 
     /// Read a line using the InterpreterIO interface.
     ///

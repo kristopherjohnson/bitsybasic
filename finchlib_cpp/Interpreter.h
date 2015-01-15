@@ -115,16 +115,39 @@ typedef NS_ENUM(NSInteger, InterpreterState)
     InterpreterStateReadingInput
 };
 
-@interface Interpreter : NSObject
+@interface Interpreter : NSObject <NSCoding>
 
+@property id<InterpreterIO> io;
+
+/// Initializer
 - (instancetype)initWithInterpreterIO:(id<InterpreterIO>)interpreterIO;
 
+/// Return the state of the interpreter as a property-list dictionary.
+///
+/// This property list can be used to restore interpreter state
+/// with restoreStateFromPropertyList()
+- (NSDictionary *)stateAsPropertyList;
+
+/// Set interpreter's properties using archived state produced by stateAsPropertyList()'
+- (void)restoreStateFromPropertyList:(NSDictionary *)propertyList;
+
+/// Display prompt and read input lines and interpret them until end of input.
+///
+/// This method should only be used when `InterpreterIO.getInputChar()`
+/// will never return `InputCharResult.Waiting`.
+/// Otherwise, host should call `next()` in a loop.
 - (void)runUntilEndOfInput;
 
+/// Perform next operation.
+///
+/// The host can drive the interpreter by calling `next()`
+/// in a loop.
 - (void)next;
 
+/// Return interpreter state
 - (InterpreterState)state;
 
+/// Halt running machine
 - (void)breakExecution;
 
 @end

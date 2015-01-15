@@ -94,7 +94,7 @@ public:
 /// Returns first match, or nil if there are no matches
 static Parse<string> oneOfLiteral(vector<string> strings, const InputPos &pos)
 {
-    for (auto s : strings)
+    for (const auto &s : strings)
     {
         const auto match = literal(s, pos);
         if (match.wasParsed())
@@ -270,6 +270,17 @@ static Parse<Lvalue> lvalue(const InputPos &pos)
     }
 
     return failedParse<Lvalue>();
+}
+
+Parse<Lvalue> lvalueFromString(const std::string &input)
+{
+    InputLine inputLine;
+    for (const auto ch : input)
+    {
+        inputLine.push_back((ch));
+    }
+    InputPos inputPos{inputLine, 0};
+    return lvalue(inputPos);
 }
 
 /// Attempt to parse a Factor.  Returns Factor and position of next character if
@@ -724,7 +735,7 @@ static Parse<Statement> remStatement(const InputPos &pos)
     {
         const auto commentChars = rem.nextPos().remainingChars();
         string commentString{};
-        for (auto c : commentChars)
+        for (const auto c : commentChars)
         {
             commentString.push_back(c);
         }
@@ -795,11 +806,19 @@ static Parse<Statement> loadStatement(const InputPos &pos)
 Parse<Statement> statement(const InputPos &pos)
 {
     // List of parsing functions to try
-    static const vector<function<Parse<Statement>(const InputPos &pos)>>
-    functions{printStatement, letStatement, inputStatement, dimStatement,
-              ifStatement, gotoStatement, gosubStatement, remStatement,
-              listStatement, saveStatement, loadStatement};
-    for (auto f : functions)
+    static const vector<function<Parse<Statement>(const InputPos &pos)>> functions{
+        printStatement,
+        letStatement,
+        inputStatement,
+        dimStatement,
+        ifStatement,
+        gotoStatement,
+        gosubStatement,
+        remStatement,
+        listStatement,
+        saveStatement,
+        loadStatement};
+    for (const auto &f : functions)
     {
         const auto stmt = f(pos);
         if (stmt.wasParsed())
@@ -823,7 +842,7 @@ Parse<Statement> statement(const InputPos &pos)
         {"TRON", Statement::tron},
         {"TROFF", Statement::troff},
         {"HELP", Statement::help}};
-    for (auto s : statements)
+    for (const auto &s : statements)
     {
         const auto keyword = literal(s.first, pos);
         if (keyword.wasParsed())

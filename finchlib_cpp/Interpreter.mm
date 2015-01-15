@@ -28,6 +28,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using namespace finchlib_cpp;
 
+
+static NSString *InterpreterPropertyListKey = @"InterpreterPropertyList";
+
+
 InputCharResult InputCharResult_Value(Char c)
 {
     InputCharResult result = {InputResultKindValue, c};
@@ -46,10 +50,6 @@ InputCharResult InputCharResult_Waiting()
     return result;
 }
 
-@interface Interpreter ()
-@property id<InterpreterIO> interpreterIO;
-@end
-
 @implementation Interpreter
 {
     // The real implementation is in the C++ InterpreterEngine class.
@@ -62,10 +62,30 @@ InputCharResult InputCharResult_Waiting()
     if (!self)
         return nil;
 
-    // Keep a reference to the InterpreterIO object
-    self.interpreterIO = interpreterIO;
+    self.io = interpreterIO;
 
-    _engine = new InterpreterEngine(self, interpreterIO);
+    _engine = new InterpreterEngine(self);
+
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    self = [super init];
+    if (!self)
+        return nil;
+
+    _engine = new InterpreterEngine(self);
+
+    NSDictionary *propertyList = [coder decodeObjectForKey:InterpreterPropertyListKey];
+    if (propertyList)
+    {
+        _engine->restoreStateFromPropertyList(propertyList);
+    }
+    else
+    {
+        NSAssert(false, @"unable to decode property list");
+    }
 
     return self;
 }
@@ -73,6 +93,22 @@ InputCharResult InputCharResult_Waiting()
 - (void)dealloc
 {
     delete _engine;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    NSDictionary *propertyList = _engine->stateAsPropertyList();
+    [coder encodeObject:propertyList forKey:InterpreterPropertyListKey];
+}
+
+- (NSDictionary *)stateAsPropertyList
+{
+    return _engine->stateAsPropertyList();
+}
+
+- (void)restoreStateFromPropertyList:(NSDictionary *)propertyList
+{
+    _engine->restoreStateFromPropertyList(propertyList);
 }
 
 - (void)runUntilEndOfInput

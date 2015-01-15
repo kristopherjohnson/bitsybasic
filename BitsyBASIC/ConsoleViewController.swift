@@ -24,6 +24,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import Foundation
 import UIKit
 
+
+let ConsoleTextKey = "ConsoleText"
+let InputTextFieldTextKey = "InputTextFieldText"
+let InterpreterStateKey = "InterpreterState"
+
+
 final class ConsoleViewController: UIViewController, UITextFieldDelegate {
 
     /// Text field at bottom where user enters statements
@@ -51,6 +57,9 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
     /// Set true if we have queued a call to `stepInterpreter()`
     var interpreterScheduled = false
 
+    /// Set true if decodeRestorableStateWithCoder: was called
+    var didRestoreState = false
+
     /// Text displayed in the console
     ///
     /// Setting this property automatically updates the console display
@@ -60,6 +69,41 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
             if textView != nil {
                 textView.attributedText = consoleText
             }
+        }
+    }
+
+    override func encodeRestorableStateWithCoder(coder: NSCoder) {
+        super.encodeRestorableStateWithCoder(coder)
+
+        coder.encodeObject(consoleText, forKey: ConsoleTextKey)
+        coder.encodeObject(inputTextField.text, forKey: InputTextFieldTextKey)
+        coder.encodeObject(interpreter.stateAsPropertyList(), forKey: InterpreterStateKey)
+    }
+
+    override func decodeRestorableStateWithCoder(coder: NSCoder) {
+        didRestoreState = true
+
+        super.decodeRestorableStateWithCoder(coder)
+
+        if let textViewAttributedText = coder.decodeObjectForKey(ConsoleTextKey) as? NSAttributedString {
+            consoleText = NSMutableAttributedString(attributedString: textViewAttributedText)
+        }
+        else {
+            assert(false, "unable to restore \(ConsoleTextKey)")
+        }
+
+        if let inputTextFieldText = coder.decodeObjectForKey(InputTextFieldTextKey) as? NSString {
+            inputTextField.text = inputTextFieldText
+        }
+        else {
+            assert(false, "unable to restore \(InputTextFieldTextKey)")
+        }
+
+        if let interpreterState = coder.decodeObjectForKey(InterpreterStateKey) as? NSDictionary {
+            interpreter.restoreStateFromPropertyList(interpreterState)
+        }
+        else {
+            assert(false, "unable to restore \(InterpreterStateKey)")
         }
     }
 
@@ -90,10 +134,6 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
 //            attributes: outputAttributes)
         inputTextField.delegate = self
 
-        consoleText = NSMutableAttributedString(
-            string: "BitsyBASIC v1.0\nCopyright 2015 Kristopher Johnson\n\nType HELP if you don't know what to do.\n\nREADY\n",
-            attributes: outputAttributes)
-
         interpreterIO = ConsoleInterpreterIO(viewController: self)
         interpreter = Interpreter(interpreterIO: interpreterIO)
         scheduleInterpreter()
@@ -113,6 +153,12 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
             forKeyPath: "contentSize",
             options: NSKeyValueObservingOptions.New,
             context: nil)
+
+        if !didRestoreState {
+            consoleText = NSMutableAttributedString(
+                string: "BitsyBASIC v1.0\nCopyright 2015 Kristopher Johnson\n\nType HELP if you don't know what to do.\n\nREADY\n",
+                attributes: outputAttributes)
+        }
     }
 
     override func viewDidAppear(animated: Bool) {

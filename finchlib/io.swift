@@ -50,7 +50,7 @@ public enum InputCharResult {
 }
 
 /// Protocol implemented by object that provides I/O operations for an Interpreter
-public protocol InterpreterIO {
+public protocol InterpreterIO: NSObjectProtocol {
     /// Return next input character, or nil if at end-of-file or an error occurs
     func getInputCharForInterpreter(interpreter: Interpreter) -> InputCharResult
 
@@ -81,7 +81,7 @@ public protocol InterpreterIO {
 /// This implementation's `getInputChar()` will block until a
 /// character is read from standard input or end-of-stream is reached.
 /// It will never return `.Waiting`.
-public final class StandardIO: InterpreterIO {
+public final class StandardIO: NSObject, InterpreterIO {
     public func getInputCharForInterpreter(interpreter: Interpreter) -> InputCharResult {
         let c = getchar()
         return c == EOF ? .EndOfStream : .Value(Char(c))

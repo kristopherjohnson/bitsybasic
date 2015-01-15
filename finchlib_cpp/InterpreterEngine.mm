@@ -32,19 +32,46 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <unistd.h>
 #include <dirent.h>
 
-using std::unique_ptr;
-using std::shared_ptr;
-using std::make_shared;
-using std::ostringstream;
-using std::string;
-using std::vector;
-using std::tuple;
-using std::make_tuple;
-using std::pair;
+using std::fill;
 using std::function;
+using std::make_shared;
+using std::make_tuple;
+using std::ostringstream;
+using std::pair;
+using std::shared_ptr;
+using std::string;
+using std::tuple;
+using std::unique_ptr;
+using std::vector;
+
+// Keys used for property list
+static NSString *StateKey = @"state";
+static NSString *VariablesKey = @"variables";
+static NSString *ArrayCountKey = @"arrayCount";
+static NSString *ArrayValuesKey = @"arrayValues";
+static NSString *InputLineBufferKey = @"inputLineBuffer";
+static NSString *ProgramKey = @"program";
+static NSString *ProgramIndexKey = @"programIndex";
+static NSString *ReturnStackKey = @"returnStack";
+static NSString *IsTraceOnKey = @"isTraceOn";
+static NSString *HasReachedEndOfInputKey = @"hasReachedEndOfInput";
+static NSString *InputLvaluesKey = @"inputLvalues";
+static NSString *StateBeforeInputKey = @"stateBeforeInput";
+
 
 namespace finchlib_cpp
 {
+
+/// Values for `kind` field of `InterpreterEngine::Line`
+enum class LineKind : NSInteger
+{
+    NumberedStatement,
+    UnnumberedStatement,
+    Empty,
+    EmptyNumberedLine,
+    Error
+};
+
 
 /// An input line is parsed to be a statement preceded by a line number,
 /// which will be inserted into the program, or a statement without a preceding
@@ -61,38 +88,315 @@ struct Line
 
     static Line numberedStatement(Number n, Statement s)
     {
-        return {LineKindNumberedStatement, n, s};
+        return {LineKind::NumberedStatement, n, s};
     }
 
     static Line unnumberedStatement(Statement s)
     {
-        return {LineKindUnnumberedStatement, 0, s};
+        return {LineKind::UnnumberedStatement, 0, s};
     }
 
     static Line empty()
     {
-        return {LineKindEmpty, 0, Statement::invalid()};
+        return {LineKind::Empty, 0, Statement::invalid()};
     }
 
     static Line emptyNumberedLine(Number n)
     {
-        return {LineKindEmptyNumberedLine, n, Statement::invalid()};
+        return {LineKind::EmptyNumberedLine, n, Statement::invalid()};
     }
 
     static Line error(string message)
     {
-        return {LineKindError, 0, Statement::invalid(), message};
+        return {LineKind::Error, 0, Statement::invalid(), message};
     }
 };
 
 #pragma mark - InterpreterEngine
 
-InterpreterEngine::InterpreterEngine(Interpreter *interp,
-                                     id<InterpreterIO> interpreterIO)
-    : interpreter{interp}, io{interpreterIO}, a(1024)
+InterpreterEngine::InterpreterEngine(Interpreter *interp)
+    : interpreter{interp}, a(1024)
 {
     clearVariablesAndArray();
 }
+
+NSDictionary *InterpreterEngine::stateAsPropertyList()
+{
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+
+    // state
+    dict[StateKey] = @(st);
+
+    // v
+    //
+    // We encode only the non-zero values
+    NSMutableDictionary *vValues = [NSMutableDictionary dictionary];
+    for (const auto &i : v)
+    {
+        auto value = i.second;
+        if (value != 0)
+        {
+            auto varname = i.first;
+            vValues[@(varname)] = @(value);
+        }
+    }
+    dict[VariablesKey] = vValues;
+
+    // a
+    //
+    // To encode the (probably sparse) array, we note the size and then
+    // save only the non-zero values
+    dict[ArrayCountKey] = @(a.size());
+    NSMutableDictionary *aValues = [NSMutableDictionary dictionary];
+    for (auto i = 0; i < a.size(); ++i)
+    {
+        auto value = a[i];
+        if (value != 0)
+        {
+            aValues[@(i)] = @(value);
+        }
+    }
+    dict[ArrayValuesKey] = aValues;
+
+    // inputLineBuffer
+    NSData *inputLineData = [NSData dataWithBytes:inputLineBuffer.data()
+                                           length:inputLineBuffer.size()];
+    dict[InputLineBufferKey] = inputLineData;
+
+    // program
+    NSString *programText = [NSString stringWithUTF8String:programAsString().c_str()];
+    dict[ProgramKey] = programText;
+
+    // programIndex
+    dict[ProgramIndexKey] = @(programIndex);
+
+    // inputLvalues
+    NSMutableArray *lvalues = [NSMutableArray array];
+    for (const auto &lv : inputLvalues)
+    {
+        NSString *value = [NSString stringWithUTF8String:lv.listText().c_str()];
+        [lvalues addObject:value];
+    }
+    dict[InputLvaluesKey] = lvalues;
+
+    // isTraceOn
+    dict[IsTraceOnKey] = @(isTraceOn);
+
+    // hasReachedEndOfInput
+    dict[HasReachedEndOfInputKey] = @(hasReachedEndOfInput);
+
+    // stateBeforeInput
+    dict[StateBeforeInputKey] = @(stateBeforeInput);
+
+    return dict;
+}
+
+void InterpreterEngine::restoreStateFromPropertyList(NSDictionary *dict)
+{
+    // Note: The "simple" elements like `state`, `hasReachedEndOfInput`, etc. are restored
+    // after restoring the more complex elements, which may themselves make changes
+    // to those simple members as part of their restoration process.
+
+    // v
+    NSDictionary *vValues = dict[VariablesKey];
+    if ([vValues isKindOfClass:[NSDictionary class]])
+    {
+        [vValues enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
+            if ([key isKindOfClass:[NSNumber class]] && [value isKindOfClass:[NSNumber class]]) {
+                v[[key unsignedCharValue]] = [value intValue];
+            }
+            else {
+                assert(false);
+            }
+        }];
+    }
+    else
+    {
+        assert(false);
+    }
+
+    // a
+    NSNumber *arraySize = dict[ArrayCountKey];
+    if ([arraySize isKindOfClass:[NSNumber class]])
+    {
+        a.resize(arraySize.unsignedIntegerValue);
+        fill(begin(a), end(a), 0);
+
+        NSDictionary *aValues = dict[ArrayValuesKey];
+        if ([aValues isKindOfClass:[NSDictionary class]])
+        {
+            [aValues enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
+                if ([key isKindOfClass:[NSNumber class]] && [value isKindOfClass:[NSNumber class]]) {
+                    a[[key unsignedIntegerValue]] = [value intValue];
+                }
+                else {
+                    assert(false);
+                }
+            }];
+        }
+    }
+    else
+    {
+        assert(false);
+    }
+
+    // inputLineBuffer
+    NSData *inputLineData = dict[InputLineBufferKey];
+    if ([inputLineData isKindOfClass:[NSData class]])
+    {
+        const auto length = inputLineData.length;
+        inputLineBuffer.resize(length);
+        [inputLineData getBytes:inputLineBuffer.data() length:length];
+    }
+    else
+    {
+        assert(false);
+    }
+
+    // program
+    NSString *programText = dict[ProgramKey];
+    if ([programText isKindOfClass:[NSString class]])
+    {
+        interpretString(programText.UTF8String);
+    }
+    else
+    {
+        assert(false);
+    }
+
+    // programIndex
+    NSNumber *pi = dict[ProgramIndexKey];
+    if ([pi isKindOfClass:[NSNumber class]])
+    {
+        programIndex = pi.integerValue;
+    }
+    else
+    {
+        assert(false);
+    }
+
+    // inputLvalues
+    NSArray *lvalues = dict[InputLvaluesKey];
+    if ([lvalues isKindOfClass:[NSArray class]])
+    {
+        for (NSString *lvText in lvalues)
+        {
+            if ([lvText isKindOfClass:[NSString class]])
+            {
+                const auto lv = lvalueFromString(lvText.UTF8String);
+                if (lv.wasParsed())
+                {
+                    inputLvalues.push_back(lv.value());
+                }
+                else
+                {
+                    assert(false);
+                }
+            }
+            else
+            {
+                assert(false);
+            }
+        }
+    }
+    else
+    {
+        assert(false);
+    }
+
+    // isTraceOn
+    NSNumber *ito = dict[IsTraceOnKey];
+    if ([ito isKindOfClass:[NSNumber class]])
+    {
+        isTraceOn = ito.boolValue;
+    }
+    else
+    {
+        assert(false);
+    }
+
+    // hasReachedEndOfInput
+    NSNumber *hreof = dict[HasReachedEndOfInputKey];
+    if ([hreof isKindOfClass:[NSNumber class]])
+    {
+        hasReachedEndOfInput = hreof.boolValue;
+    }
+    else
+    {
+        assert(false);
+    }
+
+    // stateBeforeInput
+    NSNumber *sbi = dict[StateBeforeInputKey];
+    if ([sbi isKindOfClass:[NSNumber class]])
+    {
+        stateBeforeInput = static_cast<InterpreterState>(sbi.intValue);
+    }
+    else
+    {
+        assert(false);
+    }
+
+    // state
+    NSNumber *state = dict[StateKey];
+    if ([state isKindOfClass:[NSNumber class]])
+    {
+        st = static_cast<InterpreterState>(state.integerValue);
+    }
+    else
+    {
+        assert(false);
+    }
+}
+
+std::string InterpreterEngine::programAsString()
+{
+    ostringstream s;
+    for (const auto &line : program)
+    {
+        s << line.lineNumber << " " << line.statement.listText() << "\n";
+    }
+
+    return s.str();
+}
+
+void InterpreterEngine::interpretString(const std::string &s)
+{
+    size_t index = 0;
+
+    // Read lines until end-of-stream or error
+    bool keepGoing{true};
+    do
+    {
+        const auto inputLineResult = getInputLine([&]() -> InputCharResult
+                                                  {
+                                                          if (index >= s.length()) {
+                                                              return InputCharResult_EndOfStream();
+                                                          }
+                                                          else {
+                                                              return InputCharResult_Value(s[index++]);
+                                                          }
+        });
+
+        switch (inputLineResult.kind)
+        {
+            case InputResultKindValue:
+                processInput(inputLineResult.value);
+                break;
+
+            case InputResultKindEndOfStream:
+                keepGoing = false;
+                break;
+
+            default:
+                // getInputLine() for file should only return Value or EndOfStream
+                assert(false);
+                keepGoing = false;
+                break;
+        }
+    } while (keepGoing);
+}
+
 
 /// Return interpreter state
 InterpreterState InterpreterEngine::state()
@@ -112,7 +416,8 @@ void InterpreterEngine::breakExecution()
         msg << "BREAK at line " << lineNumber;
         showError(msg.str());
     }
-    else {
+    else
+    {
         showError("BREAK");
     }
 
@@ -127,10 +432,7 @@ void InterpreterEngine::clearVariablesAndArray()
         v[varname] = 0;
     }
 
-    for (auto i = 0; i < a.size(); ++i)
-    {
-        a[i] = 0;
-    }
+    fill(begin(a), end(a), 0);
 }
 
 /// Remove program from memory
@@ -157,8 +459,11 @@ void InterpreterEngine::clearReturnStack()
 /// Otherwise, host should call `next()` in a loop.
 void InterpreterEngine::runUntilEndOfInput()
 {
-    while (!hasReachedEndOfInput)
+    hasReachedEndOfInput = false;
+    do
+    {
         next();
+    } while (!hasReachedEndOfInput);
 }
 
 /// Perform next operation.
@@ -170,7 +475,7 @@ void InterpreterEngine::next()
     switch (st)
     {
         case InterpreterStateIdle:
-            [io showCommandPromptForInterpreter:interpreter];
+            [interpreter.io showCommandPromptForInterpreter:interpreter];
             st = InterpreterStateReadingStatement;
             break;
 
@@ -221,23 +526,23 @@ void InterpreterEngine::processInput(const InputLine &input)
 
     switch (line.kind)
     {
-        case LineKindUnnumberedStatement:
+        case LineKind::UnnumberedStatement:
             execute(line.statement);
             break;
 
-        case LineKindNumberedStatement:
+        case LineKind::NumberedStatement:
             insertLineIntoProgram(line.lineNumber, line.statement);
             break;
 
-        case LineKindEmptyNumberedLine:
+        case LineKind::EmptyNumberedLine:
             deleteLineFromProgram(line.lineNumber);
             break;
 
-        case LineKindEmpty:
+        case LineKind::Empty:
             // Do nothing
             break;
 
-        case LineKindError:
+        case LineKind::Error:
             showError(line.errorMessage);
             break;
 
@@ -403,7 +708,7 @@ void InterpreterEngine::executeNextProgramStatement()
         ostringstream msg;
         msg << "[" << numberedStatement.lineNumber << "]";
         NSString *message = [NSString stringWithUTF8String:msg.str().c_str()];
-        [io showDebugTraceMessage:message forInterpreter:interpreter];
+        [interpreter.io showDebugTraceMessage:message forInterpreter:interpreter];
     }
     ++programIndex;
     execute(numberedStatement.statement);
@@ -428,7 +733,7 @@ void InterpreterEngine::abortRunWithErrorMessage(string message)
 /// Send a single character to the output stream
 void InterpreterEngine::writeOutput(Char c)
 {
-    [io putOutputChar:c forInterpreter:interpreter];
+    [interpreter.io putOutputChar:c forInterpreter:interpreter];
 }
 
 /// Send characters to the output stream
@@ -436,16 +741,16 @@ void InterpreterEngine::writeOutput(const vector<Char> &chars)
 {
     for (const auto c : chars)
     {
-        [io putOutputChar:c forInterpreter:interpreter];
+        [interpreter.io putOutputChar:c forInterpreter:interpreter];
     }
 }
 
 /// Send string to the output stream
-void InterpreterEngine::writeOutput(string s)
+void InterpreterEngine::writeOutput(const string &s)
 {
     for (const auto c : s)
     {
-        [io putOutputChar:c forInterpreter:interpreter];
+        [interpreter.io putOutputChar:c forInterpreter:interpreter];
     }
 }
 
@@ -456,10 +761,10 @@ void InterpreterEngine::writeOutput(const PrintTextProvider &p)
 }
 
 /// Display error message
-void InterpreterEngine::showError(string message)
+void InterpreterEngine::showError(const string &message)
 {
     NSString *str = [NSString stringWithUTF8String:message.c_str()];
-    [io showErrorMessage:str forInterpreter:interpreter];
+    [interpreter.io showErrorMessage:str forInterpreter:interpreter];
 }
 
 /// Read a line using the InterpreterIO interface.
@@ -474,7 +779,7 @@ void InterpreterEngine::showError(string message)
 /// input.
 InputLineResult InterpreterEngine::readInputLine()
 {
-    const auto io = this->io;
+    const auto io = interpreter.io;
     const auto interpreter = this->interpreter;
     return getInputLine([=]() -> InputCharResult
                         { return [io getInputCharForInterpreter:interpreter]; });
@@ -600,7 +905,7 @@ void InterpreterEngine::LIST(const Expression &lowExpr,
 {
     const auto rangeLow = evaluate(lowExpr);
     const auto rangeHigh = evaluate(highExpr);
-    for (const auto line : program)
+    for (const auto &line : program)
     {
         if (line.lineNumber < rangeLow)
             continue;
@@ -710,7 +1015,7 @@ void InterpreterEngine::CLEAR()
 void InterpreterEngine::BYE()
 {
     st = InterpreterStateIdle;
-    [io byeForInterpreter:interpreter];
+    [interpreter.io byeForInterpreter:interpreter];
 }
 
 /// Execute HELP statement
@@ -745,7 +1050,7 @@ void InterpreterEngine::HELP()
         "Example:",
         "  10 print \"Hello, world!\"", "  20 end", "  list", "  run"};
 
-    for (auto line : lines)
+    for (const auto &line : lines)
     {
         writeOutput(line);
         writeOutput('\n');
@@ -757,7 +1062,7 @@ void InterpreterEngine::INPUT(const Lvalues &lvalues)
 {
     inputLvalues = lvalues;
     stateBeforeInput = st;
-    [io showInputPromptForInterpreter:interpreter];
+    [interpreter.io showInputPromptForInterpreter:interpreter];
     continueInput();
 }
 
@@ -776,7 +1081,7 @@ void InterpreterEngine::showInputHelpMessage()
         showError("You must enter a value.");
     }
 
-    [io showInputPromptForInterpreter:interpreter];
+    [interpreter.io showInputPromptForInterpreter:interpreter];
 }
 
 /// Perform an INPUT operation
@@ -797,7 +1102,7 @@ void InterpreterEngine::continueInput()
                 InputPos pos{inputLineResult.value, 0};
 
                 bool first{true};
-                for (const auto lv : inputLvalues)
+                for (const auto &lv : inputLvalues)
                 {
                     // If this is not the first value, need to see a comma
                     if (first)
@@ -878,15 +1183,15 @@ void InterpreterEngine::DIM(const Expression &expr)
 }
 
 /// Execute a SAVE statement
-void InterpreterEngine::SAVE(string filename)
+void InterpreterEngine::SAVE(const string &filename)
 {
     const auto file = std::fopen(filename.c_str(), "w");
     if (file)
     {
-        for (auto ns : program)
+        for (const auto &line : program)
         {
             ostringstream s;
-            s << ns.lineNumber << " " << ns.statement.listText() << "\n";
+            s << line.lineNumber << " " << line.statement.listText() << "\n";
             const auto outputString = s.str();
             const char *outputChars = outputString.c_str();
             size_t outputLength = std::strlen(outputChars);
@@ -904,7 +1209,7 @@ void InterpreterEngine::SAVE(string filename)
 }
 
 /// Execute a LOAD statement
-void InterpreterEngine::LOAD(string filename)
+void InterpreterEngine::LOAD(const string &filename)
 {
     auto file = std::fopen(filename.c_str(), "r");
     if (file)
@@ -987,13 +1292,7 @@ void InterpreterEngine::FILES()
 /// Execute a CLIPSAVE statement
 void InterpreterEngine::CLIPSAVE()
 {
-    ostringstream s;
-    for (auto ns : program)
-    {
-        s << ns.lineNumber << " " << ns.statement.listText() << "\n";
-    }
-
-    const auto outputString = s.str();
+    const auto outputString = programAsString();
     if (outputString.empty())
     {
         abortRunWithErrorMessage("error: CLIPSAVE - no program in memory");
@@ -1013,39 +1312,7 @@ void InterpreterEngine::CLIPLOAD()
         return;
     }
 
-    size_t index = 0;
-
-    // Read lines until end-of-stream or error
-    bool keepGoing{true};
-    do
-    {
-        const auto inputLineResult = getInputLine([&]() -> InputCharResult
-                                                  {
-            if (index >= s.length()) {
-                return InputCharResult_EndOfStream();
-            }
-            else {
-                return InputCharResult_Value(s[index++]);
-            }
-        });
-
-        switch (inputLineResult.kind)
-        {
-            case InputResultKindValue:
-                processInput(inputLineResult.value);
-                break;
-
-            case InputResultKindEndOfStream:
-                keepGoing = false;
-                break;
-
-            default:
-                // getInputLine() for file should only return Value or EndOfStream
-                assert(false);
-                keepGoing = false;
-                break;
-        }
-    } while (keepGoing);
+    interpretString(s);
 }
 
 

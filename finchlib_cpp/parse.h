@@ -93,73 +93,69 @@ public:
 /// parsing code in `InterpreterEngine`.
 struct InputPos
 {
-    const InputLine &input;
+    std::shared_ptr<const InputLine> input;
     size_t index;
 
-    InputPos(const InputLine &line, size_t n) : input(line), index(n) {}
+    InputPos(const InputLine &line, size_t n)
+        : input{std::make_shared<const InputLine>(line)}, index{n} {}
 
-    InputPos(const InputPos &copy) : input(copy.input), index(copy.index) {}
+    InputPos(std::shared_ptr<const InputLine> line, size_t n)
+        : input{line}, index{n} {}
 
-    InputPos &operator=(const InputPos &copy)
-    {
-        // Assignment is only valid for positions in the same input line
-        assert(this->input == copy.input);
-        index = copy.index;
-        return *this;
-    }
+    InputPos(const InputPos &copy)
+        : input{copy.input}, index{copy.index} {}
 
     /// Return the character at this position
     Char at() const
     {
         assert(!isAtEndOfLine());
-        return input.at(index);
+        return input->at(index);
     }
 
     /// Return true if there are no non-space characters at or following the
     /// specified index in the specified line
     bool isRemainingLineEmpty() const
     {
-        return afterSpaces().index == input.size();
+        return afterSpaces().index == input->size();
     }
 
     /// Return number of characters following this position, including the
     /// character at this position)
-    size_t remainingCount() const { return input.size() - index; }
+    size_t remainingCount() const { return input->size() - index; }
 
     /// Return remaining characters on line, including the character at this
     /// position
     std::vector<Char> remainingChars() const
     {
-        const auto count = input.size();
+        const auto count = input->size();
         if (index >= count)
         {
             return {};
         }
 
-        // TODO: check for a C++ Standard Library std::function to do this
         std::vector<Char> result;
         for (auto i = index; i < count; ++i)
         {
-            result.push_back(input.at(i));
+            result.push_back(input->at(i));
         }
         return result;
     }
 
     /// Return true if this position is at the end of the line
-    bool isAtEndOfLine() const { return index >= input.size(); }
+    bool isAtEndOfLine() const { return index >= input->size(); }
 
     /// Return the next input position
     InputPos next() const { return {input, index + 1}; }
 
     /// Return the position at the end of the line
-    InputPos endOfLine() const { return {input, input.size()}; }
+    InputPos endOfLine() const { return {input, input->size()}; }
 
     /// Return position of first non-space character at or after this position
     InputPos afterSpaces() const
     {
         auto i = index;
-        const auto count = input.size();
-        while (i < count && input.at(i) == ' ')
+        const auto count = input->size();
+        while (i < count && input->at(i) == ' ')
         {
             ++i;
         }
@@ -437,6 +433,11 @@ Parse<Number> numberLiteral(const InputPos &pos);
 ///
 /// Matching is case-insensitive. Spaces in the input are ignored.
 Parse<std::string> literal(std::string s, const InputPos &pos);
+
+/// Attempt to parse an Lvalue (variable name or array element reference) from a String
+///
+/// Returns Lvalue if successful, or nil if the string cannot be parsed as an Lvalue.
+Parse<Lvalue> lvalueFromString(const std::string &input);
 
 }  // namespace finchlib_cpp
 

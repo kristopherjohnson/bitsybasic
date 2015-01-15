@@ -408,7 +408,7 @@ std::vector<Char> PrintItem::Expr::printText(const VariableBindings &v,
     s << n;
 
     std::vector<Char> result;
-    for (auto c : s.str())
+    for (const auto c : s.str())
         result.push_back(c);
     return result;
 }
@@ -423,14 +423,14 @@ std::vector<Char> PrintItem::StringLiteral::printText(const VariableBindings &v,
 
 std::string PrintItem::StringLiteral::listText() const
 {
-    std::string str;
-    str.push_back('"');
-    for (auto c : chars)
+    std::string s;
+    s.push_back('"');
+    for (const auto c : chars)
     {
-        str.push_back(c);
+        s.push_back(c);
     }
-    str.push_back('"');
-    return str;
+    s.push_back('"');
+    return s;
 }
 
 #pragma mark - PrintList

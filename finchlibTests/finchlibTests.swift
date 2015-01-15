@@ -941,4 +941,45 @@ class finchlibTests: XCTestCase {
         XCTAssertEqual(0, io.errors.count, "unexpected \"\(io.firstError)\"")
         XCTAssertEqual(expectedOutput, io.outputString, describeDifference(expectedOutput, io.outputString))
     }
+
+    func testEncodeDecode() {
+        io.inputString = lines(
+            "10 dim @(10)"                ,
+            "30 input @(0), @(9), a, z"   ,
+            "60 end"                      ,
+            "run"                         ,
+            "12, 34, 56, 78"
+        )
+
+        interpreter.runUntilEndOfInput()
+
+        // Archive the interpreter's state
+        let archivedData = NSKeyedArchiver.archivedDataWithRootObject(interpreter)
+        XCTAssert(archivedData.length > 0)
+
+        // Dearchive the state to a new object
+        var dearchivedObject: AnyObject? = NSKeyedUnarchiver.unarchiveObjectWithData(archivedData)
+        if var dearchivedInterpreter = dearchivedObject as? Interpreter {
+            // With the dearchived object, list the program and display variables
+            let dIO = StringIO()
+            dIO.inputString = lines(
+                "list",
+                "print @(0), @(9), a, z"
+            )
+            dearchivedInterpreter.io = dIO
+            dearchivedInterpreter.runUntilEndOfInput()
+
+            var expectedOutput = lines(
+                "10 DIM @(10)"              ,
+                "30 INPUT @(0), @(9), A, Z" ,
+                "60 END"                    ,
+                "12\t34\t56\t78"            ,
+                ""
+            )
+
+            XCTAssertEqual(0, dIO.errors.count, "unexpected \"\(dIO.firstError)\"")
+            XCTAssertEqual(expectedOutput, dIO.outputString, describeDifference(expectedOutput, dIO.outputString))
+        }
+
+    }
 }

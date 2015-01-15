@@ -715,6 +715,19 @@ func lvalue(pos: InputPosition) -> (Lvalue, InputPosition)? {
     return nil
 }
 
+/// Attempt to parse an Lvalue (variable name or array element reference) from a String
+///
+/// Returns Lvalue if successful, or nil if the string cannot be parsed as an Lvalue.
+func lvalue(s: String) -> Lvalue? {
+    let inputLine = charsFromString(s)
+    var inputPosition = InputPosition(inputLine, 0)
+    if let (lvalue, nextPos) = lvalue(inputPosition) {
+        return lvalue
+    }
+
+    return nil
+}
+
 /// Attempt to read a variable name.
 ///
 /// Returns variable name and position of next input character on success, or nil otherwise.

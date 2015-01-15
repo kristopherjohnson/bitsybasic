@@ -36,11 +36,11 @@ namespace finchlib_cpp
 {
 class InterpreterEngine;
 
-typedef Char VariableName;
+using VariableName = Char;
 
-typedef std::map<VariableName, Number> VariableBindings;
-typedef std::vector<Number> Numbers;
-typedef std::vector<size_t> ReturnStack;
+using VariableBindings = std::map<VariableName, Number>;
+using Numbers = std::vector<Number>;
+using ReturnStack = std::vector<size_t>;
 
 class Expression;
 
@@ -574,7 +574,7 @@ public:
     void setValue(const Expression &expr, InterpreterEngine &engine) const;
 };
 
-typedef std::vector<Lvalue> Lvalues;
+using Lvalues = std::vector<Lvalue>;
 
 /// BASIC statement that can be parsed and executed
 class Statement
@@ -926,8 +926,8 @@ struct NumberedStatement
     NumberedStatement &operator=(const NumberedStatement &copy) = default;
 };
 
-typedef std::vector<NumberedStatement> Program;
+using Program = std::vector<NumberedStatement>;
 
-} // namespace finchlib_cpp
+}  // namespace finchlib_cpp
 
 #endif /* defined(__finchbasic__syntax__) */
