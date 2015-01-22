@@ -24,7 +24,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import Foundation
 
 func runInterpreter() {
-    let interpreter = Interpreter()
+    let io = StandardIO()
+    let interpreter = Interpreter(interpreterIO: io)
     interpreter.runUntilEndOfInput()
 }
 

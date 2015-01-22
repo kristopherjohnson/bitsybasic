@@ -177,8 +177,8 @@ class StringIO: NSObject, InterpreterIO {
 
 class finchlibTests: XCTestCase {
 
-    var io = StringIO()
-    var interpreter = Interpreter()
+    var io: StringIO!
+    var interpreter: Interpreter!
 
     override func setUp() {
         super.setUp()
@@ -186,7 +186,7 @@ class finchlibTests: XCTestCase {
         // for each test, create a fresh StringIO instance and assign it
         // to a fresh Interpreter instance
         io = StringIO()
-        interpreter = Interpreter(interpreterIO: io)
+        interpreter = Interpreter(interpreterIO: self.io)
     }
     
     override func tearDown() {

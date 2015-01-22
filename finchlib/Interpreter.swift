@@ -120,8 +120,12 @@ public final class Interpreter: NSObject, NSCoding {
 
     // MARK: - Constructor
 
-    /// Initialize, optionally passing in a custom InterpreterIO handler
-    public init(interpreterIO: InterpreterIO = StandardIO()) {
+    /// Initializer
+    ///
+    /// The intepreter keeps a weak reference to `interpreterIO`,
+    /// so it is the caller's responsibility to ensure that the
+    /// reference remains valid for the lifetime of the interpreter.
+    public init(interpreterIO: InterpreterIO) {
         io = interpreterIO
         super.init()
         clearVariablesAndArray()
