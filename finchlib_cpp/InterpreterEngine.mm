@@ -25,24 +25,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "parse.h"
 #include "pasteboard.h"
 
-#include <cctype>
-#include <sstream>
-#include <tuple>
-
 #include <unistd.h>
 #include <dirent.h>
-
-using std::fill;
-using std::function;
-using std::make_shared;
-using std::make_tuple;
-using std::ostringstream;
-using std::pair;
-using std::shared_ptr;
-using std::string;
-using std::tuple;
-using std::unique_ptr;
-using std::vector;
 
 // Keys used for property list
 static NSString *StateKey = @"state";
@@ -349,7 +333,7 @@ void InterpreterEngine::restoreStateFromPropertyList(NSDictionary *dict)
     }
 }
 
-std::string InterpreterEngine::programAsString()
+string InterpreterEngine::programAsString()
 {
     ostringstream s;
     for (const auto &line : program)
@@ -360,7 +344,7 @@ std::string InterpreterEngine::programAsString()
     return s.str();
 }
 
-void InterpreterEngine::interpretString(const std::string &s)
+void InterpreterEngine::interpretString(const string &s)
 {
     size_t index = 0;
 
@@ -641,10 +625,10 @@ void InterpreterEngine::insertLineIntoProgram(Number lineNumber,
         // and do an insert operation.
 
         program.push_back(line);
-        std::sort(program.begin(), program.end(),
-                  [](const NumberedStatement &lhs, const NumberedStatement &rhs)
-                      -> bool
-                  { return lhs.lineNumber < rhs.lineNumber; });
+        sort(program.begin(), program.end(),
+             [](const NumberedStatement &lhs, const NumberedStatement &rhs)
+                 -> bool
+             { return lhs.lineNumber < rhs.lineNumber; });
     }
 }
 
@@ -665,10 +649,10 @@ void InterpreterEngine::deleteLineFromProgram(Number lineNumber)
 /// Returns iterator to the element if found, or `program.cend()` if not found.
 Program::iterator InterpreterEngine::programLineWithNumber(Number lineNumber)
 {
-    return std::find_if(program.begin(), program.end(),
-                        [lineNumber](const NumberedStatement &s)
-                            -> bool
-                        { return s.lineNumber == lineNumber; });
+    return find_if(program.begin(), program.end(),
+                   [lineNumber](const NumberedStatement &s)
+                       -> bool
+                   { return s.lineNumber == lineNumber; });
 }
 
 /// Return line number of the last line in the program.
@@ -737,7 +721,7 @@ void InterpreterEngine::writeOutput(Char c)
 }
 
 /// Send characters to the output stream
-void InterpreterEngine::writeOutput(const vector<Char> &chars)
+void InterpreterEngine::writeOutput(const vec<Char> &chars)
 {
     for (const auto c : chars)
     {
@@ -967,7 +951,7 @@ void InterpreterEngine::GOTO(const Expression &expr)
         return;
     }
 
-    programIndex = std::distance(program.begin(), it);
+    programIndex = distance(program.begin(), it);
     st = InterpreterStateRunning;
 }
 
@@ -985,7 +969,7 @@ void InterpreterEngine::GOSUB(const Expression &expr)
     }
 
     returnStack.push_back(programIndex);
-    programIndex = std::distance(program.begin(), it);
+    programIndex = distance(program.begin(), it);
     st = InterpreterStateRunning;
 }
 
@@ -1021,7 +1005,7 @@ void InterpreterEngine::BYE()
 /// Execute HELP statement
 void InterpreterEngine::HELP()
 {
-    static const vector<string> lines = {
+    static const vec<string> lines = {
         "Enter a line number and a BASIC statement to add it to the program.  "
         "Enter a statement without a line number to execute it immediately.",
         "",
@@ -1185,7 +1169,7 @@ void InterpreterEngine::DIM(const Expression &expr)
 /// Execute a SAVE statement
 void InterpreterEngine::SAVE(const string &filename)
 {
-    const auto file = std::fopen(filename.c_str(), "w");
+    const auto file = fopen(filename.c_str(), "w");
     if (file)
     {
         for (const auto &line : program)
@@ -1194,16 +1178,16 @@ void InterpreterEngine::SAVE(const string &filename)
             s << line.lineNumber << " " << line.statement.listText() << "\n";
             const auto outputString = s.str();
             const char *outputChars = outputString.c_str();
-            size_t outputLength = std::strlen(outputChars);
-            std::fwrite(outputChars, 1, outputLength, file);
+            size_t outputLength = strlen(outputChars);
+            fwrite(outputChars, 1, outputLength, file);
         }
-        std::fclose(file);
+        fclose(file);
     }
     else
     {
         ostringstream s;
         s << "error: SAVE - unable to open file \"" << filename << ": "
-          << std::strerror(errno);
+          << strerror(errno);
         abortRunWithErrorMessage(s.str());
     }
 }
@@ -1211,7 +1195,7 @@ void InterpreterEngine::SAVE(const string &filename)
 /// Execute a LOAD statement
 void InterpreterEngine::LOAD(const string &filename)
 {
-    auto file = std::fopen(filename.c_str(), "r");
+    auto file = fopen(filename.c_str(), "r");
     if (file)
     {
         // Read lines until end-of-stream or error
@@ -1220,7 +1204,7 @@ void InterpreterEngine::LOAD(const string &filename)
         {
             const auto inputLineResult = getInputLine([file]() -> InputCharResult
                                                       {
-                const auto c = std::fgetc(file);
+                const auto c = fgetc(file);
                 return c == EOF ? InputCharResult_EndOfStream() : InputCharResult_Value(c);
             });
 
@@ -1243,11 +1227,11 @@ void InterpreterEngine::LOAD(const string &filename)
         } while (keepGoing);
 
         // If we got an error, report it
-        if (std::ferror(file) != 0)
+        if (ferror(file) != 0)
         {
             ostringstream s;
             s << "error: LOAD - read error for file \"" << filename << ": "
-              << std::strerror(errno);
+              << strerror(errno);
             abortRunWithErrorMessage(s.str());
         }
 
@@ -1257,7 +1241,7 @@ void InterpreterEngine::LOAD(const string &filename)
     {
         ostringstream s;
         s << "error: LOAD - unable to open file \"" << filename << ": "
-          << std::strerror(errno);
+          << strerror(errno);
         abortRunWithErrorMessage(s.str());
     }
 }

@@ -71,10 +71,10 @@ template <typename T>
 class Parse
 {
 private:
-    std::shared_ptr<ParseResult<T>> result;
+    ptr<ParseResult<T>> result;
 
 public:
-    Parse(std::shared_ptr<ParseResult<T>> res) : result(res) {}
+    Parse(ptr<ParseResult<T>> res) : result(res) {}
 
     bool wasParsed() const { return result->wasParsed(); }
 
@@ -93,13 +93,13 @@ public:
 /// parsing code in `InterpreterEngine`.
 struct InputPos
 {
-    std::shared_ptr<const InputLine> input;
+    ptr<const InputLine> input;
     size_t index;
 
     InputPos(const InputLine &line, size_t n)
-        : input{std::make_shared<const InputLine>(line)}, index{n} {}
+        : input{make_shared<const InputLine>(line)}, index{n} {}
 
-    InputPos(std::shared_ptr<const InputLine> line, size_t n)
+    InputPos(ptr<const InputLine> line, size_t n)
         : input{line}, index{n} {}
 
     InputPos(const InputPos &copy)
@@ -125,7 +125,7 @@ struct InputPos
 
     /// Return remaining characters on line, including the character at this
     /// position
-    std::vector<Char> remainingChars() const
+    vec<Char> remainingChars() const
     {
         const auto count = input->size();
         if (index >= count)
@@ -133,7 +133,7 @@ struct InputPos
             return {};
         }
 
-        std::vector<Char> result;
+        vec<Char> result;
         for (auto i = index; i < count; ++i)
         {
             result.push_back(input->at(i));
@@ -163,25 +163,25 @@ struct InputPos
     }
 
     // The parse() methods take a starting position and a sequence
-    // of "parsing std::functions" to apply in order.
+    // of "parsing functions" to apply in order.
     //
-    // Each parsing std::function takes an `InputPos` and returns a
+    // Each parsing function takes an `InputPos` and returns a
     // `Parse<T>>`, where `T` is the type of data parsed.
     //
-    // `parse()` returns a std::tuple containing all the parsed elements
+    // `parse()` returns a tuple containing all the parsed elements
     // and the following `InputPos`, or returns `nullptr` if any
-    // of the parsing std::functions fail.
+    // of the parsing functions fail.
     //
     // This allows us to write pattern-matching-like parsing code like this:
     //
     //     // Try to parse "LET var = expr"
-    //     std::unique_ptr<std::tuple<string, Lvalue, string, Expression,
+    //     uptr<tuple<string, Lvalue, string, Expression,
     //     InputPos>> t
     //         = pos.parse<string, Lvalue, string, Expression>
     //             (lit("LET"), variable, lit("="), expression);
     //     if (t != nullptr)
     //     {
-    //         // do something with the five-element std::tuple *t
+    //         // do something with the five-element tuple *t
     //         // ...
     //     }
     //
@@ -202,16 +202,16 @@ struct InputPos
     //     }
     //
     // where `lit(String)`, `variable`, and `expression` are
-    // std::functions that take an `InputPos` and return a Parse<T>.
+    // functions that take an `InputPos` and return a Parse<T>.
 
     template <typename A>
-    std::unique_ptr<std::tuple<A, InputPos>>
-    parse(std::function<Parse<A>(const InputPos &pos)> a) const
+    uptr<tuple<A, InputPos>>
+    parse(function<Parse<A>(const InputPos &pos)> a) const
     {
         const auto aP = a(*this);
         if (aP.wasParsed())
         {
-            return std::make_unique<std::tuple<A, InputPos>>(
+            return make_unique<tuple<A, InputPos>>(
                 aP.value(), aP.nextPos());
         }
 
@@ -219,9 +219,9 @@ struct InputPos
     }
 
     template <typename A, typename B>
-    std::unique_ptr<std::tuple<A, B, InputPos>>
-    parse(std::function<Parse<A>(const InputPos &pos)> a,
-          std::function<Parse<B>(const InputPos &pos)> b) const
+    uptr<tuple<A, B, InputPos>>
+    parse(function<Parse<A>(const InputPos &pos)> a,
+          function<Parse<B>(const InputPos &pos)> b) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -229,7 +229,7 @@ struct InputPos
             const Parse<B> bP = b(aP.nextPos());
             if (bP.wasParsed())
             {
-                return std::make_unique<std::tuple<A, B, InputPos>>(
+                return make_unique<tuple<A, B, InputPos>>(
                     aP.value(), bP.value(),
                     bP.nextPos());
             }
@@ -239,10 +239,10 @@ struct InputPos
     }
 
     template <typename A, typename B, typename C>
-    std::unique_ptr<std::tuple<A, B, C, InputPos>>
-    parse(std::function<Parse<A>(const InputPos &pos)> a,
-          std::function<Parse<B>(const InputPos &pos)> b,
-          std::function<Parse<C>(const InputPos &pos)> c) const
+    uptr<tuple<A, B, C, InputPos>>
+    parse(function<Parse<A>(const InputPos &pos)> a,
+          function<Parse<B>(const InputPos &pos)> b,
+          function<Parse<C>(const InputPos &pos)> c) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -253,7 +253,7 @@ struct InputPos
                 const Parse<C> cP = c(bP.nextPos());
                 if (cP.wasParsed())
                 {
-                    return std::make_unique<std::tuple<A, B, C, InputPos>>(
+                    return make_unique<tuple<A, B, C, InputPos>>(
                         aP.value(), bP.value(),
                         cP.value(), cP.nextPos());
                 }
@@ -264,11 +264,11 @@ struct InputPos
     }
 
     template <typename A, typename B, typename C, typename D>
-    std::unique_ptr<std::tuple<A, B, C, D, InputPos>>
-    parse(std::function<Parse<A>(const InputPos &pos)> a,
-          std::function<Parse<B>(const InputPos &pos)> b,
-          std::function<Parse<C>(const InputPos &pos)> c,
-          std::function<Parse<D>(const InputPos &pos)> d) const
+    uptr<tuple<A, B, C, D, InputPos>>
+    parse(function<Parse<A>(const InputPos &pos)> a,
+          function<Parse<B>(const InputPos &pos)> b,
+          function<Parse<C>(const InputPos &pos)> c,
+          function<Parse<D>(const InputPos &pos)> d) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -282,7 +282,7 @@ struct InputPos
                     const Parse<D> dP = d(cP.nextPos());
                     if (dP.wasParsed())
                     {
-                        return std::make_unique<std::tuple<A, B, C, D, InputPos>>(
+                        return make_unique<tuple<A, B, C, D, InputPos>>(
                             aP.value(), bP.value(),
                             cP.value(), dP.value(),
                             dP.nextPos());
@@ -295,12 +295,12 @@ struct InputPos
     }
 
     template <typename A, typename B, typename C, typename D, typename E>
-    std::unique_ptr<std::tuple<A, B, C, D, E, InputPos>>
-    parse(std::function<Parse<A>(const InputPos &pos)> a,
-          std::function<Parse<B>(const InputPos &pos)> b,
-          std::function<Parse<C>(const InputPos &pos)> c,
-          std::function<Parse<D>(const InputPos &pos)> d,
-          std::function<Parse<E>(const InputPos &pos)> e) const
+    uptr<tuple<A, B, C, D, E, InputPos>>
+    parse(function<Parse<A>(const InputPos &pos)> a,
+          function<Parse<B>(const InputPos &pos)> b,
+          function<Parse<C>(const InputPos &pos)> c,
+          function<Parse<D>(const InputPos &pos)> d,
+          function<Parse<E>(const InputPos &pos)> e) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -317,7 +317,7 @@ struct InputPos
                         const Parse<E> eP = e(dP.nextPos());
                         if (eP.wasParsed())
                         {
-                            return std::make_unique<std::tuple<A, B, C, D, E, InputPos>>(
+                            return make_unique<tuple<A, B, C, D, E, InputPos>>(
                                 aP.value(), bP.value(), cP.value(), dP.value(),
                                 eP.value(), eP.nextPos());
                         }
@@ -331,13 +331,13 @@ struct InputPos
 
     template <typename A, typename B, typename C, typename D, typename E,
               typename F>
-    std::unique_ptr<std::tuple<A, B, C, D, E, F, InputPos>>
-    parse(std::function<Parse<A>(const InputPos &pos)> a,
-          std::function<Parse<B>(const InputPos &pos)> b,
-          std::function<Parse<C>(const InputPos &pos)> c,
-          std::function<Parse<D>(const InputPos &pos)> d,
-          std::function<Parse<E>(const InputPos &pos)> e,
-          std::function<Parse<F>(const InputPos &pos)> f) const
+    uptr<tuple<A, B, C, D, E, F, InputPos>>
+    parse(function<Parse<A>(const InputPos &pos)> a,
+          function<Parse<B>(const InputPos &pos)> b,
+          function<Parse<C>(const InputPos &pos)> c,
+          function<Parse<D>(const InputPos &pos)> d,
+          function<Parse<E>(const InputPos &pos)> e,
+          function<Parse<F>(const InputPos &pos)> f) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -357,7 +357,7 @@ struct InputPos
                             const Parse<F> fP = f(eP.nextPos());
                             if (fP.wasParsed())
                             {
-                                return std::make_unique<std::tuple<A, B, C, D, E, F, InputPos>>(
+                                return make_unique<tuple<A, B, C, D, E, F, InputPos>>(
                                     aP.value(), bP.value(), cP.value(), dP.value(),
                                     eP.value(), fP.value(), fP.nextPos());
                             }
@@ -392,7 +392,7 @@ template <class T>
 static Parse<T> failedParse()
 {
     ParseResult<T> *p = new NotParsed<T>();
-    return Parse<T>{std::shared_ptr<ParseResult<T>>{p}};
+    return Parse<T>{ptr<ParseResult<T>>{p}};
 }
 
 /// Return a newly constructed Parse object representing success
@@ -400,7 +400,7 @@ template <class T>
 static Parse<T> successfulParse(const T &v, const InputPos &next)
 {
     ParseResult<T> *p = new Parsed<T>(v, next);
-    return Parse<T>{std::shared_ptr<ParseResult<T>>{p}};
+    return Parse<T>{ptr<ParseResult<T>>{p}};
 }
 
 /// Determine whether character is a digit
@@ -432,12 +432,12 @@ Parse<Number> numberLiteral(const InputPos &pos);
 /// false, returns nil.
 ///
 /// Matching is case-insensitive. Spaces in the input are ignored.
-Parse<std::string> literal(std::string s, const InputPos &pos);
+Parse<string> literal(string s, const InputPos &pos);
 
 /// Attempt to parse an Lvalue (variable name or array element reference) from a String
 ///
 /// Returns Lvalue if successful, or nil if the string cannot be parsed as an Lvalue.
-Parse<Lvalue> lvalueFromString(const std::string &input);
+Parse<Lvalue> lvalueFromString(const string &input);
 
 }  // namespace finchlib_cpp
 

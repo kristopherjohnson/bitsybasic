@@ -30,7 +30,7 @@
 namespace finchlib_cpp
 {
 
-using InputLine = std::vector<Char>;
+using InputLine = vec<Char>;
 
 /// Result of attempting to read a line of input
 struct InputLineResult
@@ -128,10 +128,10 @@ public:
     void DIM(const Expression &expr);
 
     /// Execute a SAVE statement
-    void SAVE(const std::string &filename);
+    void SAVE(const string &filename);
 
     /// Execute a LOAD statement
-    void LOAD(const std::string &filename);
+    void LOAD(const string &filename);
 
     /// Execute a FILES statement
     void FILES();
@@ -201,10 +201,10 @@ private:
 #pragma mark - Private methods
 
     /// Return the entire program listing as a single String
-    std::string programAsString();
+    string programAsString();
 
     /// Interpret a string
-    void interpretString(const std::string &s);
+    void interpretString(const string &s);
 
     /// Set values of all variables and array elements to zero
     void clearVariablesAndArray();
@@ -242,22 +242,22 @@ private:
     ///
     /// Call this method if an unrecoverable error happens while executing a
     /// statement
-    void abortRunWithErrorMessage(std::string message);
+    void abortRunWithErrorMessage(string message);
 
     /// Send a single character to the output stream
     void writeOutput(Char c);
 
     /// Send characters to the output stream
-    void writeOutput(const std::vector<Char> &chars);
+    void writeOutput(const vec<Char> &chars);
 
     /// Send string to the output stream
-    void writeOutput(const std::string &s);
+    void writeOutput(const string &s);
 
     /// Print an object that conforms to the PrintTextProvider protocol
     void writeOutput(const PrintTextProvider &p);
 
     /// Display error message
-    void showError(const std::string &message);
+    void showError(const string &message);
 
     /// Read a line using the InterpreterIO interface.
     ///
@@ -278,7 +278,7 @@ private:
     /// stream.
     /// Any horizontal tab ('\t') in the input will be converted to a single
     /// space.
-    InputLineResult getInputLine(std::function<InputCharResult()> getChar);
+    InputLineResult getInputLine(function<InputCharResult()> getChar);
 
     /// Perform an INPUT operation
     ///

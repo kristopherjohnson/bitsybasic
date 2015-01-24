@@ -24,17 +24,17 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef __finchbasic__pasteboard__
 #define __finchbasic__pasteboard__
 
-#include <string>
+#include "cppdefs.h"
 
 namespace finchlib_cpp
 {
 /// Return contents of the system clipboard as a string,
 /// or empty string if no text on clipboard.
-std::string getPasteboardContents();
+string getPasteboardContents();
 
 /// Copy the specified text to the system clipboard,
 /// replacing any existing contents of the clipboard.
-void copyToPasteboard(std::string text);
+void copyToPasteboard(string text);
 }
 
 #endif /* defined(__finchbasic__pasteboard__) */

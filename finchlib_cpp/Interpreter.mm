@@ -24,8 +24,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #import "Interpreter.h"
 #import "InterpreterEngine.h"
 
-#include <memory>
-
 using namespace finchlib_cpp;
 
 

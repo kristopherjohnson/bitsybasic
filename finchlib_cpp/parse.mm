@@ -24,13 +24,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "parse.h"
 #include "syntax.h"
 
-using std::function;
 using std::get;
-using std::pair;
-using std::tuple;
-using std::shared_ptr;
-using std::string;
-using std::vector;
 
 namespace finchlib_cpp
 {
@@ -59,7 +53,7 @@ Parse<string> literal(string s, const InputPos &pos)
         {
             continue;
         }
-        else if (std::toupper(c) == std::toupper(s[matchCount]))
+        else if (toupper(c) == toupper(s[matchCount]))
         {
             ++matchCount;
         }
@@ -92,7 +86,7 @@ public:
 /// Try to parse one of a set of literals
 ///
 /// Returns first match, or nil if there are no matches
-static Parse<string> oneOfLiteral(vector<string> strings, const InputPos &pos)
+static Parse<string> oneOfLiteral(vec<string> strings, const InputPos &pos)
 {
     for (const auto &s : strings)
     {
@@ -110,10 +104,10 @@ static Parse<string> oneOfLiteral(vector<string> strings, const InputPos &pos)
 class oneOfLit
 {
 private:
-    vector<string> strings;
+    vec<string> strings;
 
 public:
-    oneOfLit(std::initializer_list<string> initList) : strings(initList) {}
+    oneOfLit(initializer_list<string> initList) : strings(initList) {}
 
     Parse<string> operator()(const InputPos &pos)
     {
@@ -192,7 +186,7 @@ Parse<Number> numberLiteral(const InputPos &pos)
 ///
 /// Returns characters and position of next character if successful.
 /// Returns nil otherwise.
-Parse<vector<Char>> stringLiteral(const InputPos &pos)
+Parse<vec<Char>> stringLiteral(const InputPos &pos)
 {
     auto i = pos.afterSpaces();
     if (!i.isAtEndOfLine())
@@ -200,7 +194,7 @@ Parse<vector<Char>> stringLiteral(const InputPos &pos)
         if (i.at() == '"')
         {
             i = i.next();
-            vector<Char> stringChars;
+            vec<Char> stringChars;
             bool foundTrailingDelim{false};
 
             while (!i.isAtEndOfLine())
@@ -224,7 +218,7 @@ Parse<vector<Char>> stringLiteral(const InputPos &pos)
             }
         }
     }
-    return failedParse<vector<Char>>();
+    return failedParse<vec<Char>>();
 }
 
 /// Attempt to read a variable name.
@@ -237,9 +231,9 @@ static Parse<VariableName> variableName(const InputPos &pos)
     if (!i.isAtEndOfLine())
     {
         const auto c = i.at();
-        if (std::isalpha(c))
+        if (isalpha(c))
         {
-            const auto result = VariableName(std::toupper(c));
+            const auto result = VariableName(toupper(c));
             return successfulParse(result, i.next());
         }
     }
@@ -272,7 +266,7 @@ static Parse<Lvalue> lvalue(const InputPos &pos)
     return failedParse<Lvalue>();
 }
 
-Parse<Lvalue> lvalueFromString(const std::string &input)
+Parse<Lvalue> lvalueFromString(const string &input)
 {
     InputLine inputLine;
     for (const auto ch : input)
@@ -486,7 +480,7 @@ static Parse<PrintList> printList(const InputPos &pos)
             const auto tail = printList(comma.nextPos());
             if (tail.wasParsed())
             {
-                const auto pTail = shared_ptr<PrintList>(new PrintList(tail.value()));
+                const auto pTail = ptr<PrintList>(new PrintList(tail.value()));
                 PrintList result{item.value(), PrintSeparatorTab, pTail};
                 return successfulParse(result, tail.nextPos());
             }
@@ -507,7 +501,7 @@ static Parse<PrintList> printList(const InputPos &pos)
                 const auto tail = printList(semicolon.nextPos());
                 if (tail.wasParsed())
                 {
-                    const auto pTail = shared_ptr<PrintList>(new PrintList(tail.value()));
+                    const auto pTail = ptr<PrintList>(new PrintList(tail.value()));
                     PrintList result{item.value(), PrintSeparatorEmpty, pTail};
                     return successfulParse(result, tail.nextPos());
                 }
@@ -530,7 +524,7 @@ static Parse<PrintList> printList(const InputPos &pos)
 static Parse<RelOp> relOp(const InputPos &pos)
 {
     // Note: We need to test the longer sequences before the shorter
-    static const vector<tuple<string, RelOp>> opTable = {
+    static const vec<tuple<string, RelOp>> opTable = {
         {"<=", RelOp::LessOrEqual},
         {">=", RelOp::GreaterOrEqual},
         {"<>", RelOp::NotEqual},
@@ -767,7 +761,7 @@ static Parse<Statement> dimStatement(const InputPos &pos)
 /// Return statement and position of next character if successful.
 static Parse<Statement> saveStatement(const InputPos &pos)
 {
-    const auto parsed = pos.parse<string, vector<Char>>(oneOfLit{"SAVE", "SV"}, stringLiteral);
+    const auto parsed = pos.parse<string, vec<Char>>(oneOfLit{"SAVE", "SV"}, stringLiteral);
     if (parsed != nullptr)
     {
         const auto &chars = get<1>(*parsed);
@@ -785,7 +779,7 @@ static Parse<Statement> saveStatement(const InputPos &pos)
 /// Return statement and position of next character if successful.
 static Parse<Statement> loadStatement(const InputPos &pos)
 {
-    const auto parsed = pos.parse<string, vector<Char>>(oneOfLit{"LOAD", "LD"}, stringLiteral);
+    const auto parsed = pos.parse<string, vec<Char>>(oneOfLit{"LOAD", "LD"}, stringLiteral);
     if (parsed != nullptr)
     {
         const auto &chars = get<1>(*parsed);
@@ -806,7 +800,7 @@ static Parse<Statement> loadStatement(const InputPos &pos)
 Parse<Statement> statement(const InputPos &pos)
 {
     // List of parsing functions to try
-    static const vector<function<Parse<Statement>(const InputPos &pos)>> functions{
+    static const vec<function<Parse<Statement>(const InputPos &pos)>> functions{
         printStatement,
         letStatement,
         inputStatement,
@@ -828,7 +822,7 @@ Parse<Statement> statement(const InputPos &pos)
     }
 
     // For simple single-word statements, we use this table
-    static const vector<pair<string, function<Statement()>>> statements{
+    static const vec<pair<string, function<Statement()>>> statements{
         {"RETURN", Statement::returnStatement},
         {"RT", Statement::returnStatement},
         {"RUN", Statement::run},

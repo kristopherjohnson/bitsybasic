@@ -119,6 +119,7 @@
 		4E2047351A43C5810016822F /* syntax.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = syntax.swift; sourceTree = "<group>"; };
 		4E2047371A43C6310016822F /* util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = util.swift; sourceTree = "<group>"; };
 		4E2047391A43C69C0016822F /* char.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = char.swift; sourceTree = "<group>"; };
+		4E2297701A7447C80050E749 /* cppdefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cppdefs.h; sourceTree = "<group>"; };
 		4E4983891A5819A6007FC727 /* syntax.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = syntax.mm; sourceTree = "<group>"; };
 		4E49838A1A5819A6007FC727 /* syntax.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = syntax.h; sourceTree = "<group>"; };
 		4EC1B52D1A428CFF0060EEDE /* finchbasic */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = finchbasic; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -216,6 +217,7 @@
 		4E0CAE881A55E79800A0938B /* finchlib_cpp */ = {
 			isa = PBXGroup;
 			children = (
+				4E2297701A7447C80050E749 /* cppdefs.h */,
 				4E0CAEA01A55E8A200A0938B /* finchlib_cpp-Bridging-Header.h */,
 				4E0CAE8B1A55E79800A0938B /* finchlib_cpp.h */,
 				4E0CAEA41A55E8E900A0938B /* Interpreter.h */,

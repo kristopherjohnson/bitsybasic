@@ -59,7 +59,7 @@ static void setPasteboardContents(NSString *s)
 
 /// Return contents of the system clipboard as a string,
 /// or empty string if no text on clipboard.
-std::string getPasteboardContents()
+string getPasteboardContents()
 {
     NSString *nsString = getPasteboardContentsAsNSString();
 
@@ -73,7 +73,7 @@ std::string getPasteboardContents()
 
 /// Copy the specified text to the system clipboard,
 /// replacing any existing contents of the clipboard.
-void copyToPasteboard(std::string text)
+void copyToPasteboard(string text)
 {
     NSString *nsString = [NSString stringWithCString:text.c_str()
                                             encoding:NSUTF8StringEncoding];
