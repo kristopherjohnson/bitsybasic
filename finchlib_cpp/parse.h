@@ -206,7 +206,7 @@ struct InputPos
 
     template <typename A>
     uptr<tuple<A, InputPos>>
-    parse(function<Parse<A>(const InputPos &pos)> a) const
+    parse(function<Parse<A>(const InputPos&)> a) const
     {
         const auto aP = a(*this);
         if (aP.wasParsed())
@@ -220,8 +220,8 @@ struct InputPos
 
     template <typename A, typename B>
     uptr<tuple<A, B, InputPos>>
-    parse(function<Parse<A>(const InputPos &pos)> a,
-          function<Parse<B>(const InputPos &pos)> b) const
+    parse(function<Parse<A>(const InputPos&)> a,
+          function<Parse<B>(const InputPos&)> b) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -240,9 +240,9 @@ struct InputPos
 
     template <typename A, typename B, typename C>
     uptr<tuple<A, B, C, InputPos>>
-    parse(function<Parse<A>(const InputPos &pos)> a,
-          function<Parse<B>(const InputPos &pos)> b,
-          function<Parse<C>(const InputPos &pos)> c) const
+    parse(function<Parse<A>(const InputPos&)> a,
+          function<Parse<B>(const InputPos&)> b,
+          function<Parse<C>(const InputPos&)> c) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -265,10 +265,10 @@ struct InputPos
 
     template <typename A, typename B, typename C, typename D>
     uptr<tuple<A, B, C, D, InputPos>>
-    parse(function<Parse<A>(const InputPos &pos)> a,
-          function<Parse<B>(const InputPos &pos)> b,
-          function<Parse<C>(const InputPos &pos)> c,
-          function<Parse<D>(const InputPos &pos)> d) const
+    parse(function<Parse<A>(const InputPos&)> a,
+          function<Parse<B>(const InputPos&)> b,
+          function<Parse<C>(const InputPos&)> c,
+          function<Parse<D>(const InputPos&)> d) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -296,11 +296,11 @@ struct InputPos
 
     template <typename A, typename B, typename C, typename D, typename E>
     uptr<tuple<A, B, C, D, E, InputPos>>
-    parse(function<Parse<A>(const InputPos &pos)> a,
-          function<Parse<B>(const InputPos &pos)> b,
-          function<Parse<C>(const InputPos &pos)> c,
-          function<Parse<D>(const InputPos &pos)> d,
-          function<Parse<E>(const InputPos &pos)> e) const
+    parse(function<Parse<A>(const InputPos&)> a,
+          function<Parse<B>(const InputPos&)> b,
+          function<Parse<C>(const InputPos&)> c,
+          function<Parse<D>(const InputPos&)> d,
+          function<Parse<E>(const InputPos&)> e) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -332,12 +332,12 @@ struct InputPos
     template <typename A, typename B, typename C, typename D, typename E,
               typename F>
     uptr<tuple<A, B, C, D, E, F, InputPos>>
-    parse(function<Parse<A>(const InputPos &pos)> a,
-          function<Parse<B>(const InputPos &pos)> b,
-          function<Parse<C>(const InputPos &pos)> c,
-          function<Parse<D>(const InputPos &pos)> d,
-          function<Parse<E>(const InputPos &pos)> e,
-          function<Parse<F>(const InputPos &pos)> f) const
+    parse(function<Parse<A>(const InputPos&)> a,
+          function<Parse<B>(const InputPos&)> b,
+          function<Parse<C>(const InputPos&)> c,
+          function<Parse<D>(const InputPos&)> d,
+          function<Parse<E>(const InputPos&)> e,
+          function<Parse<F>(const InputPos&)> f) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
