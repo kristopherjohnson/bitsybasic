@@ -106,7 +106,7 @@ InterpreterEngine::InterpreterEngine(Interpreter *interp)
 
 NSDictionary *InterpreterEngine::stateAsPropertyList()
 {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    auto dict = [NSMutableDictionary dictionary];
 
     // state
     dict[StateKey] = @(st);
@@ -114,7 +114,7 @@ NSDictionary *InterpreterEngine::stateAsPropertyList()
     // v
     //
     // We encode only the non-zero values
-    NSMutableDictionary *vValues = [NSMutableDictionary dictionary];
+    auto vValues = [NSMutableDictionary dictionary];
     for (const auto &i : v)
     {
         auto value = i.second;
@@ -131,7 +131,7 @@ NSDictionary *InterpreterEngine::stateAsPropertyList()
     // To encode the (probably sparse) array, we note the size and then
     // save only the non-zero values
     dict[ArrayCountKey] = @(a.size());
-    NSMutableDictionary *aValues = [NSMutableDictionary dictionary];
+    auto aValues = [NSMutableDictionary dictionary];
     for (auto i = 0; i < a.size(); ++i)
     {
         auto value = a[i];
@@ -143,19 +143,19 @@ NSDictionary *InterpreterEngine::stateAsPropertyList()
     dict[ArrayValuesKey] = aValues;
 
     // inputLineBuffer
-    NSData *inputLineData = [NSData dataWithBytes:inputLineBuffer.data()
+    auto inputLineData = [NSData dataWithBytes:inputLineBuffer.data()
                                            length:inputLineBuffer.size()];
     dict[InputLineBufferKey] = inputLineData;
 
     // program
-    NSString *programText = [NSString stringWithUTF8String:programAsString().c_str()];
+    auto programText = [NSString stringWithUTF8String:programAsString().c_str()];
     dict[ProgramKey] = programText;
 
     // programIndex
     dict[ProgramIndexKey] = @(programIndex);
 
     // inputLvalues
-    NSMutableArray *lvalues = [NSMutableArray array];
+    auto lvalues = [NSMutableArray array];
     for (const auto &lv : inputLvalues)
     {
         NSString *value = [NSString stringWithUTF8String:lv.listText().c_str()];
@@ -335,7 +335,7 @@ void InterpreterEngine::restoreStateFromPropertyList(NSDictionary *dict)
 
 string InterpreterEngine::programAsString()
 {
-    ostringstream s;
+    auto s = ostringstream{};
     for (const auto &line : program)
     {
         s << line.lineNumber << " " << line.statement.listText() << "\n";
@@ -346,10 +346,10 @@ string InterpreterEngine::programAsString()
 
 void InterpreterEngine::interpretString(const string &s)
 {
-    size_t index = 0;
+    auto index = size_t{0};
 
     // Read lines until end-of-stream or error
-    bool keepGoing{true};
+    auto keepGoing = bool{true};
     do
     {
         const auto inputLineResult = getInputLine([&]() -> InputCharResult
@@ -396,7 +396,7 @@ void InterpreterEngine::breakExecution()
     {
         const auto &currentLine = program[programIndex];
         const auto lineNumber = currentLine.lineNumber;
-        ostringstream msg;
+        auto msg = ostringstream{};
         msg << "BREAK at line " << lineNumber;
         showError(msg.str());
     }
@@ -689,7 +689,7 @@ void InterpreterEngine::executeNextProgramStatement()
     const auto numberedStatement = program.at(programIndex);
     if (isTraceOn)
     {
-        ostringstream msg;
+        auto msg = ostringstream{};
         msg << "[" << numberedStatement.lineNumber << "]";
         NSString *message = [NSString stringWithUTF8String:msg.str().c_str()];
         [interpreter.io showDebugTraceMessage:message forInterpreter:interpreter];
@@ -747,7 +747,7 @@ void InterpreterEngine::writeOutput(const PrintTextProvider &p)
 /// Display error message
 void InterpreterEngine::showError(const string &message)
 {
-    NSString *str = [NSString stringWithUTF8String:message.c_str()];
+    auto str = [NSString stringWithUTF8String:message.c_str()];
     [interpreter.io showErrorMessage:str forInterpreter:interpreter];
 }
 
@@ -1055,7 +1055,7 @@ void InterpreterEngine::showInputHelpMessage()
 {
     if (inputLvalues.size() > 1)
     {
-        ostringstream s;
+        auto s = ostringstream{};
         s << "You must enter a comma-separated list of " << inputLvalues.size()
           << " values.";
         showError(s.str());
@@ -1083,9 +1083,9 @@ void InterpreterEngine::continueInput()
         {
             case InputResultKindValue:
             {
-                InputPos pos{inputLineResult.value, 0};
+                auto pos = InputPos{inputLineResult.value, 0};
 
-                bool first{true};
+                auto first = bool{true};
                 for (const auto &lv : inputLvalues)
                 {
                     // If this is not the first value, need to see a comma
@@ -1174,18 +1174,18 @@ void InterpreterEngine::SAVE(const string &filename)
     {
         for (const auto &line : program)
         {
-            ostringstream s;
+            auto s = ostringstream{};
             s << line.lineNumber << " " << line.statement.listText() << "\n";
             const auto outputString = s.str();
             const char *outputChars = outputString.c_str();
-            size_t outputLength = strlen(outputChars);
+            const auto outputLength = strlen(outputChars);
             fwrite(outputChars, 1, outputLength, file);
         }
         fclose(file);
     }
     else
     {
-        ostringstream s;
+        auto s = ostringstream{};
         s << "error: SAVE - unable to open file \"" << filename << ": "
           << strerror(errno);
         abortRunWithErrorMessage(s.str());
@@ -1199,7 +1199,7 @@ void InterpreterEngine::LOAD(const string &filename)
     if (file)
     {
         // Read lines until end-of-stream or error
-        bool keepGoing{true};
+        auto keepGoing = bool{true};
         do
         {
             const auto inputLineResult = getInputLine([file]() -> InputCharResult
@@ -1229,7 +1229,7 @@ void InterpreterEngine::LOAD(const string &filename)
         // If we got an error, report it
         if (ferror(file) != 0)
         {
-            ostringstream s;
+            auto s = ostringstream{};
             s << "error: LOAD - read error for file \"" << filename << ": "
               << strerror(errno);
             abortRunWithErrorMessage(s.str());
@@ -1239,7 +1239,7 @@ void InterpreterEngine::LOAD(const string &filename)
     }
     else
     {
-        ostringstream s;
+        auto s = ostringstream{};
         s << "error: LOAD - unable to open file \"" << filename << ": "
           << strerror(errno);
         abortRunWithErrorMessage(s.str());

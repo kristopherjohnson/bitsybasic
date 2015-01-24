@@ -32,21 +32,19 @@ static NSString *InterpreterPropertyListKey = @"InterpreterPropertyList";
 
 InputCharResult InputCharResult_Value(Char c)
 {
-    InputCharResult result = {InputResultKindValue, c};
-    return result;
+    return {InputResultKindValue, c};
 }
 
 InputCharResult InputCharResult_EndOfStream()
 {
-    InputCharResult result = {InputResultKindEndOfStream, 0};
-    return result;
+    return {InputResultKindEndOfStream, 0};
 }
 
 InputCharResult InputCharResult_Waiting()
 {
-    InputCharResult result = {InputResultKindWaiting, 0};
-    return result;
+    return {InputResultKindWaiting, 0};
 }
+
 
 @implementation Interpreter
 {

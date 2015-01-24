@@ -40,8 +40,8 @@ static Parse<Expression> expression(const InputPos &pos);
 /// Matching is case-insensitive. Spaces in the input are ignored.
 Parse<string> literal(string s, const InputPos &pos)
 {
-    size_t matchCount{0};
-    const size_t matchGoal{s.length()};
+    auto matchCount = size_t{0};
+    const auto matchGoal = size_t{s.length()};
 
     auto i = pos;
     while ((matchCount < matchGoal) && !i.isAtEndOfLine())
@@ -163,7 +163,7 @@ Parse<Number> numberLiteral(const InputPos &pos)
         return failedParse<Number>();
     }
 
-    Number num{i.at() - '0'};
+    auto num = Number{i.at() - '0'};
     i = i.next();
     while (!i.isAtEndOfLine())
     {
@@ -194,8 +194,8 @@ Parse<vec<Char>> stringLiteral(const InputPos &pos)
         if (i.at() == '"')
         {
             i = i.next();
-            vec<Char> stringChars;
-            bool foundTrailingDelim{false};
+            auto stringChars = vec<Char>{};
+            auto foundTrailingDelim = bool{false};
 
             while (!i.isAtEndOfLine())
             {
@@ -269,11 +269,11 @@ static Parse<Lvalue> lvalue(const InputPos &pos)
 Parse<Lvalue> lvalueFromString(const string &input)
 {
     InputLine inputLine;
-    for (const auto ch : input)
+    for (const auto c : input)
     {
-        inputLine.push_back((ch));
+        inputLine.push_back(c);
     }
-    InputPos inputPos{inputLine, 0};
+    auto inputPos = InputPos{inputLine, 0};
     return lvalue(inputPos);
 }
 
@@ -336,31 +336,31 @@ static Parse<Factor> factor(const InputPos &pos)
 /// not.
 static Parse<Term> term(const InputPos &pos)
 {
-    const auto fact = factor(pos);
-    if (fact.wasParsed())
+    const auto f = factor(pos);
+    if (f.wasParsed())
     {
         // If followed by "*", then it's a product
-        const auto mult = fact.nextPos().parse<string, Term>(lit("*"), term);
+        const auto mult = f.nextPos().parse<string, Term>(lit("*"), term);
         if (mult != nullptr)
         {
-            const Term &t = get<1>(*mult);
-            const InputPos &nextPos = get<2>(*mult);
-            const auto result = Term::compound(fact.value(), ArithOp::Multiply, t);
+            const auto &t = get<1>(*mult);
+            const auto &nextPos = get<2>(*mult);
+            const auto result = Term::compound(f.value(), ArithOp::Multiply, t);
             return successfulParse(result, nextPos);
         }
 
         // If followed by "/", then it's a quotient
-        const auto div = fact.nextPos().parse<string, Term>(lit("/"), term);
+        const auto div = f.nextPos().parse<string, Term>(lit("/"), term);
         if (div != nullptr)
         {
-            const Term &t = get<1>(*div);
-            const InputPos &nextPos = get<2>(*div);
-            const auto result = Term::compound(fact.value(), ArithOp::Divide, t);
+            const auto &t = get<1>(*div);
+            const auto &nextPos = get<2>(*div);
+            const auto result = Term::compound(f.value(), ArithOp::Divide, t);
             return successfulParse(result, nextPos);
         }
 
-        const auto result = Term::factor(fact.value());
-        return successfulParse(result, fact.nextPos());
+        const auto result = Term::factor(f.value());
+        return successfulParse(result, f.nextPos());
     }
 
     return failedParse<Term>();
@@ -728,7 +728,7 @@ static Parse<Statement> remStatement(const InputPos &pos)
     if (rem.wasParsed())
     {
         const auto commentChars = rem.nextPos().remainingChars();
-        string commentString{};
+        auto commentString = string{};
         for (const auto c : commentChars)
         {
             commentString.push_back(c);
@@ -766,7 +766,7 @@ static Parse<Statement> saveStatement(const InputPos &pos)
     {
         const auto &chars = get<1>(*parsed);
         const auto &nextPos = get<2>(*parsed);
-        const string filename{chars.cbegin(), chars.cend()};
+        const auto filename = string(chars.cbegin(), chars.cend());
         const auto result = Statement::save(filename);
         return successfulParse(result, nextPos);
     }
@@ -784,7 +784,7 @@ static Parse<Statement> loadStatement(const InputPos &pos)
     {
         const auto &chars = get<1>(*parsed);
         const auto &nextPos = get<2>(*parsed);
-        const string filename{chars.cbegin(), chars.cend()};
+        const auto filename = string(chars.cbegin(), chars.cend());
         const auto result = Statement::load(filename);
         return successfulParse(result, nextPos);
     }
@@ -800,7 +800,7 @@ static Parse<Statement> loadStatement(const InputPos &pos)
 Parse<Statement> statement(const InputPos &pos)
 {
     // List of parsing functions to try
-    static const vec<function<Parse<Statement>(const InputPos &pos)>> functions{
+    static const vec<function<Parse<Statement>(const InputPos&)>> functions{
         printStatement,
         letStatement,
         inputStatement,

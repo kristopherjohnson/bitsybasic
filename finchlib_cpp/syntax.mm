@@ -123,7 +123,7 @@ Number Factor::Num::evaluate(const VariableBindings &v,
 
 string Factor::Num::listText() const
 {
-    ostringstream s;
+    auto s = ostringstream{};
     s << number;
     return s.str();
 }
@@ -189,7 +189,7 @@ Number Factor::Rnd::evaluate(const VariableBindings &v,
         // TODO: signal a runtime error?
         return 0;
     }
-    return Number(arc4random_uniform(n));
+    return Number{static_cast<Number>(arc4random_uniform(n))};
 }
 
 string Factor::Rnd::listText() const
@@ -226,7 +226,7 @@ Number Term::Compound::evaluate(const VariableBindings &v,
 {
     auto accumulator = factor.evaluate(v, a);
     auto lastOp = arithOp;
-    ptr<Term> next = term;
+    auto next = term;
     for (;;)
     {
         if (next->isCompound())
@@ -309,7 +309,7 @@ Number UnsignedExpression::Compound::evaluate(const VariableBindings &v,
 {
     auto accumulator = term.evaluate(v, a);
     auto lastOp = arithOp;
-    ptr<UnsignedExpression> next = tail;
+    auto next = tail;
     for (;;)
     {
         if (next->isCompound())
@@ -401,14 +401,16 @@ string PrintItem::listText() const { return subtype->listText(); }
 vec<Char> PrintItem::Expr::printText(const VariableBindings &v,
                                      const Numbers &a) const
 {
-    Number n = expression.evaluate(v, a);
+    const auto n = expression.evaluate(v, a);
 
-    ostringstream s;
+    auto s = ostringstream{};
     s << n;
 
     vec<Char> result;
     for (const auto c : s.str())
+    {
         result.push_back(c);
+    }
     return result;
 }
 
@@ -422,7 +424,7 @@ vec<Char> PrintItem::StringLiteral::printText(const VariableBindings &v,
 
 string PrintItem::StringLiteral::listText() const
 {
-    string s;
+    auto s = string{};
     s.push_back('"');
     for (const auto c : chars)
     {
@@ -467,7 +469,7 @@ vec<Char> PrintList::printText(const VariableBindings &v,
 
 string PrintList::listText() const
 {
-    ostringstream s;
+    auto s = ostringstream{};
     s << item.listText();
 
     switch (separator)
@@ -550,7 +552,7 @@ static string listTextFor(const Lvalues &lvalues)
         return "";
     }
 
-    ostringstream s;
+    auto s = ostringstream{};
     s << lvalues[0].listText();
     for (auto it = lvalues.cbegin() + 1; it != lvalues.cend(); ++it)
     {
