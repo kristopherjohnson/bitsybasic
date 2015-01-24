@@ -786,27 +786,34 @@ public final class Interpreter: NSObject, NSCoding {
 
     /// Execute LIST statement with no arguments
     func LIST(range: ListRange) {
+        func write(lineNumber: Number, stmt: Statement) {
+            writeOutput("\(lineNumber) \(stmt.listText)\n")
+        }
+
         switch range {
         case .All:
             for (lineNumber, stmt) in program {
-                writeOutput("\(lineNumber) \(stmt.listText)\n")
+                write(lineNumber, stmt)
             }
 
         case let .SingleLine(expr):
             let listLineNumber = expr.evaluate(v, a)
             for (lineNumber, stmt) in program {
                 if lineNumber == listLineNumber {
-                    writeOutput("\(lineNumber) \(stmt.listText)\n")
+                    write(lineNumber, stmt)
+                    break
                 }
             }
 
         case let .Range(from, to):
             let fromLineNumber = from.evaluate(v, a)
             let toLineNumber = to.evaluate(v, a)
+            
+            let lineRange = ClosedInterval(fromLineNumber, toLineNumber)
 
             for (lineNumber, stmt) in program {
-                if isValue(lineNumber, inClosedInterval: fromLineNumber, toLineNumber) {
-                    writeOutput("\(lineNumber) \(stmt.listText)\n")
+                if lineRange.contains(lineNumber) {
+                    write(lineNumber, stmt)
                 }
             }
         }

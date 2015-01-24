@@ -52,28 +52,34 @@ let Ch_Tilde:        Char = 126 // '~'
 
 /// Return true if `c` is a printable ASCII character, or false otherwise
 func isGraphicChar(c: Char) -> Bool {
-    return isValue(c, inClosedInterval: Ch_Space, Ch_Tilde)
+    switch c {
+    case Ch_Space...Ch_Tilde: return true
+    default:                  return false
+    }
 }
 
 /// Return true if `c` is in the range 'A'...'Z' or 'a'...'z', or false otherwise
 func isAlphabeticChar(c: Char) -> Bool {
-    return isValue(c, inClosedInterval: Ch_A, Ch_Z)
-        || isValue(c, inClosedInterval: Ch_a, Ch_z)
+    switch c {
+    case Ch_A...Ch_Z, Ch_a...Ch_z: return true
+    default:                       return false
+    }
 }
 
 /// Return true if `c` is in the range '0'...'9', or false otherwise
 func isDigitChar(c: Char) -> Bool {
-    return isValue(c, inClosedInterval: Ch_0, Ch_9)
+    switch c {
+    case Ch_0...Ch_9: return true
+    default:          return false
+    }
 }
 
 /// If `c` is in the range 'a'...'z', then return the uppercase variant of that character.
 /// Otherwise, return `c`.
 func toUpper(c: Char) -> Char {
-    if isValue(c, inClosedInterval: Ch_a, Ch_z) {
-        return c - (Ch_a - Ch_A)
-    }
-    else {
-        return c
+    switch c {
+    case Ch_a...Ch_z: return c - (Ch_a - Ch_A)
+    default:          return c
     }
 }
 
