@@ -71,10 +71,10 @@ template <typename T>
 class Parse
 {
 private:
-    ptr<ParseResult<T>> result;
+    sptr<ParseResult<T>> result;
 
 public:
-    Parse(ptr<ParseResult<T>> res) : result(res) {}
+    Parse(sptr<ParseResult<T>> res) : result(res) {}
 
     bool wasParsed() const { return result->wasParsed(); }
 
@@ -93,13 +93,13 @@ public:
 /// parsing code in `InterpreterEngine`.
 struct InputPos
 {
-    ptr<const InputLine> input;
+    sptr<const InputLine> input;
     size_t index;
 
     InputPos(const InputLine &line, size_t n)
         : input{make_shared<const InputLine>(line)}, index{n} {}
 
-    InputPos(ptr<const InputLine> line, size_t n)
+    InputPos(sptr<const InputLine> line, size_t n)
         : input{line}, index{n} {}
 
     InputPos(const InputPos &copy)
@@ -206,7 +206,7 @@ struct InputPos
 
     template <typename A>
     uptr<tuple<A, InputPos>>
-    parse(function<Parse<A>(const InputPos&)> a) const
+    parse(function<Parse<A>(const InputPos &)> a) const
     {
         const auto aP = a(*this);
         if (aP.wasParsed())
@@ -220,8 +220,8 @@ struct InputPos
 
     template <typename A, typename B>
     uptr<tuple<A, B, InputPos>>
-    parse(function<Parse<A>(const InputPos&)> a,
-          function<Parse<B>(const InputPos&)> b) const
+    parse(function<Parse<A>(const InputPos &)> a,
+          function<Parse<B>(const InputPos &)> b) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -240,9 +240,9 @@ struct InputPos
 
     template <typename A, typename B, typename C>
     uptr<tuple<A, B, C, InputPos>>
-    parse(function<Parse<A>(const InputPos&)> a,
-          function<Parse<B>(const InputPos&)> b,
-          function<Parse<C>(const InputPos&)> c) const
+    parse(function<Parse<A>(const InputPos &)> a,
+          function<Parse<B>(const InputPos &)> b,
+          function<Parse<C>(const InputPos &)> c) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -265,10 +265,10 @@ struct InputPos
 
     template <typename A, typename B, typename C, typename D>
     uptr<tuple<A, B, C, D, InputPos>>
-    parse(function<Parse<A>(const InputPos&)> a,
-          function<Parse<B>(const InputPos&)> b,
-          function<Parse<C>(const InputPos&)> c,
-          function<Parse<D>(const InputPos&)> d) const
+    parse(function<Parse<A>(const InputPos &)> a,
+          function<Parse<B>(const InputPos &)> b,
+          function<Parse<C>(const InputPos &)> c,
+          function<Parse<D>(const InputPos &)> d) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -296,11 +296,11 @@ struct InputPos
 
     template <typename A, typename B, typename C, typename D, typename E>
     uptr<tuple<A, B, C, D, E, InputPos>>
-    parse(function<Parse<A>(const InputPos&)> a,
-          function<Parse<B>(const InputPos&)> b,
-          function<Parse<C>(const InputPos&)> c,
-          function<Parse<D>(const InputPos&)> d,
-          function<Parse<E>(const InputPos&)> e) const
+    parse(function<Parse<A>(const InputPos &)> a,
+          function<Parse<B>(const InputPos &)> b,
+          function<Parse<C>(const InputPos &)> c,
+          function<Parse<D>(const InputPos &)> d,
+          function<Parse<E>(const InputPos &)> e) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())
@@ -332,12 +332,12 @@ struct InputPos
     template <typename A, typename B, typename C, typename D, typename E,
               typename F>
     uptr<tuple<A, B, C, D, E, F, InputPos>>
-    parse(function<Parse<A>(const InputPos&)> a,
-          function<Parse<B>(const InputPos&)> b,
-          function<Parse<C>(const InputPos&)> c,
-          function<Parse<D>(const InputPos&)> d,
-          function<Parse<E>(const InputPos&)> e,
-          function<Parse<F>(const InputPos&)> f) const
+    parse(function<Parse<A>(const InputPos &)> a,
+          function<Parse<B>(const InputPos &)> b,
+          function<Parse<C>(const InputPos &)> c,
+          function<Parse<D>(const InputPos &)> d,
+          function<Parse<E>(const InputPos &)> e,
+          function<Parse<F>(const InputPos &)> f) const
     {
         const Parse<A> aP = a(*this);
         if (aP.wasParsed())

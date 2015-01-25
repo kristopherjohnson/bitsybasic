@@ -109,7 +109,7 @@ private:
     /// "(" expression ")"
     struct ParenExpr : public Subtype
     {
-        ptr<Expression> expression;
+        sptr<Expression> expression;
 
         ParenExpr(const Expression &e);
 
@@ -131,7 +131,7 @@ private:
     /// "@(" expression ")"
     struct ArrayElement : public Subtype
     {
-        ptr<Expression> expression;
+        sptr<Expression> expression;
 
         ArrayElement(const Expression &e);
 
@@ -142,7 +142,7 @@ private:
     /// "RND(" expression ")"
     struct Rnd : public Subtype
     {
-        ptr<Expression> expression;
+        sptr<Expression> expression;
 
         Rnd(const Expression &e);
 
@@ -150,9 +150,9 @@ private:
         virtual string listText() const;
     };
 
-    ptr<Subtype> subtype;
+    sptr<Subtype> subtype;
 
-    Factor(ptr<Subtype> s) : subtype(s) {}
+    Factor(sptr<Subtype> s) : subtype(s) {}
 
 public:
     /// Construct a Factor from a Number
@@ -223,7 +223,7 @@ private:
     {
         Factor factor;
         ArithOp arithOp;
-        ptr<Term> term;
+        sptr<Term> term;
 
         Compound(Factor f, ArithOp op, const Term &t);
 
@@ -233,9 +233,9 @@ private:
         virtual string listText() const;
     };
 
-    ptr<Subtype> subtype;
+    sptr<Subtype> subtype;
 
-    Term(ptr<Subtype> s) : subtype{s} {}
+    Term(sptr<Subtype> s) : subtype{s} {}
 
 public:
     /// Construct a Term from a Factor
@@ -291,7 +291,7 @@ private:
     {
         Term term;
         ArithOp arithOp;
-        ptr<UnsignedExpression> tail;
+        sptr<UnsignedExpression> tail;
 
         Compound(Term t, ArithOp op, const UnsignedExpression &u);
 
@@ -301,9 +301,9 @@ private:
         virtual string listText() const;
     };
 
-    ptr<Subtype> subtype;
+    sptr<Subtype> subtype;
 
-    UnsignedExpression(ptr<Subtype> s) : subtype(s) {}
+    UnsignedExpression(sptr<Subtype> s) : subtype(s) {}
 
 public:
     /// Construct an UnsignedExpression from a Term
@@ -376,9 +376,9 @@ private:
         virtual string listText() const;
     };
 
-    ptr<Subtype> subtype;
+    sptr<Subtype> subtype;
 
-    Expression(ptr<Subtype> s) : subtype{s} {}
+    Expression(sptr<Subtype> s) : subtype{s} {}
 
 public:
     /// Construct an expression from an UnsignedExpression
@@ -455,9 +455,9 @@ private:
         virtual string listText() const;
     };
 
-    ptr<Subtype> subtype;
+    sptr<Subtype> subtype;
 
-    PrintItem(ptr<Subtype> sub) : subtype{sub} {}
+    PrintItem(sptr<Subtype> sub) : subtype{sub} {}
 
 public:
     /// Construct a PrintItem from an expression
@@ -498,11 +498,11 @@ private:
     PrintSeparator separator;
 
     /// Remaining in list.  Null if no more items.
-    ptr<PrintList> tail;
+    sptr<PrintList> tail;
 
 public:
     PrintList(const PrintItem &firstItem, PrintSeparator sep,
-              ptr<PrintList> otherItems)
+              sptr<PrintList> otherItems)
         : item(firstItem), separator(sep), tail(otherItems) {}
 
     /// Return characters to be output by PRINT statement for this element
@@ -543,9 +543,9 @@ private:
         virtual void setValue(Number n, InterpreterEngine &engine) const;
     };
 
-    ptr<Subtype> subtype;
+    sptr<Subtype> subtype;
 
-    Lvalue(ptr<Subtype> s) : subtype{s} {}
+    Lvalue(sptr<Subtype> s) : subtype{s} {}
 
 public:
     /// Return an Lvalue for a variable
@@ -638,7 +638,7 @@ private:
         Expression lhs;
         RelOp op;
         Expression rhs;
-        ptr<Statement> consequent;
+        sptr<Statement> consequent;
 
         IfThen(const Expression &left, const RelOp &relop, const Expression &right,
                const Statement &thenStatement);
@@ -773,9 +773,9 @@ private:
         virtual string listText() const;
     };
 
-    ptr<Subtype> subtype;
+    sptr<Subtype> subtype;
 
-    Statement(ptr<Subtype> sub) : subtype(sub) {}
+    Statement(sptr<Subtype> sub) : subtype(sub) {}
 
     Statement() : subtype(nullptr) {}
 

@@ -800,7 +800,7 @@ static Parse<Statement> loadStatement(const InputPos &pos)
 Parse<Statement> statement(const InputPos &pos)
 {
     // List of parsing functions to try
-    static const vec<function<Parse<Statement>(const InputPos&)>> functions{
+    static const vec<function<Parse<Statement>(const InputPos &)>> functions{
         printStatement,
         letStatement,
         inputStatement,

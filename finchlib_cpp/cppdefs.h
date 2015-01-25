@@ -36,7 +36,7 @@
 namespace finchlib_cpp
 {
 
-// Bring types and functions from the std namespace into this namespace
+// Bring these types and functions from the std namespace into our namespace
 using std::equal_to;
 using std::function;
 using std::greater;
@@ -58,9 +58,9 @@ using std::pair;
 using std::toupper;
 using std::tuple;
 
-// Use "ptr" as abbreviation for "std::shared_ptr"
+// Use "sptr" as abbreviation for "std::shared_ptr"
 template <typename T>
-using ptr = std::shared_ptr<T>;
+using sptr = std::shared_ptr<T>;
 
 // Use "uptr" as abbreviation for "std::unique_ptr"
 template <typename T>

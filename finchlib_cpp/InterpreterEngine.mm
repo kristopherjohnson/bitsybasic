@@ -144,7 +144,7 @@ NSDictionary *InterpreterEngine::stateAsPropertyList()
 
     // inputLineBuffer
     auto inputLineData = [NSData dataWithBytes:inputLineBuffer.data()
-                                           length:inputLineBuffer.size()];
+                                        length:inputLineBuffer.size()];
     dict[InputLineBufferKey] = inputLineData;
 
     // program
