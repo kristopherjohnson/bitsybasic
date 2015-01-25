@@ -480,7 +480,7 @@ static Parse<PrintList> printList(const InputPos &pos)
             const auto tail = printList(comma.nextPos());
             if (tail.wasParsed())
             {
-                const auto pTail = ptr<PrintList>(new PrintList(tail.value()));
+                const auto pTail = make_shared<PrintList>(tail.value());
                 PrintList result{item.value(), PrintSeparatorTab, pTail};
                 return successfulParse(result, tail.nextPos());
             }
@@ -501,7 +501,7 @@ static Parse<PrintList> printList(const InputPos &pos)
                 const auto tail = printList(semicolon.nextPos());
                 if (tail.wasParsed())
                 {
-                    const auto pTail = ptr<PrintList>(new PrintList(tail.value()));
+                    const auto pTail = make_shared<PrintList>(tail.value());
                     PrintList result{item.value(), PrintSeparatorEmpty, pTail};
                     return successfulParse(result, tail.nextPos());
                 }

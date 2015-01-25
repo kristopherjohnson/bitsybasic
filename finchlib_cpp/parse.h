@@ -391,16 +391,14 @@ public:
 template <class T>
 static Parse<T> failedParse()
 {
-    ParseResult<T> *p = new NotParsed<T>();
-    return Parse<T>{ptr<ParseResult<T>>{p}};
+    return Parse<T>{make_shared<NotParsed<T>>()};
 }
 
 /// Return a newly constructed Parse object representing success
 template <class T>
 static Parse<T> successfulParse(const T &v, const InputPos &next)
 {
-    ParseResult<T> *p = new Parsed<T>(v, next);
-    return Parse<T>{ptr<ParseResult<T>>{p}};
+    return Parse<T>{make_shared<Parsed<T>>(v, next)};
 }
 
 /// Determine whether character is a digit

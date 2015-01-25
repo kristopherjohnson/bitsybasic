@@ -158,31 +158,31 @@ public:
     /// Construct a Factor from a Number
     static Factor number(Number n)
     {
-        return {ptr<Subtype>{new Num{n}}};
+        return {make_shared<Num>(n)};
     }
 
     /// Construct a Factor from a parenthesized expression
     static Factor parenExpr(const Expression &expr)
     {
-        return {ptr<Subtype>{new ParenExpr{expr}}};
+        return {make_shared<ParenExpr>(expr)};
     }
 
     /// Construct a Factor from a variable name
     static Factor var(VariableName v)
     {
-        return {ptr<Subtype>{new Var{v}}};
+        return {make_shared<Var>(v)};
     }
 
     /// Construct a Factor for an array element
     static Factor arrayElement(const Expression &expr)
     {
-        return {ptr<Subtype>{new ArrayElement{expr}}};
+        return {make_shared<ArrayElement>(expr)};
     }
 
     /// Construct a Factor for a RND() function call
     static Factor rnd(const Expression &expr)
     {
-        return {ptr<Subtype>{new Rnd{expr}}};
+        return {make_shared<Rnd>(expr)};
     }
 
     /// Return the value of the factor
@@ -241,13 +241,13 @@ public:
     /// Construct a Term from a Factor
     static Term factor(Factor f)
     {
-        return {ptr<Subtype>{new Value{f}}};
+        return {make_shared<Value>(f)};
     }
 
     /// Construct a Term from a Factor, ArithOp, and another Term
     static Term compound(Factor f, ArithOp op, const Term &t)
     {
-        return {ptr<Subtype>{new Compound{f, op, t}}};
+        return {make_shared<Compound>(f, op, t)};
     }
 
     /// Return the value of the term
@@ -309,7 +309,7 @@ public:
     /// Construct an UnsignedExpression from a Term
     static UnsignedExpression term(Term t)
     {
-        return {ptr<Subtype>{new Value{t}}};
+        return {make_shared<Value>(t)};
     }
 
     /// Construct an UnsignedExpression from a term, an operation, and successive
@@ -317,7 +317,7 @@ public:
     static UnsignedExpression compound(Term t, ArithOp op,
                                        const UnsignedExpression &u)
     {
-        return {ptr<Subtype>{new Compound{t, op, u}}};
+        return {make_shared<Compound>(t, op, u)};
     }
 
     /// Return the value of the expression
@@ -384,19 +384,19 @@ public:
     /// Construct an expression from an UnsignedExpression
     static Expression unsignedExpr(UnsignedExpression uexpr)
     {
-        return {ptr<Subtype>{new UnsignedExpr{uexpr}}};
+        return {make_shared<UnsignedExpr>(uexpr)};
     }
 
     /// Construct an expression from an UnsignedExpression
     static Expression plus(UnsignedExpression uexpr)
     {
-        return {ptr<Subtype>{new Plus{uexpr}}};
+        return {make_shared<Plus>(uexpr)};
     }
 
     /// Construct an expression from an UnsignedExpression
     static Expression minus(UnsignedExpression uexpr)
     {
-        return {ptr<Subtype>{new Minus{uexpr}}};
+        return {make_shared<Minus>(uexpr)};
     }
 
     /// Construct an expression from a numeric constant
@@ -463,13 +463,13 @@ public:
     /// Construct a PrintItem from an expression
     static PrintItem expression(Expression expr)
     {
-        return {ptr<Subtype>{new Expr{expr}}};
+        return {make_shared<Expr>(expr)};
     }
 
     /// Construct a PrintItem from a string literal
     static PrintItem stringLiteral(const vec<Char> &value)
     {
-        return {ptr<Subtype>{new StringLiteral{value}}};
+        return {make_shared<StringLiteral>(value)};
     }
 
     virtual vec<Char> printText(const VariableBindings &v,
@@ -551,13 +551,13 @@ public:
     /// Return an Lvalue for a variable
     static Lvalue var(VariableName v)
     {
-        return {ptr<Subtype>{new Var{v}}};
+        return {make_shared<Var>(v)};
     }
 
     /// Return an Lvalue for an array element
     static Lvalue arrayElement(const Expression &expr)
     {
-        return {ptr<Subtype>{new ArrayElement{expr}}};
+        return {make_shared<ArrayElement>(expr)};
     }
 
     /// Return pretty-printed text
@@ -789,13 +789,13 @@ public:
     /// Return a PRINT statement that has arguments
     static Statement print(const PrintList &printList)
     {
-        return {ptr<Subtype>{new Print{printList}}};
+        return {make_shared<Print>(printList)};
     }
 
     /// Return a PRINT statement with no arguments
     static Statement printNewline()
     {
-        return {ptr<Subtype>{new PrintNewline{}}};
+        return {make_shared<PrintNewline>()};
     }
 
     /// Return a LIST statement
@@ -803,101 +803,131 @@ public:
                           const Expression &highLineNumber = Expression::number(
                               numeric_limits<Number>::max()))
     {
-        return {ptr<Subtype>{new List{lowLineNumber, highLineNumber}}};
+        return {make_shared<List>(lowLineNumber, highLineNumber)};
     }
 
     /// Return a LET statement
     static Statement let(const Lvalue &lv, const Expression &expr)
     {
-        return {ptr<Subtype>{new Let{lv, expr}}};
+        return {make_shared<Let>(lv, expr)};
     }
 
     /// Return an INPUT statement
     static Statement input(const Lvalues &lv)
     {
-        return {ptr<Subtype>{new Input{lv}}};
+        return {make_shared<Input>(lv)};
     }
 
     /// Return an IF statement
-    static Statement ifThen(const Expression &left, const RelOp &relop,
+    static Statement ifThen(const Expression &left,
+                            const RelOp &relop,
                             const Expression &right,
                             const Statement &thenStatement)
     {
-        return {ptr<Subtype>{
-            new IfThen{left, relop, right, thenStatement}}};
+        return {make_shared<IfThen>(left, relop, right, thenStatement)};
     }
 
     /// Return a RUN statement
-    static Statement run() { return {ptr<Subtype>{new Run{}}}; }
+    static Statement run()
+    {
+        return {make_shared<Run>()};
+    }
 
     /// Return a END statement
-    static Statement end() { return {ptr<Subtype>{new End{}}}; }
+    static Statement end()
+    {
+        return {make_shared<End>()};
+    }
 
     /// Return a GOTO statement
     static Statement gotoStatement(const Expression &expr)
     {
-        return {ptr<Subtype>{new Goto{expr}}};
+        return {make_shared<Goto>(expr)};
     }
 
     /// Return a GOSUB statement
     static Statement gosub(const Expression &expr)
     {
-        return {ptr<Subtype>{new Gosub{expr}}};
+        return {make_shared<Gosub>(expr)};
     }
 
     /// Return a RETURN statement
     static Statement returnStatement()
     {
-        return {ptr<Subtype>{new Return{}}};
+        return {make_shared<Return>()};
     }
 
     /// Return a REM statement
     static Statement rem(const string &s)
     {
-        return {ptr<Subtype>{new Rem{s}}};
+        return {make_shared<Rem>(s)};
     }
 
     /// Return a CLEAR statement
-    static Statement clear() { return {ptr<Subtype>{new Clear{}}}; }
+    static Statement clear()
+    {
+        return {make_shared<Clear>()};
+    }
 
     /// Return a BYE statement
-    static Statement bye() { return {ptr<Subtype>{new Bye{}}}; }
+    static Statement bye()
+    {
+        return {make_shared<Bye>()};
+    }
 
     /// Return a HELP statement
-    static Statement help() { return {ptr<Subtype>{new Help{}}}; }
+    static Statement help()
+    {
+        return {make_shared<Help>()};
+    }
 
     /// Return a DIM statement
     static Statement dim(const Expression &expr)
     {
-        return {ptr<Subtype>{new Dim{expr}}};
+        return {make_shared<Dim>(expr)};
     }
 
     /// Return a SAVE stateent
     static Statement save(string filename)
     {
-        return {ptr<Subtype>{new Save{filename}}};
+        return {make_shared<Save>(filename)};
     }
 
     /// Return a LOAD stateent
     static Statement load(string filename)
     {
-        return {ptr<Subtype>{new Load{filename}}};
+        return {make_shared<Load>(filename)};
     }
 
     /// Return a FILES stateent
-    static Statement files() { return {ptr<Subtype>{new Files{}}}; }
+    static Statement files()
+    {
+        return {make_shared<Files>()};
+    }
 
     /// Return a CLIPSAVE stateent
-    static Statement clipSave() { return {ptr<Subtype>{new ClipSave{}}}; }
+    static Statement clipSave()
+    {
+        return {make_shared<ClipSave>()};
+    }
 
     /// Return a CLIPLOAD stateent
-    static Statement clipLoad() { return {ptr<Subtype>{new ClipLoad{}}}; }
+    static Statement clipLoad()
+    {
+        return {make_shared<ClipLoad>()};
+    }
 
     /// Return a TRON stateent
-    static Statement tron() { return {ptr<Subtype>{new Tron{}}}; }
+    static Statement tron()
+    {
+        return {make_shared<Tron>()};
+    }
 
     /// Return a TROFF stateent
-    static Statement troff() { return {ptr<Subtype>{new Troff{}}}; }
+    static Statement troff()
+    {
+        return {make_shared<Troff>()};
+    }
 
     /// Return an invalid Statement
     ///

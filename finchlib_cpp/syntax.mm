@@ -129,7 +129,7 @@ string Factor::Num::listText() const
 }
 
 Factor::ParenExpr::ParenExpr(const Expression &expr)
-    : expression{ptr<Expression>{new Expression{expr}}} {}
+    : expression{make_shared<Expression>(expr)} {}
 
 Number Factor::ParenExpr::evaluate(const VariableBindings &v,
                                    const Numbers &a) const
@@ -155,7 +155,7 @@ string Factor::Var::listText() const
 }
 
 Factor::ArrayElement::ArrayElement(const Expression &e)
-    : expression{ptr<Expression>{new Expression{e}}} {}
+    : expression{make_shared<Expression>(e)} {}
 
 Number Factor::ArrayElement::evaluate(const VariableBindings &v,
                                       const Numbers &a) const
@@ -178,7 +178,7 @@ string Factor::ArrayElement::listText() const
 }
 
 Factor::Rnd::Rnd(const Expression &e)
-    : expression{ptr<Expression>{new Expression{e}}} {}
+    : expression{make_shared<Expression>(e)} {}
 
 Number Factor::Rnd::evaluate(const VariableBindings &v,
                              const Numbers &a) const
@@ -219,7 +219,7 @@ Number Term::Value::evaluate(const VariableBindings &v,
 string Term::Value::listText() const { return factor.listText(); }
 
 Term::Compound::Compound(Factor f, ArithOp op, const Term &t)
-    : factor{f}, arithOp{op}, term{ptr<Term>{new Term{t}}} {}
+    : factor{f}, arithOp{op}, term{make_shared<Term>(t)} {}
 
 Number Term::Compound::evaluate(const VariableBindings &v,
                                 const Numbers &a) const
@@ -302,7 +302,7 @@ string UnsignedExpression::Value::listText() const
 
 UnsignedExpression::Compound::Compound(Term t, ArithOp op,
                                        const UnsignedExpression &u)
-    : term{t}, arithOp{op}, tail{ptr<UnsignedExpression>{new UnsignedExpression{u}}} {}
+    : term{t}, arithOp{op}, tail{make_shared<UnsignedExpression>(u)} {}
 
 Number UnsignedExpression::Compound::evaluate(const VariableBindings &v,
                                               const Numbers &a) const
@@ -569,7 +569,7 @@ string Statement::Input::listText() const
 Statement::IfThen::IfThen(const Expression &left, const RelOp &relop,
                           const Expression &right,
                           const Statement &thenStatement)
-    : lhs{left}, op{relop}, rhs{right}, consequent{ptr<Statement>{new Statement{thenStatement}}} {}
+    : lhs{left}, op{relop}, rhs{right}, consequent{make_shared<Statement>(thenStatement)} {}
 
 void Statement::IfThen::execute(InterpreterEngine &engine) const
 {
