@@ -518,7 +518,7 @@ struct ArithOp {
     static let Add      = ArithOp(fn: &+, listText: T_Plus)
     static let Subtract = ArithOp(fn: &-, listText: T_Minus)
     static let Multiply = ArithOp(fn: &*, listText: T_Asterisk)
-    static let Divide   = ArithOp(fn: &/, listText: T_Slash)
+    static let Divide   = ArithOp(fn: /, listText: T_Slash)
 }
 
 /// Result of parsing an unsigned expression

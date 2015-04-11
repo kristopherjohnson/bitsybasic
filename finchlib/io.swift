@@ -106,13 +106,13 @@ public final class StandardIO: NSObject, InterpreterIO {
     public func showErrorMessage(message: String, forInterpreter interpreter: Interpreter) {
         var chars = charsFromString(message)
         chars.append(Ch_Linefeed)
-        fwrite(chars, 1, UInt(chars.count), stderr)
+        fwrite(chars, 1, chars.count, stderr)
         fflush(stderr)
     }
 
     public func showDebugTraceMessage(message: String, forInterpreter interpreter: Interpreter) {
         var chars = charsFromString(message)
-        fwrite(chars, 1, UInt(chars.count), stdout)
+        fwrite(chars, 1, chars.count, stdout)
         fflush(stdout)
     }
 

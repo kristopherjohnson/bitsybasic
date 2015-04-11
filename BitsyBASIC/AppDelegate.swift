@@ -72,7 +72,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
             NSSearchPathDirectory.DocumentDirectory,
             NSSearchPathDomainMask.UserDomainMask,
             true)
-        let documentsPath = documentsPaths[0] as NSString
+        let documentsPath = documentsPaths[0] as! NSString
         chdir(documentsPath.UTF8String)
     }
 }

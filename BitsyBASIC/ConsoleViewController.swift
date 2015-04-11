@@ -93,14 +93,14 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
         }
 
         if let inputTextFieldText = coder.decodeObjectForKey(InputTextFieldTextKey) as? NSString {
-            inputTextField.text = inputTextFieldText
+            inputTextField.text = inputTextFieldText as String
         }
         else {
             assert(false, "unable to restore \(InputTextFieldTextKey)")
         }
 
         if let interpreterState = coder.decodeObjectForKey(InterpreterStateKey) as? NSDictionary {
-            interpreter.restoreStateFromPropertyList(interpreterState)
+            interpreter.restoreStateFromPropertyList(interpreterState as [NSObject : AnyObject])
         }
         else {
             assert(false, "unable to restore \(InterpreterStateKey)")
@@ -157,7 +157,7 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
         if !didRestoreState {
             consoleText = NSMutableAttributedString(
                 string: "BitsyBASIC v1.0\nCopyright 2015 Kristopher Johnson\n\nType HELP if you don't know what to do.\n\nREADY\n",
-                attributes: outputAttributes)
+                attributes: outputAttributes as [NSObject : AnyObject])
         }
     }
 
@@ -224,7 +224,7 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
 
     /// Append given text to the console display
     func appendToConsoleText(s: NSString, attributes: NSDictionary) {
-        let attributedString = NSMutableAttributedString(string: s, attributes: attributes)
+        let attributedString = NSMutableAttributedString(string: s as String, attributes: attributes as [NSObject : AnyObject])
         let newConsoleText = NSMutableAttributedString(attributedString: consoleText)
         newConsoleText.appendAttributedString(attributedString)
         consoleText = newConsoleText
@@ -245,7 +245,7 @@ final class ConsoleViewController: UIViewController, UITextFieldDelegate {
         if !text.isEmpty {
             let line: NSString = text.stringByAppendingString("\n")
             appendInputToConsoleText(line)
-            let chars = charsFromString(line)
+            let chars = charsFromString(line as String)
             interpreterIO.sendInputChars(chars)
             if !interpreterScheduled {
                 scheduleInterpreter()

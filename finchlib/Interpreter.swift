@@ -268,7 +268,7 @@ public final class Interpreter: NSObject, NSCoding {
 
         // program
         if let programText = dict[ProgramKey] as? NSString {
-            interpretString(programText)
+            interpretString(programText as String)
         }
         else {
             assert(false, "unable to decode \(ProgramKey)")
@@ -286,7 +286,7 @@ public final class Interpreter: NSObject, NSCoding {
         if let lvalues = dict[InputLvaluesKey] as? NSArray {
             for lvText in lvalues {
                 if let lvText = lvText as? NSString {
-                    if let lv = lvalue(lvText) {
+                    if let lv = lvalue(lvText as String) {
                         inputLvalues.append(lv)
                     }
                     else {
@@ -311,7 +311,7 @@ public final class Interpreter: NSObject, NSCoding {
         }
 
         // hasReachedEndOfInput
-        if let hreof = dict[HasReachedEndOfInputKey] as NSNumber? {
+        if let hreof = dict[HasReachedEndOfInputKey] as! NSNumber? {
             hasReachedEndOfInput = hreof.boolValue
         }
         else {
@@ -661,7 +661,7 @@ public final class Interpreter: NSObject, NSCoding {
 
     /// Execute PRINT statement with no arguments
     func PRINT() {
-        writeOutput("\n")
+        writeOutputString("\n")
     }
 
     /// Execute INPUT statement
@@ -787,7 +787,7 @@ public final class Interpreter: NSObject, NSCoding {
     /// Execute LIST statement with no arguments
     func LIST(range: ListRange) {
         func write(lineNumber: Number, stmt: Statement) {
-            writeOutput("\(lineNumber) \(stmt.listText)\n")
+            writeOutputString("\(lineNumber) \(stmt.listText)\n")
         }
 
         switch range {
@@ -829,7 +829,7 @@ public final class Interpreter: NSObject, NSCoding {
             for (lineNumber, stmt) in program {
                 let outputLine = "\(lineNumber) \(stmt.listText)\n"
                 let outputLineChars = charsFromString(outputLine)
-                fwrite(outputLineChars, 1, UInt(outputLineChars.count), file)
+                fwrite(outputLineChars, 1, outputLineChars.count, file)
             }
             fclose(file)
         }
@@ -880,7 +880,7 @@ public final class Interpreter: NSObject, NSCoding {
     func FILES() {
         // Get current working directory
         var wdbuf: [Int8] = Array(count: Int(MAXNAMLEN), repeatedValue: 0)
-        let workingDirectory = getcwd(&wdbuf, UInt(MAXNAMLEN))
+        let workingDirectory = getcwd(&wdbuf, Int(MAXNAMLEN))
 
         // Open the directory
         let dir = opendir(workingDirectory)
@@ -903,13 +903,13 @@ public final class Interpreter: NSObject, NSCoding {
                     let mirror = reflect(d_name)
                     for i in 0..<d_namlen {
                         let (s, m) = mirror[Int(i)]
-                        name.append(m.value as Int8)
+                        name.append(m.value as! Int8)
                     }
 
                     // null-terminate it and convert to a String
                     name.append(0)
                     if let s = String.fromCString(name) {
-                        writeOutput("\(s)\n")
+                        writeOutputString("\(s)\n")
                     }
                 }
                 dirent = readdir(dir)
@@ -1043,8 +1043,8 @@ public final class Interpreter: NSObject, NSCoding {
         ]
 
         for line in lines {
-            writeOutput(line)
-            writeOutput("\n")
+            writeOutputString(line)
+            writeOutputString("\n")
         }
     }
 
@@ -1083,25 +1083,25 @@ public final class Interpreter: NSObject, NSCoding {
     // MARK: - I/O
 
     /// Send a single character to the output stream
-    func writeOutput(c: Char) {
+    func writeOutputChar(c: Char) {
         io?.putOutputChar(c, forInterpreter: self)
     }
 
     /// Send characters to the output stream
-    func writeOutput(chars: [Char]) {
+    func writeOutputChars(chars: [Char]) {
         for c in chars {
             io?.putOutputChar(c, forInterpreter: self)
         }
     }
 
     /// Send string to the output stream
-    func writeOutput(s: String) {
-        return writeOutput(charsFromString(s))
+    func writeOutputString(s: String) {
+        return writeOutputChars(charsFromString(s))
     }
 
     /// Print an object that conforms to the PrintTextProvider protocol
     func writeOutput(p: PrintTextProvider) {
-        writeOutput(p.printText(v, a))
+        writeOutputChars(p.printText(v, a))
     }
 
     /// Display error message

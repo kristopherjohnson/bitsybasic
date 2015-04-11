@@ -149,7 +149,7 @@ struct InputPosition {
     /// Parse two elements using parsing functions, returning the elements and next input position
     func parse<A, B> (
         a: (InputPosition) -> (A, InputPosition)?,
-        b: (InputPosition) -> (B, InputPosition)?) -> (A, B, InputPosition)?
+        _ b: (InputPosition) -> (B, InputPosition)?) -> (A, B, InputPosition)?
     {
         if let (a, afterA) = a(self) {
             if let (b, afterB) = b(afterA) {
@@ -162,8 +162,8 @@ struct InputPosition {
     /// Parse three elements using parsing functions, returning the elements and next input position
     func parse<A, B, C> (
         a: (InputPosition) -> (A, InputPosition)?,
-        b: (InputPosition) -> (B, InputPosition)?,
-        c: (InputPosition) -> (C, InputPosition)?) -> (A, B, C, InputPosition)?
+        _ b: (InputPosition) -> (B, InputPosition)?,
+        _ c: (InputPosition) -> (C, InputPosition)?) -> (A, B, C, InputPosition)?
     {
         if let (a, afterA) = a(self) {
             if let (b, afterB) = b(afterA) {
@@ -179,9 +179,9 @@ struct InputPosition {
     /// Parse four elements using parsing functions, returning the elements and next input position
     func parse<A, B, C, D> (
         a: (InputPosition) -> (A, InputPosition)?,
-        b: (InputPosition) -> (B, InputPosition)?,
-        c: (InputPosition) -> (C, InputPosition)?,
-        d: (InputPosition) -> (D, InputPosition)?) -> (A, B, C, D, InputPosition)?
+        _ b: (InputPosition) -> (B, InputPosition)?,
+        _ c: (InputPosition) -> (C, InputPosition)?,
+        _ d: (InputPosition) -> (D, InputPosition)?) -> (A, B, C, D, InputPosition)?
     {
         if let (a, afterA) = a(self) {
             if let (b, afterB) = b(afterA) {
@@ -199,10 +199,10 @@ struct InputPosition {
     /// Parse five elements using parsing functions, returning the elements and next input position
     func parse<A, B, C, D, E> (
         a: (InputPosition) -> (A, InputPosition)?,
-        b: (InputPosition) -> (B, InputPosition)?,
-        c: (InputPosition) -> (C, InputPosition)?,
-        d: (InputPosition) -> (D, InputPosition)?,
-        e: (InputPosition) -> (E, InputPosition)?) -> (A, B, C, D, E, InputPosition)?
+        _ b: (InputPosition) -> (B, InputPosition)?,
+        _ c: (InputPosition) -> (C, InputPosition)?,
+        _ d: (InputPosition) -> (D, InputPosition)?,
+        _ e: (InputPosition) -> (E, InputPosition)?) -> (A, B, C, D, E, InputPosition)?
     {
         if let (a, afterA) = a(self) {
             if let (b, afterB) = b(afterA) {
@@ -222,11 +222,11 @@ struct InputPosition {
     /// Parse six elements using parsing functions, returning the elements and next input position
     func parse<A, B, C, D, E, F> (
         a: (InputPosition) -> (A, InputPosition)?,
-        b: (InputPosition) -> (B, InputPosition)?,
-        c: (InputPosition) -> (C, InputPosition)?,
-        d: (InputPosition) -> (D, InputPosition)?,
-        e: (InputPosition) -> (E, InputPosition)?,
-        f: (InputPosition) -> (F, InputPosition)?) -> (A, B, C, D, E, F, InputPosition)?
+        _ b: (InputPosition) -> (B, InputPosition)?,
+        _ c: (InputPosition) -> (C, InputPosition)?,
+        _ d: (InputPosition) -> (D, InputPosition)?,
+        _ e: (InputPosition) -> (E, InputPosition)?,
+        _ f: (InputPosition) -> (F, InputPosition)?) -> (A, B, C, D, E, F, InputPosition)?
     {
         if let (a, afterA) = a(self) {
             if let (b, afterB) = b(afterA) {
